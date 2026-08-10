@@ -1,17 +1,13 @@
-//
-//  CooltourApp.swift
-//  Cooltour
-//
-//  Created by Kennard M on 10/08/26.
-//
-
 import SwiftUI
 
 @main
 struct CooltourApp: App {
+    @State private var environment = AppEnvironment()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(environment)
         }
     }
 }
