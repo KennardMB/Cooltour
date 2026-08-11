@@ -18,5 +18,12 @@ final class AppEnvironment {
         self.audio = audio
         self.proximity = proximity
         self.notifications = notifications
+
+        // The one place proximity meets playback. Auto-play reads a static flag until the
+        // real preference store lands in Slice 7.
+        self.proximity.onTrigger = { _, story in
+            guard AppConfig.autoPlayDefault else { return }
+            audio.play(story)
+        }
     }
 }
