@@ -1,0 +1,126 @@
+{
+  "contentPackVersion": "0.1.0-placeholder",
+  "region": "Denpasar",
+  "sites": [
+    {
+      "slug": "pura-maospahit",
+      "name": "Pura Maospahit",
+      "district": "Grenceng, West Denpasar",
+      "lat": -8.6608,
+      "lng": 115.2085,
+      "triggerRadiusMeters": 60,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pura-maospahit-01",
+          "title": "The temple that remembers Java",
+          "audioFile": "pura-maospahit-01.m4a",
+          "transcript": "Look at the brick. Almost every temple you will see in Bali is built from grey volcanic stone, dark and porous. This one is red. That red is not decoration. It is a memory of Java.\n\nWhen the Majapahit empire came across the water in the fourteenth century, it brought its architects, its gods, and its way of stacking thin red brick so tightly that no mortar was needed. Maospahit is one of the few places in Denpasar where that older Javanese hand is still visible in the wall itself. The name is a Balinese mouth wrapping itself around the word Majapahit.\n\nSo when people say Balinese culture came from Java, this is not an abstract claim in a textbook. It is a wall. You are standing in front of the evidence, and it has been standing here through earthquakes, occupations, and a century of the city growing up around it.",
+          "durationSeconds": 49.3,
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "pura-jagatnatha",
+      "name": "Pura Jagatnatha",
+      "district": "Dangin Puri, Denpasar",
+      "lat": -8.6567,
+      "lng": 115.217,
+      "triggerRadiusMeters": 35,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pura-jagatnatha-01",
+          "title": "The empty seat",
+          "audioFile": "pura-jagatnatha-01.m4a",
+          "transcript": "In the centre of this courtyard is a tall white stone throne. Look at the top of it. There is nobody sitting there.\n\nThat empty seat is the whole point. It is a padmasana, a lotus throne, and it is left empty for Sang Hyang Widhi Wasa, the one god in whom all the other gods are contained. If you have been wondering how a religion with so many deities can be called one faith, the answer is carved right here, in the shape of an absence.\n\nThis temple is young. It was built in the nineteen fifties, when a newly independent Indonesia was deciding which religions it would formally recognise, and Balinese Hindus needed to make something visible and legible about the singular god they had always understood to be there. So they built him a throne in the middle of the capital, and they left it empty on purpose.\n\nIt is a piece of theology, and it is also a piece of politics.",
+          "durationSeconds": 50.1,
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "museum-bali",
+      "name": "Museum Bali",
+      "district": "Dangin Puri, Denpasar",
+      "lat": -8.6575,
+      "lng": 115.2172,
+      "triggerRadiusMeters": 35,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "museum-bali-01",
+          "title": "Built because the island fell down",
+          "audioFile": "museum-bali-01.m4a",
+          "transcript": "This museum exists because of an earthquake.\n\nIn nineteen seventeen the ground moved and a great deal of Bali came down with it. Temples, palaces, pavilions, the accumulated craft of centuries, cracked and collapsed in an afternoon. In the aftermath there was a real fear that the knowledge of how to build these things would go the same way.\n\nSo this place was made, not as a box for old objects, but as an argument. Look at the buildings themselves rather than what is inside them. Each pavilion is built in the style of a different Balinese region, and they were raised by undagi, traditional Balinese architects, working with their own measuring systems based on the proportions of the human body.\n\nThat means the museum is its own largest exhibit. The building is the collection. Somebody decided the most important thing to preserve was not a carving but the ability to make one.",
+          "durationSeconds": 51.5,
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "puputan-badung",
+      "name": "Puputan Badung Square",
+      "district": "Dangin Puri, Denpasar",
+      "lat": -8.656,
+      "lng": 115.2158,
+      "triggerRadiusMeters": 50,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "puputan-badung-01",
+          "title": "The twentieth of September, 1906",
+          "audioFile": "puputan-badung-01.m4a",
+          "transcript": "Children play football here in the evenings. Families sit on the grass. It is an ordinary, pleasant square, and you should know what happened on it.\n\nOn the twentieth of September, nineteen oh six, Dutch troops marched into Denpasar expecting a surrender. What came out of the palace gates instead was a procession. The raja of Badung, his family, his priests, his court, dressed in white, jewelled, unarmed or nearly so, walking directly toward the guns.\n\nThe Balinese word is puputan. It is usually translated as a fight to the finish, but the root means ending, or completion. It was not a military tactic. It was a refusal to continue living on the terms being offered.\n\nThey kept walking. The soldiers fired. It is thought that over a thousand people died here, and the reports of it were shocking enough in Europe that they changed how the Netherlands talked about what it was doing in these islands.\n\nThe name of the square is the memory. Puputan Badung. Now look again at the children on the grass.",
+          "durationSeconds": 59.6,
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "catur-muka",
+      "name": "Catur Muka Statue",
+      "district": "Central Denpasar",
+      "lat": -8.6553,
+      "lng": 115.2148,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "catur-muka-01",
+          "title": "Four faces, four roads",
+          "audioFile": "catur-muka-01.m4a",
+          "transcript": "Stand still a moment and count the faces. There are four, and each one is looking down a different road out of this intersection.\n\nCatur Muka means four faces. The figure is a form of Brahma, and the arrangement is not artistic convenience. In Balinese thinking the cardinal directions are not neutral. Each has its own god, its own colour, its own quality. A statue placed at the meeting point of four roads has to acknowledge all four, or it is only half present.\n\nThe man who designed it was I Gusti Nyoman Lempad, and he is worth a story of his own. He was an architect, a carver, a draughtsman, and by the time he died he was said to be well past a hundred years old. The account people tell is that he chose his day. He asked to be bathed, said his goodbyes to his family, and died on a day he considered auspicious.\n\nSo the man watching over the middle of this city from four directions at once was, by reputation, someone who saw his own ending coming and went to meet it on time.",
+          "durationSeconds": 58.4,
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "pasar-badung",
+      "name": "Pasar Badung",
+      "district": "Jalan Gajah Mada, Denpasar",
+      "lat": -8.6529,
+      "lng": 115.2128,
+      "triggerRadiusMeters": 50,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pasar-badung-01",
+          "title": "The island's kitchen at four in the morning",
+          "audioFile": "pasar-badung-01.m4a",
+          "transcript": "By the time you are standing here, this market has already done most of its work.\n\nThe real hour of Pasar Badung is around four in the morning, in the dark, when the trucks come down from the mountains at Bedugul with cabbages and chillies and the flowers arrive by the sackful. Not flowers for decoration. Flowers for offerings.\n\nThat is the part that surprises people. A significant share of what moves through this building is not food at all, it is the raw material of daily religion. Every one of those small palm leaf trays you have been stepping around on the pavements, the canang sari, has to be assembled from something, every single morning, by somebody, in tens of thousands of households. The supply chain for that devotion runs through here.\n\nSo this is not just where Denpasar buys dinner. It is where the island restocks its relationship with the gods, wholesale, before sunrise.",
+          "durationSeconds": 52.0,
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    }
+  ]
+}

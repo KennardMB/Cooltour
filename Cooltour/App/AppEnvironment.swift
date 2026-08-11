@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 @Observable
 final class AppEnvironment {
     let content: any ContentStore
@@ -8,7 +9,7 @@ final class AppEnvironment {
     let notifications: any NotificationService
 
     init(
-        content: any ContentStore = MockContentStore(),
+        content: any ContentStore = LocalContentStore.inMemory(),
         audio: any AudioPlayerService = MockAudioPlayerService(),
         proximity: any ProximityEngine = MockProximityEngine(),
         notifications: any NotificationService = MockNotificationService()
