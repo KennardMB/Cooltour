@@ -9,7 +9,9 @@ struct CooltourApp: App {
     init() {
         let container: ModelContainer
         do {
-            container = try ModelContainer(for: Site.self, Story.self)
+            let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+            let config = ModelConfiguration(isStoredInMemoryOnly: isPreview)
+            container = try ModelContainer(for: Site.self, Story.self, configurations: config)
         } catch {
             fatalError("Could not create the SwiftData container: \(error)")
         }

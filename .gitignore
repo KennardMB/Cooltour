@@ -1,0 +1,64 @@
+# Xcode
+#
+# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+
+## User settings
+xcuserdata/
+
+## compatibility with Xcode 8 and earlier (ignoring not only the settings of main project but also all its dependencies)
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+## build state
+build/
+DerivedData/
+
+## Various settings
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+
+## Other
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Crashlytics
+com.crashlytics/*
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Carthage
+Carthage/Build/
+
+# CocoaPods
+Pods/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Code Injection
+iOSInjectionProject/
+
+# Specific explicitly requested user ignores
+Cooltour.xcodeproj/project.xcworkspace/xcuserdata/
+Cooltour.xcodeproj/xcuserdata/ketutaguscahyadinanda.xcuserdatad/
+
+# Ignore xcuserdata globally
+**/*.xcuserdatad/
+**/*.xcworkspace/xcuserdata/
