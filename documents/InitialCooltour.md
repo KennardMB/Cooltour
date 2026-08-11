@@ -115,7 +115,7 @@ taps a site pin → sees site detail → can manually play its story
 | Maps | **MapKit** (SwiftUI `Map`) | Site annotations + user location. |
 | Persistence | **SwiftData** | Sites, walk history, (later) photos/journal. Native to Swift, good default. Alternative: Core Data if the agent hits SwiftData limitations. |
 | Content packaging | Bundled JSON + local audio files | MVP content ships in-app / pre-downloaded for offline. Model a `ContentPack` so future remote sync is possible. |
-| Watch (next) | **WatchKit / SwiftUI on watchOS** + **WatchConnectivity** | Post-iPhone-MVP. Interactable notification + glance. Plan data model to be shareable now; don't build it yet. |
+| Watch (next) | **SwiftUI on watchOS** + **WatchConnectivity** | Post-iPhone-MVP. Interactable notification + glance. Plan data model to be shareable now; don't build it yet. |
 | Weather/time context (optional, later) | **WeatherKit** | Time-of-day/condition matching for narration selection. Nice-to-have, not MVP-critical. |
 | Voice content pipeline (offline asset gen, not in-app) | ElevenLabs + RAG-grounded generation | Content is **pre-produced** and bundled; the app just plays files. No runtime AI calls in MVP. |
 

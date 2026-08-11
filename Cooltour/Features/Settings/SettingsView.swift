@@ -16,6 +16,10 @@ struct SettingsView: View {
                 Section("About") {
                     LabeledContent("App", value: AppConfig.appName)
                 }
+                Section("Debug") {
+                    NavigationLink("Content pack") { ContentDebugView() }
+                    LabeledContent("Sites loaded", value: "\(env.content.siteCount)")
+                }
             }
             .navigationTitle("Settings")
         }
