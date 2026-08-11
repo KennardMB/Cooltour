@@ -10,9 +10,22 @@
 		0CBAFE56302A0ABA0064E786 /* Cooltour.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cooltour.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B430F58D302B0ABB00E2CD48 /* Exceptions for "Cooltour" folder in "Cooltour" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0CBAFE55302A0ABA0064E786 /* Cooltour */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0CBAFE58302A0ABA0064E786 /* Cooltour */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B430F58D302B0ABB00E2CD48 /* Exceptions for "Cooltour" folder in "Cooltour" target */,
+			);
 			path = Cooltour;
 			sourceTree = "<group>";
 		};
@@ -258,6 +271,8 @@
 				DEVELOPMENT_TEAM = QN85YCBSHX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Cooltour/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Cooltour needs your location to show where you are on the map relative to nearby tour sites.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -291,6 +306,8 @@
 				DEVELOPMENT_TEAM = QN85YCBSHX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Cooltour/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Cooltour needs your location to show where you are on the map relative to nearby tour sites.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

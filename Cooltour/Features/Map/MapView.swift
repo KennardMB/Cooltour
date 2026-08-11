@@ -53,6 +53,11 @@ struct MapView: View {
             .sheet(item: $selectedSite) { site in
                 SiteDetailSheet(site: site)
             }
+            .onAppear {
+                if environment.permissions.authorizationStatus == .notDetermined {
+                    environment.permissions.requestLocationPermission()
+                }
+            }
         }
     }
 }
