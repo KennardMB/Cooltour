@@ -1,0 +1,146 @@
+{
+  "contentPackVersion": "0.1.0-test",
+  "region": "Kuta (dev test)",
+  "sites": [
+    {
+      "slug": "park23-creative-hub",
+      "name": "Park23 Creative Hub",
+      "district": "Jalan Kediri, Kuta",
+      "lat": -8.7371405,
+      "lng": 115.1757056,
+      "triggerRadiusMeters": 20,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "park23-creative-hub-test",
+          "title": "Test site: Park23",
+          "audioFile": "park23-creative-hub-test.m4a",
+          "transcript": "This is a Slice 4 test trigger for Park23 Creative Hub. If you can hear this on a locked screen, background triggering is working.",
+          "durationSeconds": 8.3,
+          "narratorNote": "dev test site, not real Kultara content — delete before shipping",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "starbucks-kediri",
+      "name": "Starbucks Jalan Kediri",
+      "district": "Jalan Kediri, Kuta",
+      "lat": -8.73726,
+      "lng": 115.17596,
+      "triggerRadiusMeters": 20,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "starbucks-kediri-test",
+          "title": "Test site: Starbucks",
+          "audioFile": "starbucks-kediri-test.m4a",
+          "transcript": "This is a second test trigger, about thirty meters from Park23. Good for checking that two close-together sites don't fire on top of each other.",
+          "durationSeconds": 8.9,
+          "narratorNote": "dev test site, not real Kultara content — delete before shipping",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "pura-batur-jati",
+      "name": "Pura Batur Jati",
+      "district": "Jalan Kediri, Kuta",
+      "lat": -8.73533,
+      "lng": 115.17446,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pura-batur-jati-test",
+          "title": "Test site: Pura Batur Jati",
+          "audioFile": "pura-batur-jati-test.m4a",
+          "transcript": "This is a third test trigger, about two hundred and fifty meters from the other two. Good for testing a walk between separate clusters, and re-arming after you leave.",
+          "durationSeconds": 9.5,
+          "narratorNote": "dev test site, not real Kultara content — delete before shipping",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "quest-hotel-kuta",
+      "name": "Quest Hotel Kuta",
+      "district": "Jalan Kediri, Kuta",
+      "lat": -8.7383074,
+      "lng": 115.17484,
+      "triggerRadiusMeters": 30,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "quest-hotel-kuta-test",
+          "title": "Test site: Quest Hotel Kuta",
+          "audioFile": "quest-hotel-kuta-test.m4a",
+          "transcript": "This is a test trigger for Quest Hotel Kuta, about a hundred and sixty meters from Park23. Good for testing a longer walk across the cluster.",
+          "durationSeconds": 9.0,
+          "narratorNote": "dev test site, not real Kultara content — delete before shipping",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "asrama-denkav-4",
+      "name": "Asrama Denkav 4/SP",
+      "district": "Jalan Kediri, Kuta",
+      "lat": -8.737637,
+      "lng": 115.1759041,
+      "triggerRadiusMeters": 25,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "asrama-denkav-4-test",
+          "title": "Test site: Asrama Denkav 4/SP",
+          "audioFile": "asrama-denkav-4-test.m4a",
+          "transcript": "This is a test trigger about sixty meters from Park23 — close enough to check that a nearby, separately-radiused site doesn't fire alongside it.",
+          "durationSeconds": 9.2,
+          "narratorNote": "dev test site, not real Kultara content — delete before shipping",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "cove-tripuri-house",
+      "name": "Cove Tripuri House",
+      "district": "Jalan Kediri, Kuta",
+      "lat": -8.7373636,
+      "lng": 115.1767566,
+      "triggerRadiusMeters": 30,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "cove-tripuri-house-test",
+          "title": "Test site: Cove Tripuri House",
+          "audioFile": "cove-tripuri-house-test.m4a",
+          "transcript": "This is a test trigger for Cove Tripuri House, about a hundred and twenty meters from Park23, on the way toward the hospital site.",
+          "durationSeconds": 8.1,
+          "narratorNote": "dev test site, not real Kultara content — delete before shipping",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "murni-teguh-hospital-tuban",
+      "name": "Murni Teguh Hospital Tuban Bali",
+      "district": "Tuban, Kuta",
+      "lat": -8.737361,
+      "lng": 115.1782796,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "murni-teguh-hospital-tuban-test",
+          "title": "Test site: Murni Teguh Hospital",
+          "audioFile": "murni-teguh-hospital-tuban-test.m4a",
+          "transcript": "This is the farthest test trigger, about two hundred and eighty meters from Park23. Good for testing re-arm after a longer walk away from the cluster.",
+          "durationSeconds": 9.0,
+          "narratorNote": "dev test site, not real Kultara content — delete before shipping",
+          "timeOfDayTag": null
+        }
+      ]
+    }
+  ]
+}
