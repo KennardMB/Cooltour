@@ -19,6 +19,9 @@ final class LocalContentStore: ContentStore {
   {
     self.container = container
     self.packName = packName
+    Task { @MainActor in
+      _ = self.allSites()
+    }
   }
 
   static func inMemory(packName: String = AppConfig.contentPackName)
@@ -43,6 +46,7 @@ final class LocalContentStore: ContentStore {
       return
     }
 
+    cachedSites = nil
     try context.delete(model: Site.self)
 
     for siteData in pack.sites {

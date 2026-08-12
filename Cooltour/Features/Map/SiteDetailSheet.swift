@@ -36,7 +36,10 @@ struct SiteDetailSheet: View {
 
                 Spacer()
 
-                if environment.audio.isPlaying && environment.audio.currentStory?.slug == story.slug {
+                if environment.audio.isLoading && environment.audio.currentStory?.slug == story.slug {
+                  ProgressView()
+                    .padding(.trailing, 8)
+                } else if environment.audio.isPlaying && environment.audio.currentStory?.slug == story.slug {
                   Button {
                     environment.audio.pause()
                   } label: {

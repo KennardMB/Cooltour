@@ -5,6 +5,7 @@ import Observation
 @MainActor
 final class AVAudioPlayerService: NSObject, AudioPlayerService {
   private(set) var isPlaying: Bool = false
+  private(set) var isLoading: Bool = false
   private(set) var currentStory: Story?
   private(set) var progress: Double = 0.0
   private(set) var rate: Float = 1.0
@@ -44,19 +45,36 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       return
     }
 
-    do {
-      let newPlayer = try AVAudioPlayer(contentsOf: url)
-      newPlayer.enableRate = true  // required before you can change .rate
-      newPlayer.rate = rate
-      newPlayer.delegate = self
-      player = newPlayer
+    self.currentStory = story
+    self.isLoading = true
 
-      currentStory = story
-      player?.play()
-      isPlaying = true
-      startProgressTimer()
-    } catch {
-      print("Failed to play audio: \(error)")
+    // A standard Task inherits the @MainActor context of this class
+    Task {
+      defer { self.isLoading = false }
+      do {
+        // Hop to the background JUST for the file loading.
+        // We only pass `url` (which is Sendable) into the detached closure.
+        let sendable = try await Task.detached {
+          let player = try AVAudioPlayer(contentsOf: url)
+          player.enableRate = true
+          player.prepareToPlay()
+          return await SendableAudioPlayer(player: player)
+        }.value
+        
+        let newPlayer = sendable.player
+        
+        // We are safely back on the MainActor here. No 'story' or 'self' 
+        // was captured by the detached task, fixing the Swift 6 data race warnings.
+        newPlayer.rate = self.rate
+        newPlayer.delegate = self
+        self.player = newPlayer
+        self.currentStory = story
+        self.player?.play()
+        self.isPlaying = true
+        self.startProgressTimer()
+      } catch {
+        print("Failed to play audio: \(error)")
+      }
     }
   }
 
@@ -152,4 +170,8 @@ extension AVAudioPlayerService: AVAudioPlayerDelegate {
       }
     }
   }
+}
+
+private struct SendableAudioPlayer: @unchecked Sendable {
+  let player: AVAudioPlayer
 }

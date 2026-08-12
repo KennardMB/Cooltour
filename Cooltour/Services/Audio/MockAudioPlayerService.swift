@@ -4,6 +4,7 @@ import Observation
 @Observable
 final class MockAudioPlayerService: AudioPlayerService {
   private(set) var isPlaying: Bool = false
+  private(set) var isLoading: Bool = false
   private(set) var currentStory: Story?
   private(set) var progress: Double = 0.0
   private(set) var rate: Float = 1.0

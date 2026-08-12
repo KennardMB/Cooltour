@@ -17,6 +17,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
   private let manager = CLLocationManager()
   private var evaluator = ProximityEvaluator()
   private var updates: Task<Void, Never>?
+  private var cachedLocations: [String: CLLocation] = [:]
 
   init(content: any ContentStore) {
     self.content = content
@@ -52,17 +53,20 @@ final class CoreLocationProximityEngine: ProximityEngine {
     updates?.cancel()
     updates = nil
     isListening = false
+    cachedLocations.removeAll()
   }
 
   private func handle(_ location: CLLocation) {
     let sites = content.allSites()
-    let distances = sites.map { site in
-      (
-        site: site,
-        meters: location.distance(
-          from: CLLocation(latitude: site.latitude, longitude: site.longitude)
-        )
-      )
+    let distances = sites.map { site -> (site: Site, meters: Double) in
+      let siteLocation: CLLocation
+      if let cached = cachedLocations[site.slug] {
+        siteLocation = cached
+      } else {
+        siteLocation = CLLocation(latitude: site.latitude, longitude: site.longitude)
+        cachedLocations[site.slug] = siteLocation
+      }
+      return (site: site, meters: location.distance(from: siteLocation))
     }
 
     let fired = evaluator.evaluate(
