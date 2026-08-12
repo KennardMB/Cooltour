@@ -1,23 +1,14 @@
 import Foundation
 
-@MainActor
-protocol AudioPlayerService: AnyObject {
+protocol AudioPlayerService {
     var isPlaying: Bool { get }
-    var rate: Float { get set }
     var currentStory: Story? { get }
-    func play(_ story: Story)
-}
+    var progress: Double { get }   // 0.0 - 1.0
+    var rate: Float { get }
 
-/// Still a mock: real AVFoundation playback is Slice 2. Proximity only needs somewhere to
-/// hand the story it picked, and a record of what it asked for.
-@Observable
-final class MockAudioPlayerService: AudioPlayerService {
-    var isPlaying = false
-    var rate: Float = 1.0
-    private(set) var currentStory: Story?
-
-    func play(_ story: Story) {
-        currentStory = story
-        isPlaying = true
-    }
+    func play(story: Story)
+    func pause()
+    func resume()
+    func stop()
+    func setRate(_ rate: Float)
 }

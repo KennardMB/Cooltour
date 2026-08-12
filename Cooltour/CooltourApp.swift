@@ -24,7 +24,7 @@ struct CooltourApp: App {
         self.container = container
         _environment = State(initialValue: AppEnvironment(
             content: store,
-            proximity: CoreLocationProximityEngine(content: store)
+            audio: AVAudioPlayerService()
         ))
     }
 
