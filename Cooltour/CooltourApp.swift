@@ -22,7 +22,10 @@ struct CooltourApp: App {
         }
 
         self.container = container
-        _environment = State(initialValue: AppEnvironment(content: store))
+        _environment = State(initialValue: AppEnvironment(
+            content: store,
+            proximity: CoreLocationProximityEngine(content: store)
+        ))
     }
 
     var body: some Scene {
