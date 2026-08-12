@@ -24,7 +24,10 @@ struct CooltourApp: App {
         }
 
         self.container = container
-        _environment = State(initialValue: AppEnvironment(content: store))
+        _environment = State(initialValue: AppEnvironment(
+            content: store,
+            audio: AVAudioPlayerService()
+        ))
     }
 
     var body: some Scene {

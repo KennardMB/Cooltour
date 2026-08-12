@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B430F58D302B0ABB00E2CD48 /* Exceptions for "Cooltour" folder in "Cooltour" target */ = {
+		B8ACA14C302B356B00503202 /* Exceptions for "Cooltour" folder in "Cooltour" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,7 +24,7 @@
 		0CBAFE58302A0ABA0064E786 /* Cooltour */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				B430F58D302B0ABB00E2CD48 /* Exceptions for "Cooltour" folder in "Cooltour" target */,
+				B8ACA14C302B356B00503202 /* Exceptions for "Cooltour" folder in "Cooltour" target */,
 			);
 			path = Cooltour;
 			sourceTree = "<group>";
@@ -266,13 +266,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QN85YCBSHX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Cooltour/Info.plist;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Cooltour needs your location to show where you are on the map relative to nearby tour sites.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Stories play automatically when you walk up to a nearby site. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -286,6 +286,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.challenge5.Cooltour;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -301,13 +302,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QN85YCBSHX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Cooltour/Info.plist;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Cooltour needs your location to show where you are on the map relative to nearby tour sites.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Stories play automatically when you walk up to a nearby site. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -321,6 +322,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.challenge5.Cooltour;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;

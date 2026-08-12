@@ -1,20 +1,14 @@
 import Foundation
 
-@MainActor
-protocol AudioPlayerService: AnyObject {
+protocol AudioPlayerService {
     var isPlaying: Bool { get }
-    var rate: Float { get set }
-    func play(story: Story)
-}
+    var currentStory: Story? { get }
+    var progress: Double { get }   // 0.0 - 1.0
+    var rate: Float { get }
 
-@Observable
-@MainActor
-final class MockAudioPlayerService: AudioPlayerService {
-    var isPlaying = false
-    var rate: Float = 1.0
-    
-    func play(story: Story) {
-        print("MockAudioPlayerService: Playing story \(story.title)")
-        isPlaying = true
-    }
+    func play(story: Story)
+    func pause()
+    func resume()
+    func stop()
+    func setRate(_ rate: Float)
 }
