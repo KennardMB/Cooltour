@@ -1,29 +1,32 @@
 [
-    {
-        "id": "site_1",
-        "title": "Grand Plaza",
-        "transcript": "Welcome to the Grand Plaza. Built in 1892, this has been the heart of the city for over a century.",
-        "latitude": 37.7749,
-        "longitude": -122.4194,
-        "triggerRadius": 50.0,
-        "audioFileName": "grand_plaza.mp3"
-    },
-    {
-        "id": "site_2",
-        "title": "Old Clock Tower",
-        "transcript": "The Old Clock Tower still chimes every hour. It survived the great fire of 1906.",
-        "latitude": 37.7750,
-        "longitude": -122.4180,
-        "triggerRadius": 40.0,
-        "audioFileName": "clock_tower.mp3"
-    },
-    {
-        "id": "site_3",
-        "title": "River Walk",
-        "transcript": "Take a stroll along the historic river walk where merchants used to trade goods.",
-        "latitude": 37.7760,
-        "longitude": -122.4170,
-        "triggerRadius": 60.0,
-        "audioFileName": "river_walk.mp3"
-    }
+  {
+    "id": "site_1",
+    "title": "Grand Plaza",
+    "transcript":
+        "Welcome to the Grand Plaza. Built in 1892, this has been the heart of the city for over a century.",
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "triggerRadius": 50.0,
+    "audioFileName": "grand_plaza.mp3"
+  },
+  {
+    "id": "site_2",
+    "title": "Old Clock Tower",
+    "transcript":
+        "The Old Clock Tower still chimes every hour. It survived the great fire of 1906.",
+    "latitude": 37.7750,
+    "longitude": -122.4180,
+    "triggerRadius": 40.0,
+    "audioFileName": "clock_tower.mp3"
+  },
+  {
+    "id": "site_3",
+    "title": "River Walk",
+    "transcript":
+        "Take a stroll along the historic river walk where merchants used to trade goods.",
+    "latitude": 37.7760,
+    "longitude": -122.4170,
+    "triggerRadius": 60.0,
+    "audioFileName": "river_walk.mp3"
+  }
 ]
