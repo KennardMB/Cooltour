@@ -23,7 +23,7 @@ final class AppEnvironment {
         // real preference store lands in Slice 7.
         self.proximity.onTrigger = { _, story in
             guard AppConfig.autoPlayDefault else { return }
-            audio.play(story)
+            audio.play(story: story)
         }
     }
 }
