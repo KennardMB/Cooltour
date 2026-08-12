@@ -56,7 +56,7 @@ final class MockProximityEngine: ProximityEngine {
 
     /// Fires a site through the same path as the real engine, so previews and tests can
     /// exercise the trigger → playback wiring without GPS.
-    func simulateTrigger(site: Site, distanceMeters: Double = 10) {
+    func simulateTrigger(site: Site, distanceMeters: Double = 10, wasBackground: Bool = false) {
         guard let story = site.stories.first else { return }
         recentEvents.insert(
             TriggerEvent(
@@ -66,10 +66,25 @@ final class MockProximityEngine: ProximityEngine {
                 storySlug: story.slug,
                 storyTitle: story.title,
                 distanceMeters: distanceMeters,
-                horizontalAccuracyMeters: 8
+                horizontalAccuracyMeters: 8,
+                wasBackground: wasBackground
             ),
             at: 0
         )
         onTrigger?(site, story)
+    }
+}
+
+extension CLAuthorizationStatus {
+    /// Shown in Settings and the proximity debug screen — one spelling of these states, not two.
+    var displayName: String {
+        switch self {
+        case .notDetermined: "Not asked"
+        case .restricted: "Restricted"
+        case .denied: "Denied"
+        case .authorizedAlways: "Always"
+        case .authorizedWhenInUse: "When in use"
+        @unknown default: "Unknown"
+        }
     }
 }
