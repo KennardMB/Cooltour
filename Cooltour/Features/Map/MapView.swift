@@ -29,6 +29,9 @@ struct MapView: View {
                   .foregroundColor(.blue)
                   .background(Circle().fill(.white))
               }
+              .onTapGesture {
+                selectedSite = site
+              }
               .tag(site)
             }
 

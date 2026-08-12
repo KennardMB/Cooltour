@@ -36,14 +36,25 @@ struct SiteDetailSheet: View {
 
                 Spacer()
 
-                Button {
-                  environment.audio.play(story: story)
-                } label: {
-                  Image(systemName: "play.circle.fill")
-                    .font(.title)
-                    .foregroundStyle(.blue)
+                if environment.audio.isPlaying && environment.audio.currentStory?.slug == story.slug {
+                  Button {
+                    environment.audio.pause()
+                  } label: {
+                    Image(systemName: "pause.circle.fill")
+                      .font(.title)
+                      .foregroundStyle(.orange)
+                  }
+                  .buttonStyle(.plain)
+                } else {
+                  Button {
+                    environment.audio.play(story: story)
+                  } label: {
+                    Image(systemName: "play.circle.fill")
+                      .font(.title)
+                      .foregroundStyle(.blue)
+                  }
+                  .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
               }
               .padding(.vertical, 4)
             }

@@ -79,9 +79,14 @@ final class LocalContentStore: ContentStore {
     )
   }
 
+  private var cachedSites: [Site]?
+
   func allSites() -> [Site] {
+    if let cached = cachedSites { return cached }
     let descriptor = FetchDescriptor<Site>(sortBy: [SortDescriptor(\.name)])
-    return (try? context.fetch(descriptor)) ?? []
+    let fetched = (try? context.fetch(descriptor)) ?? []
+    cachedSites = fetched
+    return fetched
   }
 
   var siteCount: Int {

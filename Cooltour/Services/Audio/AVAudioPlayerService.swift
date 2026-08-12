@@ -2,6 +2,7 @@ import AVFoundation
 import Observation
 
 @Observable
+@MainActor
 final class AVAudioPlayerService: NSObject, AudioPlayerService {
   private(set) var isPlaying: Bool = false
   private(set) var currentStory: Story?
@@ -96,12 +97,17 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       }
     }
   }
-
 }
 
 // MARK: - AVAudioPlayerDelegate & interruption handling
 
 extension AVAudioPlayerService: AVAudioPlayerDelegate {
+  nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+    Task { @MainActor in
+      self.stop()
+    }
+  }
+
   private func handleInterruptionsAndRouteChanges() {
     let center = NotificationCenter.default
 

@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct RootView: View {
+  @Environment(AppEnvironment.self) private var environment
+
   var body: some View {
     TabView {
       NowView()
@@ -11,6 +13,9 @@ struct RootView: View {
         .tabItem { Label("History", systemImage: "clock") }
       SettingsView()
         .tabItem { Label("Settings", systemImage: "gearshape") }
+    }
+    .onAppear {
+      environment.proximity.start()
     }
   }
 }
