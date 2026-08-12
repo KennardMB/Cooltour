@@ -18,6 +18,7 @@ struct SettingsView: View {
                 }
                 Section("Debug") {
                     NavigationLink("Content pack") { ContentDebugView() }
+                    NavigationLink("Proximity") { ProximityDebugView() }
                     LabeledContent("Sites loaded", value: "\(env.content.siteCount)")
                 }
             }

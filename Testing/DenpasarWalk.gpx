@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Cooltour" xmlns="http://www.topografix.com/GPX/1/1">
+  <!--
+    Slice 3 test route. Walks south→north through five seeded Denpasar sites so each
+    trigger radius is entered and then left (which re-arms it). Select this file as the
+    scheme's simulated location, or Debug ▸ Simulate Location, then watch
+    Settings ▸ Debug ▸ Proximity as it moves. Xcode interpolates between waypoints at
+    walking speed, so the fix crosses each radius boundary gradually — the flapping/
+    re-arm case AGENTS.md §4 requires.
+  -->
+
+  <!-- Start well outside everything: nothing should trigger here. -->
+  <wpt lat="-8.65150" lon="115.21150"/>
+  <wpt lat="-8.65220" lon="115.21230"/>
+
+  <!-- pasar-badung (r=50m) -->
+  <wpt lat="-8.65290" lon="115.21280"/>
+  <wpt lat="-8.65350" lon="115.21330"/>
+
+  <!-- leave pasar-badung, approach catur-muka -->
+  <wpt lat="-8.65450" lon="115.21410"/>
+
+  <!-- catur-muka (r=40m) -->
+  <wpt lat="-8.65530" lon="115.21480"/>
+
+  <!-- puputan-badung (r=50m) -->
+  <wpt lat="-8.65600" lon="115.21580"/>
+
+  <!-- pura-jagatnatha (r=35m) and museum-bali (r=35m) sit ~30m apart: expect both -->
+  <wpt lat="-8.65670" lon="115.21700"/>
+  <wpt lat="-8.65750" lon="115.21720"/>
+
+  <!-- walk away: everything leaves its radius and re-arms -->
+  <wpt lat="-8.65850" lon="115.21750"/>
+  <wpt lat="-8.65950" lon="115.21780"/>
+</gpx>
