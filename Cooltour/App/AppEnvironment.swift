@@ -7,22 +7,27 @@ final class AppEnvironment {
     let audio: any AudioPlayerService
     let proximity: any ProximityEngine
     let notifications: any NotificationService
+    let settings: SettingsStore
 
     init(
         content: any ContentStore = LocalContentStore.inMemory(),
         audio: any AudioPlayerService = MockAudioPlayerService(),
         proximity: any ProximityEngine = MockProximityEngine(),
-        notifications: any NotificationService = MockNotificationService()
+        notifications: any NotificationService = MockNotificationService(),
+        settings: SettingsStore = SettingsStore()
     ) {
         self.content = content
         self.audio = audio
         self.proximity = proximity
         self.notifications = notifications
+        self.settings = settings
 
-        // The one place proximity meets playback. Auto-play reads a static flag until the
-        // real preference store lands in Slice 7.
+        // Apply persisted default playback speed to audio player
+        self.audio.setRate(Float(settings.defaultPlaybackSpeed))
+
+        // Auto-play is controlled by persistent user setting in SettingsStore.
         self.proximity.onTrigger = { _, story in
-            guard AppConfig.autoPlayDefault else { return }
+            guard settings.autoPlay else { return }
             audio.play(story: story)
         }
     }
