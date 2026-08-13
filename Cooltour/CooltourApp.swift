@@ -3,36 +3,46 @@ import SwiftUI
 
 @main
 struct CooltourApp: App {
-    @State private var environment: AppEnvironment
-    private let container: ModelContainer
+  @State private var environment: AppEnvironment
+  private let container: ModelContainer
 
-    init() {
-        let container: ModelContainer
-        do {
-            container = try ModelContainer(for: Site.self, Story.self)
-        } catch {
-            fatalError("Could not create the SwiftData container: \(error)")
-        }
-
-        let store = LocalContentStore(container: container)
-        do {
-            try store.seedIfNeeded()
-        } catch {
-            assertionFailure("Content pack failed to seed: \(error)")
-        }
-
-        self.container = container
-        _environment = State(initialValue: AppEnvironment(
-            content: store,
-            audio: AVAudioPlayerService()
-        ))
+  init() {
+    let container: ModelContainer
+    do {
+      let isPreview =
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+      let config = ModelConfiguration(isStoredInMemoryOnly: isPreview)
+      container = try ModelContainer(
+        for: Site.self,
+        Story.self,
+        configurations: config
+      )
+    } catch {
+      fatalError("Could not create the SwiftData container: \(error)")
     }
 
-    var body: some Scene {
-        WindowGroup {
-            RootView()
-                .environment(environment)
-        }
-        .modelContainer(container)
+    let store = LocalContentStore(container: container)
+    do {
+      try store.seedIfNeeded()
+    } catch {
+      assertionFailure("Content pack failed to seed: \(error)")
     }
+
+    self.container = container
+    _environment = State(
+      initialValue: AppEnvironment(
+        content: store,
+        audio: AVAudioPlayerService(),
+        proximity: CoreLocationProximityEngine(content: store)
+      )
+    )
+  }
+
+  var body: some Scene {
+    WindowGroup {
+      RootView()
+        .environment(environment)
+    }
+    .modelContainer(container)
+  }
 }
