@@ -42,9 +42,11 @@ final class LocalContentStore: ContentStore {
     let pack = try ContentPack.bundled(named: packName)
     let seeded = UserDefaults.standard.string(forKey: Self.seededVersionKey)
     let existingCount = try context.fetchCount(FetchDescriptor<Site>())
+    #if !DEBUG
     guard seeded != pack.contentPackVersion || existingCount == 0 else {
       return
     }
+    #endif
 
     cachedSites = nil
     try context.delete(model: Site.self)
