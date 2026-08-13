@@ -5,8 +5,6 @@ import SwiftUI
 /// state, and the trigger log. Delete once the Now screen (Slice 5) shows this for real.
 struct ProximityDebugView: View {
   @Environment(AppEnvironment.self) private var env
-  @AppStorage(AppConfig.backgroundTriggeringKey) private var backgroundTriggering =
-    false
 
   private var engine: CoreLocationProximityEngine? {
     env.proximity as? CoreLocationProximityEngine
@@ -22,7 +20,7 @@ struct ProximityDebugView: View {
     .navigationTitle("Proximity")
     .navigationBarTitleDisplayMode(.inline)
     // Background triggering only means anything if the engine outlives this screen.
-    .onDisappear { if !backgroundTriggering { env.proximity.stop() } }
+    .onDisappear { if !env.settings.backgroundTriggering { env.proximity.stop() } }
   }
 
   private var engineSection: some View {
@@ -38,7 +36,10 @@ struct ProximityDebugView: View {
         "Permission",
         value: env.proximity.authorizationStatus.displayName
       )
-      LabeledContent("Background", value: backgroundTriggering ? "On" : "Off")
+      LabeledContent(
+        "Background",
+        value: env.settings.backgroundTriggering ? "On" : "Off"
+      )
       LabeledContent("Last geofence wake", value: wakeText)
       LabeledContent(
         "Auto-play",
@@ -51,7 +52,7 @@ struct ProximityDebugView: View {
   /// Distinguishes "the system never woke us" from "it woke us but no fix was good enough".
   private var wakeText: String {
     guard let wake = engine?.lastWake else {
-      return backgroundTriggering ? "None yet" : "—"
+      return env.settings.backgroundTriggering ? "None yet" : "—"
     }
     return
       "\(wake.siteSlug) · \(wake.date.formatted(date: .omitted, time: .shortened))"

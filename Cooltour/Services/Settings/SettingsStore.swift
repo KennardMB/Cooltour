@@ -17,6 +17,19 @@ final class SettingsStore {
         }
     }
 
+    /// Persisted under `AppConfig.backgroundTriggeringKey` rather than this store's own
+    /// key namespace, because `CooltourApp` and `CoreLocationProximityEngine` read it
+    /// straight from `UserDefaults` — Core Location can relaunch the app into the
+    /// background where no view, and so no environment, ever exists to reach this store.
+    var backgroundTriggering: Bool {
+        didSet {
+            defaults.set(
+                backgroundTriggering,
+                forKey: AppConfig.backgroundTriggeringKey
+            )
+        }
+    }
+
     private let defaults: UserDefaults
     private let autoPlayKey = "cooltour_auto_play"
     private let speedKey = "cooltour_default_playback_speed"
@@ -40,5 +53,11 @@ final class SettingsStore {
         } else {
             self.defaultPlaybackSpeed = defaultSpeed
         }
+
+        // No `object(forKey:)` dance: absent reads as false, which is the intended
+        // default — background triggering stays off until the user asks for it.
+        self.backgroundTriggering = defaults.bool(
+            forKey: AppConfig.backgroundTriggeringKey
+        )
     }
 }

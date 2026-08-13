@@ -20,8 +20,9 @@ enum AppConfig {
   static let monitorWakeRadiusMeters: Double = 150
 
   /// Off until the user asks for it: turning it on is what prompts for "Always" location.
-  /// One source of truth — `SettingsView` writes this key, the engine reads it (Slice 7
-  /// replaces the raw key with a real preference store).
+  /// `SettingsStore` owns this value; the key is shared rather than private to the store
+  /// because `CooltourApp` and `CoreLocationProximityEngine` read it straight from
+  /// `UserDefaults` at launch, where no view exists to reach the store.
   static let backgroundTriggeringKey = "backgroundTriggeringEnabled"
 
   /// Seeds `SettingsStore` on first launch only. Read the store, not this, for the

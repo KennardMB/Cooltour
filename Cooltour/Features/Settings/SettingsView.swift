@@ -3,9 +3,6 @@ import SwiftUI
 
 struct SettingsView: View {
   @Environment(AppEnvironment.self) private var env
-  /// The engine reads this same key at `start()` — one source of truth, no second copy.
-  @AppStorage(AppConfig.backgroundTriggeringKey) private var backgroundTriggering =
-    false
 
   var body: some View {
     @Bindable var settings = env.settings
@@ -13,8 +10,8 @@ struct SettingsView: View {
     NavigationStack {
       List {
         Section {
-          Toggle("Background triggering", isOn: $backgroundTriggering)
-            .onChange(of: backgroundTriggering) { _, isOn in
+          Toggle("Background triggering", isOn: $settings.backgroundTriggering)
+            .onChange(of: settings.backgroundTriggering) { _, isOn in
               // Restart so the engine picks the setting up: it decides on the
               // background session and the monitored geofences at start().
               let wasListening = env.proximity.isListening
@@ -77,7 +74,7 @@ struct SettingsView: View {
   /// Says what the app will actually do, including when it can't — "Always" is a big ask and
   /// the honest answer to a refusal is that the app still works, just not with the screen off.
   private var backgroundFooter: String {
-    guard backgroundTriggering else {
+    guard env.settings.backgroundTriggering else {
       return "Stories only trigger while \(AppConfig.appName) is open on screen."
     }
     return switch env.proximity.authorizationStatus {
