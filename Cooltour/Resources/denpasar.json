@@ -121,6 +121,46 @@
           "timeOfDayTag": null
         }
       ]
+    },
+    {
+      "slug": "park-23",
+      "name": "Park 23 Mall",
+      "district": "Jalan Kediri, Tuban, Badung",
+      "lat": -8.7371392,
+      "lng": 115.1750619,
+      "triggerRadiusMeters": 20,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "park-23-01",
+          "title": "Old Mall of Park 23",
+          "audioFile": "pasar-badung-01.m4a",
+          "transcript": "By the time you are standing here, this market has already done most of its work.\n\nThe real hour of Pasar Badung is around four in the morning, in the dark, when the trucks come down from the mountains at Bedugul with cabbages and chillies and the flowers arrive by the sackful. Not flowers for decoration. Flowers for offerings.\n\nThat is the part that surprises people. A significant share of what moves through this building is not food at all, it is the raw material of daily religion. Every one of those small palm leaf trays you have been stepping around on the pavements, the canang sari, has to be assembled from something, every single morning, by somebody, in tens of thousands of households. The supply chain for that devotion runs through here.\n\nSo this is not just where Denpasar buys dinner. It is where the island restocks its relationship with the gods, wholesale, before sunrise.",
+          "durationSeconds": 52.0,
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "apple-developer-academy",
+      "name": "Apple Developer Academy @Binus, Bali",
+      "district": "Jalan Kediri, Tuban, Badung",
+      "lat": -8.7370796,
+      "lng": 115.1758945,
+      "triggerRadiusMeters": 20,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "apple-developer-academy-01",
+          "title": "Apple Developer Academy at Old Mall of Park 23",
+          "audioFile": "pasar-badung-01.m4a",
+          "transcript": "By the time you are standing here, this market has already done most of its work.\n\nThe real hour of Pasar Badung is around four in the morning, in the dark, when the trucks come down from the mountains at Bedugul with cabbages and chillies and the flowers arrive by the sackful. Not flowers for decoration. Flowers for offerings.\n\nThat is the part that surprises people. A significant share of what moves through this building is not food at all, it is the raw material of daily religion. Every one of those small palm leaf trays you have been stepping around on the pavements, the canang sari, has to be assembled from something, every single morning, by somebody, in tens of thousands of households. The supply chain for that devotion runs through here.\n\nSo this is not just where Denpasar buys dinner. It is where the island restocks its relationship with the gods, wholesale, before sunrise.",
+          "durationSeconds": 52.0,
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
     }
   ]
 }
