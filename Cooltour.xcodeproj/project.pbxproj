@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		0CBAFE56302A0ABA0064E786 /* Cooltour.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cooltour.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0CEC1EF3302C5667000A409D /* DenpasarWalk.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = DenpasarWalk.gpx; path = Testing/DenpasarWalk.gpx; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -45,6 +46,7 @@
 		0CBAFE4D302A0ABA0064E786 = {
 			isa = PBXGroup;
 			children = (
+				0CEC1EF3302C5667000A409D /* DenpasarWalk.gpx */,
 				0CBAFE58302A0ABA0064E786 /* Cooltour */,
 				0CBAFE57302A0ABA0064E786 /* Products */,
 			);
@@ -269,9 +271,11 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 73LK36PMUC;
+				DEVELOPMENT_TEAM = QN85YCBSHX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Cooltour/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Stories play the moment you walk up to a site, with the app in your pocket and the screen off. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Stories play automatically when you walk up to a nearby site. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -305,9 +309,11 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 73LK36PMUC;
+				DEVELOPMENT_TEAM = QN85YCBSHX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Cooltour/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Stories play the moment you walk up to a site, with the app in your pocket and the screen off. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Stories play automatically when you walk up to a nearby site. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

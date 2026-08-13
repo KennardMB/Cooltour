@@ -5,7 +5,7 @@ The JSON is the single source of truth: this reads each transcript, speaks it wi
 macOS `say`, and writes the measured duration back into the pack. Throw the generated
 .m4a files away once real Kultara recordings land.
 
-    python3 tools/make-placeholder-audio.py
+    python3 tools/make-placeholder-audio.py [pack_name]
 """
 
 import json
@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PACK = ROOT / "Cooltour" / "Resources" / "denpasar.json"
+PACK = ROOT / "Cooltour" / "Resources" / f"{sys.argv[1] if len(sys.argv) > 1 else 'denpasar'}.json"
 AUDIO_DIR = ROOT / "Cooltour" / "Resources" / "Audio"
 VOICE = "Daniel"
 
