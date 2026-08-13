@@ -17,6 +17,13 @@ struct RootView: View {
     .onAppear {
       environment.proximity.start()
     }
+    .onChange(of: environment.proximity.isListening) { _, isListening in
+      if isListening {
+        environment.history.startWalk()
+      } else {
+        environment.history.stopWalk()
+      }
+    }
   }
 }
 

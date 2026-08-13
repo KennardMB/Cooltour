@@ -17,7 +17,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
   private(set) var authorizationStatus: CLAuthorizationStatus = .notDetermined
   private(set) var lastFix: ProximityFix?
   private(set) var nearbySites: [NearbySite] = []
-  private(set) var recentEvents: [TriggerEvent]
+  var onEventLogged: ((ProximityEvent) -> Void)?
   var onTrigger: ((Site, Story) -> Void)?
 
   /// Last geofence wake. Separates "never woken" from "woken but the fix wasn't good enough" —
@@ -37,7 +37,6 @@ final class CoreLocationProximityEngine: ProximityEngine {
   /// Kept only for the authorization prompt and status; the fixes come from `CLLocationUpdate`.
   private let manager = CLLocationManager()
   private var evaluator = ProximityEvaluator()
-  private var log: TriggerLog
   private var updates: Task<Void, Never>?
   private var monitorTask: Task<Void, Never>?
   private var backgroundSession: CLBackgroundActivitySession?
@@ -46,12 +45,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
   private var cachedLocations: [String: CLLocation] = [:]
 
   init(content: any ContentStore) {
-    let log = TriggerLog()
     self.content = content
-    self.log = log
-    // Triggers from an earlier run are the point: they may have fired while the app was
-    // backgrounded, or in a process the system has since killed.
-    self.recentEvents = log.events
     self.authorizationStatus = manager.authorizationStatus
   }
 
@@ -114,8 +108,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
   }
 
   func clearLog() {
-    log.clear()
-    recentEvents = log.events
+    // Engine no longer manages history logs directly
   }
 
   /// "Always" can only be asked for once When-In-Use is granted, so the escalation rides on the
@@ -239,19 +232,19 @@ final class CoreLocationProximityEngine: ProximityEngine {
         let story = entry.site.stories.first
       else { continue }
 
-      log.insert(
-        TriggerEvent(
-          date: .now,
-          siteSlug: entry.site.slug,
-          siteName: entry.site.name,
-          storySlug: story.slug,
-          storyTitle: story.title,
-          distanceMeters: entry.meters,
-          horizontalAccuracyMeters: location.horizontalAccuracy,
-          wasBackground: wasBackground
-        )
+      let event = ProximityEvent(
+        date: .now,
+        siteSlug: entry.site.slug,
+        siteName: entry.site.name,
+        storySlug: story.slug,
+        storyTitle: story.title,
+        distanceMeters: entry.meters,
+        horizontalAccuracyMeters: location.horizontalAccuracy,
+        latitude: location.coordinate.latitude,
+        longitude: location.coordinate.longitude,
+        wasBackground: wasBackground
       )
-      recentEvents = log.events
+      onEventLogged?(event)
 
       // ponytail: overlapping radii (Jagatnatha and Museum Bali are ~30m apart) log every
       // entry but only hand the nearest one to playback — two stories at once is worse than
