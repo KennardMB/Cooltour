@@ -24,6 +24,49 @@ struct NowView: View {
         }
         .buttonStyle(.borderedProminent)
 
+        // Quick controls — same SettingsStore the Settings tab writes, so the two
+        // screens can't disagree.
+        HStack(spacing: 12) {
+          Button {
+            env.settings.autoPlay.toggle()
+          } label: {
+            Label(
+              env.settings.autoPlay ? "Auto-play ON" : "Auto-play OFF",
+              systemImage: env.settings.autoPlay ? "bolt.fill" : "bolt.slash"
+            )
+            .font(.footnote)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+              env.settings.autoPlay
+                ? Color.blue.opacity(0.15) : Color.gray.opacity(0.15)
+            )
+            .foregroundStyle(env.settings.autoPlay ? .blue : .secondary)
+            .clipShape(Capsule())
+          }
+          .buttonStyle(.plain)
+
+          Menu {
+            ForEach(SettingsStore.availablePlaybackSpeeds, id: \.self) { speed in
+              Button("\(speed.formatted())×") {
+                env.settings.defaultPlaybackSpeed = speed
+                env.audio.setRate(Float(speed))
+              }
+            }
+          } label: {
+            Label(
+              "\(env.settings.defaultPlaybackSpeed.formatted())× Speed",
+              systemImage: "speedometer"
+            )
+            .font(.footnote)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.gray.opacity(0.15))
+            .foregroundStyle(.primary)
+            .clipShape(Capsule())
+          }
+        }
+
         Text("\(env.content.siteCount) sites loaded")
           .font(.footnote)
           .foregroundStyle(.tertiary)
