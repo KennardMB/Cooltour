@@ -279,17 +279,41 @@ CooltourApp/
 
 ---
 
-### Slice 4 — Background triggering + local notifications
-**Goal:** Trigger stories while the app is backgrounded/screen-locked, surfaced via a tappable notification.
+### Slice 4 — Background triggering
+**Goal:** Trigger stories while the app is backgrounded or the screen is locked. Split out from
+notifications so the trigger path can be proven on its own — a notification that never arrives and
+a trigger that never fires look identical from the lock screen.
 **In scope:**
-- Upgrade to region monitoring via `CLMonitor` (circular conditions per site) for battery-efficient background wake.
-- If background triggering requires it, request **Always** location (explain why in the purpose string; degrade gracefully to foreground-only if the user declines).
-- `NotificationService`: request notification permission; on trigger, post a **local notification** with the site name + story title, an action button **"Play"**, and body text = story intro.
-- Notification tap / "Play" action → opens app to the Now screen with that story playing (or plays directly from the action where feasible).
-- Respect the **auto-play setting**: auto ON → play immediately + notification; auto OFF → notification only, user taps to play.
+- Region monitoring via `CLMonitor` (circular conditions per site) for background/relaunch wake, plus
+  a `CLBackgroundActivitySession` so live updates keep flowing once the app leaves the front.
+- Request **Always** location (explain why in the purpose string; degrade gracefully to
+  foreground-only if the user declines).
+- A **Settings toggle** that turns background triggering on, and a **persisted trigger log**
+  (Settings ▸ Debug ▸ Proximity) marking which triggers fired while the app wasn't in front —
+  the acceptance surface, since there are no notifications yet.
+**Out of scope:** notifications (Slice 4.5), transcript expansion UI, Watch.
+**Acceptance:** With the app backgrounded and the screen locked, walking into a site fires the story
+(auto-play on) and appends a background-marked entry to the trigger log, which survives a relaunch.
+**Agent notes:** Be honest in permission strings — "Always" is a big ask; make the value obvious. If
+declined, the app must still fully work in foreground. A geofence is a wake source, not a decision:
+its radius is too coarse and carries no accuracy, so the precise fix still has to pass the accuracy
+gate before anything plays.
+
+---
+
+### Slice 4.5 — Local notifications
+**Goal:** Surface a background trigger as a tappable notification.
+**In scope:**
+- `NotificationService`: request notification permission; on trigger, post a **local notification**
+  with the site name + story title, an action button **"Play"**, and body text = story intro.
+- Notification tap / "Play" action → opens app to the Now screen with that story playing (or plays
+  directly from the action where feasible).
+- Respect the **auto-play setting**: auto ON → play immediately + notification; auto OFF →
+  notification only, user taps to play.
 **Out of scope:** transcript expansion UI (next slice), Watch.
-**Acceptance:** With the app backgrounded and screen locked, walking into a site posts a notification; tapping it plays the story. Auto-on plays without tap; auto-off waits for tap.
-**Agent notes:** Be honest in permission strings — "Always" is a big ask; make the value obvious. If declined, the app must still fully work in foreground. Don't over-notify: one notification per trigger, and a per-site cooldown.
+**Acceptance:** With the app backgrounded and screen locked, walking into a site posts a
+notification; tapping it plays the story. Auto-on plays without tap; auto-off waits for tap.
+**Agent notes:** Don't over-notify: one notification per trigger, and a per-site cooldown.
 
 ---
 

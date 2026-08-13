@@ -22,11 +22,15 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   // MARK: - Setup
 
   private func configureAudioSession() {
-    let session = AVAudioSession.sharedInstance()
     do {
-      // .playback = audio keeps playing with screen locked / silent switch on
-      try session.setCategory(.playback, mode: .spokenAudio)
-      try session.setActive(true)
+      // .playback = audio keeps playing with screen locked / silent switch on.
+      // Only the category here: activating the session interrupts whatever the user is
+      // already listening to, so it waits until there's actually a story to play — which
+      // also means a background-launched app doesn't activate before it has audio to make.
+      try AVAudioSession.sharedInstance().setCategory(
+        .playback,
+        mode: .spokenAudio
+      )
     } catch {
       print("Failed to configure audio session: \(error)")
     }
@@ -60,15 +64,19 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
           player.prepareToPlay()
           return await SendableAudioPlayer(player: player)
         }.value
-        
+
         let newPlayer = sendable.player
-        
-        // We are safely back on the MainActor here. No 'story' or 'self' 
+
+        // We are safely back on the MainActor here. No 'story' or 'self'
         // was captured by the detached task, fixing the Swift 6 data race warnings.
         newPlayer.rate = self.rate
         newPlayer.delegate = self
         self.player = newPlayer
         self.currentStory = story
+
+        // Last possible moment: a load that throws never interrupts the user's music.
+        try AVAudioSession.sharedInstance().setActive(true)
+
         self.player?.play()
         self.isPlaying = true
         self.startProgressTimer()
@@ -95,6 +103,17 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     isPlaying = false
     progress = 0.0
     progressTimer?.invalidate()
+
+    // Hand the session back so whatever we interrupted (Spotify, Music, a podcast) can
+    // resume — otherwise it stays silently paused until this app is force-quit.
+    do {
+      try AVAudioSession.sharedInstance().setActive(
+        false,
+        options: .notifyOthersOnDeactivation
+      )
+    } catch {
+      print("Failed to deactivate audio session: \(error)")
+    }
   }
 
   func setRate(_ newRate: Float) {
@@ -120,7 +139,14 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 // MARK: - AVAudioPlayerDelegate & interruption handling
 
 extension AVAudioPlayerService: AVAudioPlayerDelegate {
-  nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+  /// A story finishing on its own is the only way playback ends today — nothing in the app
+  /// calls `stop()` directly — so this is what actually releases the session back to whatever
+  /// it interrupted. Reuses `stop()`'s teardown rather than duplicating it; `player?.stop()`
+  /// on an already-finished player is a no-op.
+  nonisolated func audioPlayerDidFinishPlaying(
+    _ player: AVAudioPlayer,
+    successfully flag: Bool
+  ) {
     Task { @MainActor in
       self.stop()
     }

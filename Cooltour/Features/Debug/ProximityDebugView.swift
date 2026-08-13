@@ -1,10 +1,16 @@
 import CoreLocation
 import SwiftUI
 
-/// Temporary Slice 3 acceptance surface: shows the live fix, every site's distance and armed
+/// Temporary Slice 3/4 acceptance surface: shows the live fix, every site's distance and armed
 /// state, and the trigger log. Delete once the Now screen (Slice 5) shows this for real.
 struct ProximityDebugView: View {
   @Environment(AppEnvironment.self) private var env
+  @AppStorage(AppConfig.backgroundTriggeringKey) private var backgroundTriggering =
+    false
+
+  private var engine: CoreLocationProximityEngine? {
+    env.proximity as? CoreLocationProximityEngine
+  }
 
   var body: some View {
     List {
@@ -15,7 +21,8 @@ struct ProximityDebugView: View {
     }
     .navigationTitle("Proximity")
     .navigationBarTitleDisplayMode(.inline)
-    .onDisappear { env.proximity.stop() }
+    // Background triggering only means anything if the engine outlives this screen.
+    .onDisappear { if !backgroundTriggering { env.proximity.stop() } }
   }
 
   private var engineSection: some View {
@@ -27,13 +34,27 @@ struct ProximityDebugView: View {
           env.proximity.start()
         }
       }
-      LabeledContent("Permission", value: permissionText)
+      LabeledContent(
+        "Permission",
+        value: env.proximity.authorizationStatus.displayName
+      )
+      LabeledContent("Background", value: backgroundTriggering ? "On" : "Off")
+      LabeledContent("Last geofence wake", value: wakeText)
       LabeledContent(
         "Auto-play",
         value: AppConfig.autoPlayDefault ? "On" : "Off"
       )
       LabeledContent("Playing", value: env.audio.currentStory?.title ?? "—")
     }
+  }
+
+  /// Distinguishes "the system never woke us" from "it woke us but no fix was good enough".
+  private var wakeText: String {
+    guard let wake = engine?.lastWake else {
+      return backgroundTriggering ? "None yet" : "—"
+    }
+    return
+      "\(wake.siteSlug) · \(wake.date.formatted(date: .omitted, time: .shortened))"
   }
 
   @ViewBuilder
@@ -86,16 +107,26 @@ struct ProximityDebugView: View {
       }
       ForEach(env.proximity.recentEvents) { event in
         VStack(alignment: .leading, spacing: 2) {
-          Text(event.siteName).font(.headline)
+          HStack {
+            Text(event.siteName).font(.headline)
+            if event.wasBackground {
+              Image(systemName: "moon.fill")
+                .foregroundStyle(.purple)
+                .accessibilityLabel("Fired in the background")
+            }
+          }
           Text(event.storyTitle).font(.subheadline)
           Text(
-            "\(event.date.formatted(date: .omitted, time: .standard)) · \(Int(event.distanceMeters)) m · ±\(Int(event.horizontalAccuracyMeters)) m"
+            "\(event.date.formatted(date: .abbreviated, time: .standard)) · \(Int(event.distanceMeters)) m · ±\(Int(event.horizontalAccuracyMeters)) m"
           )
           .font(.caption)
           .foregroundStyle(.secondary)
           .monospacedDigit()
         }
         .accessibilityElement(children: .combine)
+      }
+      if let engine, !engine.recentEvents.isEmpty {
+        Button("Clear log", role: .destructive) { engine.clearLog() }
       }
     }
   }
@@ -126,17 +157,6 @@ struct ProximityDebugView: View {
       if env.proximity.nearbySites.isEmpty {
         Text("Distances appear once a fix arrives.").foregroundStyle(.secondary)
       }
-    }
-  }
-
-  private var permissionText: String {
-    switch env.proximity.authorizationStatus {
-    case .notDetermined: "Not asked"
-    case .restricted: "Restricted"
-    case .denied: "Denied"
-    case .authorizedAlways: "Always"
-    case .authorizedWhenInUse: "When in use"
-    @unknown default: "Unknown"
     }
   }
 }

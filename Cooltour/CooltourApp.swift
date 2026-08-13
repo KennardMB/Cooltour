@@ -29,13 +29,20 @@ struct CooltourApp: App {
     }
 
     self.container = container
-    _environment = State(
-      initialValue: AppEnvironment(
-        content: store,
-        audio: AVAudioPlayerService(),
-        proximity: CoreLocationProximityEngine(content: store)
-      )
+    let environment = AppEnvironment(
+      content: store,
+      audio: AVAudioPlayerService(),
+      proximity: CoreLocationProximityEngine(content: store)
     )
+
+    // Core Location can relaunch the app straight into the background, where no view ever
+    // appears — so listening has to start with the process, not with a screen. Gated on the
+    // setting so an app the user hasn't opted in for stays foreground-only and silent.
+    if UserDefaults.standard.bool(forKey: AppConfig.backgroundTriggeringKey) {
+      environment.proximity.start()
+    }
+
+    _environment = State(initialValue: environment)
   }
 
   var body: some Scene {
