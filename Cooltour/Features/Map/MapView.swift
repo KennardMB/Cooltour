@@ -85,11 +85,6 @@ struct MapView: View {
       .sheet(item: $selectedSite) { site in
         SiteDetailSheet(site: site)
       }
-      .onAppear {
-        if environment.permissions.authorizationStatus == .notDetermined {
-          environment.permissions.requestLocationPermission()
-        }
-      }
       .task {
         // Delay map rendering slightly so the tab switch is instantly responsive
         try? await Task.sleep(for: .seconds(0.15))
