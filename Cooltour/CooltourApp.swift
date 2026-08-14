@@ -15,6 +15,8 @@ struct CooltourApp: App {
       container = try ModelContainer(
         for: Site.self,
         Story.self,
+        Walk.self,
+        TriggerEvent.self,
         configurations: config
       )
     } catch {
@@ -32,7 +34,9 @@ struct CooltourApp: App {
     let environment = AppEnvironment(
       content: store,
       audio: AVAudioPlayerService(),
-      proximity: CoreLocationProximityEngine(content: store)
+      proximity: CoreLocationProximityEngine(content: store),
+      settings: SettingsStore(),
+      history: HistoryStore(container: container)
     )
 
     // Core Location can relaunch the app straight into the background, where no view ever
@@ -40,6 +44,7 @@ struct CooltourApp: App {
     // setting so an app the user hasn't opted in for stays foreground-only and silent.
     if UserDefaults.standard.bool(forKey: AppConfig.backgroundTriggeringKey) {
       environment.proximity.start()
+      environment.history.startWalk()
     }
 
     _environment = State(initialValue: environment)
