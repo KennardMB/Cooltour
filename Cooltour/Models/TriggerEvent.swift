@@ -1,20 +1,40 @@
 import Foundation
+import SwiftData
 
-/// One story firing at one place and time. A value type for now — Slice 8 turns walk history
-/// into a SwiftData model; this only needs to survive a relaunch well enough to prove a
-/// background trigger happened while nobody was looking (see `TriggerLog`).
-struct TriggerEvent: Identifiable, Codable, Sendable {
-  /// Slug plus timestamp is unique in practice — the evaluator can't fire the same site twice
-  /// on one fix — and keeps the type free of a stored UUID that Codable would have to carry.
-  var id: String { "\(siteSlug)@\(date.timeIntervalSince1970)" }
-  let date: Date
-  let siteSlug: String
-  let siteName: String
-  let storySlug: String
-  let storyTitle: String
-  let distanceMeters: Double
-  let horizontalAccuracyMeters: Double
-  /// True when the app wasn't in front. This is the Slice 4 acceptance signal: without
-  /// notifications (Slice 4.5) it's the only way to see that a locked-screen trigger fired.
-  let wasBackground: Bool
+@Model
+final class TriggerEvent {
+  var id: UUID = UUID()
+  var siteSlug: String
+  var siteName: String
+  var storySlug: String
+  var storyTitle: String
+  var firedAt: Date
+  var wasAutoPlayed: Bool
+  var userLatitude: Double
+  var userLongitude: Double
+  var wasBackground: Bool
+  
+  var walk: Walk?
+
+  init(
+    siteSlug: String,
+    siteName: String,
+    storySlug: String,
+    storyTitle: String,
+    firedAt: Date = .now,
+    wasAutoPlayed: Bool,
+    userLatitude: Double,
+    userLongitude: Double,
+    wasBackground: Bool
+  ) {
+    self.siteSlug = siteSlug
+    self.siteName = siteName
+    self.storySlug = storySlug
+    self.storyTitle = storyTitle
+    self.firedAt = firedAt
+    self.wasAutoPlayed = wasAutoPlayed
+    self.userLatitude = userLatitude
+    self.userLongitude = userLongitude
+    self.wasBackground = wasBackground
+  }
 }

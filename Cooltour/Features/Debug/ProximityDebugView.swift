@@ -102,33 +102,32 @@ struct ProximityDebugView: View {
 
   @ViewBuilder
   private var triggerSection: some View {
-    Section("Triggers (\(env.proximity.recentEvents.count))") {
-      if env.proximity.recentEvents.isEmpty {
-        Text("Nothing has fired yet.").foregroundStyle(.secondary)
+    Section("Triggers (\(env.history.recentEvents.count))") {
+      if env.history.recentEvents.isEmpty {
+        Text("No triggers yet")
+          .foregroundStyle(.tertiary)
       }
-      ForEach(env.proximity.recentEvents) { event in
-        VStack(alignment: .leading, spacing: 2) {
+      ForEach(env.history.recentEvents) { event in
+        VStack(alignment: .leading, spacing: 4) {
           HStack {
-            Text(event.siteName).font(.headline)
-            if event.wasBackground {
-              Image(systemName: "moon.fill")
-                .foregroundStyle(.purple)
-                .accessibilityLabel("Fired in the background")
-            }
+            Text(event.storyTitle).font(.headline)
+            Spacer()
+            Text(event.date.formatted(date: .omitted, time: .shortened))
+              .font(.caption.monospacedDigit())
+              .foregroundStyle(.secondary)
           }
-          Text(event.storyTitle).font(.subheadline)
-          Text(
-            "\(event.date.formatted(date: .abbreviated, time: .standard)) · \(Int(event.distanceMeters)) m · ±\(Int(event.horizontalAccuracyMeters)) m"
-          )
+          Text(event.siteName).font(.subheadline)
+          HStack {
+            Text("Distance: \(Int(event.distanceMeters))m")
+            Text("•")
+            Text("GPS error: \(Int(event.horizontalAccuracyMeters))m")
+          }
           .font(.caption)
           .foregroundStyle(.secondary)
-          .monospacedDigit()
         }
-        .accessibilityElement(children: .combine)
+        .padding(.vertical, 4)
       }
-      if let engine, !engine.recentEvents.isEmpty {
-        Button("Clear log", role: .destructive) { engine.clearLog() }
-      }
+
     }
   }
 
