@@ -1,77 +1,122 @@
 import SwiftUI
 
+/// The home tab. Reactive and in-the-moment — status line, the active/last story, quick
+/// controls, and this session's trigger feed. No direct service access from here: everything
+/// goes through `NowViewModel`.
 struct NowView: View {
   @Environment(AppEnvironment.self) private var env
+  @State private var viewModel: NowViewModel?
 
   var body: some View {
     NavigationStack {
-      VStack(spacing: 24) {
-        Text(
-          env.proximity.isListening
-            ? "Listening for nearby stories"
-            : "Not listening"
-        )
-        .font(.title3)
-        .foregroundStyle(.secondary)
-
-        Button(env.proximity.isListening ? "Stop listening" : "Start listening")
-        {
-          if env.proximity.isListening {
-            env.proximity.stop()
-          } else {
-            env.proximity.start()
-          }
+      ScrollView {
+        if let viewModel {
+          content(viewModel)
+            .padding()
         }
-        .buttonStyle(.borderedProminent)
+      }
+      .navigationTitle("Now")
+    }
+    .task {
+      if viewModel == nil {
+        viewModel = NowViewModel(environment: env)
+      }
+    }
+  }
 
-        // Quick controls — same SettingsStore the Settings tab writes, so the two
-        // screens can't disagree.
-        HStack(spacing: 12) {
+  @ViewBuilder
+  private func content(_ viewModel: NowViewModel) -> some View {
+    @Bindable var settings = viewModel.settings
+
+    VStack(alignment: .leading, spacing: 24) {
+      Text(viewModel.statusText)
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .accessibilityLabel(viewModel.statusText)
+
+      if let story = viewModel.displayedStory, let site = story.site {
+        NowCard(
+          siteName: site.name,
+          distanceMeters: viewModel.displayedDistanceMeters,
+          storyTitle: story.title,
+          snippet: viewModel.snippet(for: story),
+          transcript: story.transcript,
+          isPlaying: viewModel.isPlaying,
+          isLoading: viewModel.isLoading,
+          progress: viewModel.progress,
+          durationSeconds: story.durationSeconds,
+          speed: settings.defaultPlaybackSpeed,
+          onTogglePlayback: viewModel.togglePlayback,
+          onSelectSpeed: viewModel.selectSpeed
+        )
+        .id(story.slug)
+      } else if let nearest = viewModel.nearestSite {
+        teaser(nearest, viewModel: viewModel)
+      } else {
+        ContentUnavailableView(
+          "Nothing nearby yet",
+          systemImage: "location.slash",
+          description: Text("Walk near a seeded site to hear its story.")
+        )
+      }
+
+      // Speed lives on the Now card, next to the transport controls it actually affects —
+      // a second copy here just duplicated it with no added function (user-reported: "speed
+      // chips double"). Auto-play has no such home, so it stays as the one quick control.
+      Toggle("Auto-play nearby stories", isOn: $settings.autoPlay)
+
+      todaysWalkFeed(viewModel)
+    }
+  }
+
+  private func teaser(_ nearest: NearbySite, viewModel: NowViewModel) -> some View {
+    HStack {
+      VStack(alignment: .leading, spacing: 4) {
+        Text("Coming up")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+        Text("\(nearest.name) — \(Int(nearest.distanceMeters))m")
+          .font(.subheadline.weight(.medium))
+      }
+      Spacer()
+      Button("Play") { viewModel.playNearestSite() }
+        .buttonStyle(.bordered)
+    }
+    .padding()
+    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+  }
+
+  private func todaysWalkFeed(_ viewModel: NowViewModel) -> some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text("Today's walk")
+        .font(.headline)
+
+      if viewModel.todaysEvents.isEmpty {
+        Text("Nothing triggered yet.")
+          .font(.footnote)
+          .foregroundStyle(.secondary)
+      } else {
+        ForEach(viewModel.todaysEvents) { event in
           Button {
-            env.settings.autoPlay.toggle()
+            viewModel.replay(event)
           } label: {
-            Label(
-              env.settings.autoPlay ? "Auto-play ON" : "Auto-play OFF",
-              systemImage: env.settings.autoPlay ? "bolt.fill" : "bolt.slash"
-            )
-            .font(.footnote)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(
-              env.settings.autoPlay
-                ? Color.blue.opacity(0.15) : Color.gray.opacity(0.15)
-            )
-            .foregroundStyle(env.settings.autoPlay ? .blue : .secondary)
-            .clipShape(Capsule())
+            VStack(alignment: .leading, spacing: 2) {
+              Text(event.storyTitle)
+                .font(.subheadline.weight(.medium))
+              Text(event.siteName)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
           }
           .buttonStyle(.plain)
 
-          Menu {
-            ForEach(SettingsStore.availablePlaybackSpeeds, id: \.self) { speed in
-              Button("\(speed.formatted())×") {
-                env.settings.defaultPlaybackSpeed = speed
-                env.audio.setRate(Float(speed))
-              }
-            }
-          } label: {
-            Label(
-              "\(env.settings.defaultPlaybackSpeed.formatted())× Speed",
-              systemImage: "speedometer"
-            )
-            .font(.footnote)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.gray.opacity(0.15))
-            .foregroundStyle(.primary)
-            .clipShape(Capsule())
+          if event.id != viewModel.todaysEvents.last?.id {
+            Divider()
           }
         }
-
-        Text("\(env.content.siteCount) sites loaded")
-          .font(.footnote)
-          .foregroundStyle(.tertiary)
       }
-      .navigationTitle("Now")
     }
   }
 }
