@@ -45,47 +45,6 @@ struct ContentDebugView: View {
     }
     .navigationTitle("\(sites.count) sites")
     .navigationBarTitleDisplayMode(.inline)
-    .safeAreaInset(edge: .bottom) {
-      if let currentStory = appEnvironment.audio.currentStory {
-        VStack(spacing: 8) {
-          Text(currentStory.title)
-            .font(.subheadline)
-            .fontWeight(.semibold)
-
-          HStack(spacing: 20) {
-            Button {
-              if appEnvironment.audio.isPlaying {
-                appEnvironment.audio.pause()
-              } else {
-                appEnvironment.audio.resume()
-              }
-            } label: {
-              Image(
-                systemName: appEnvironment.audio.isPlaying
-                  ? "pause.circle.fill" : "play.circle.fill"
-              )
-              .font(.title)
-            }
-
-            Picker(
-              "Speed",
-              selection: Binding(
-                get: { appEnvironment.audio.rate },
-                set: { appEnvironment.audio.setRate($0) }
-              )
-            ) {
-              Text("0.75x").tag(Float(0.75))
-              Text("1x").tag(Float(1.0))
-              Text("1.25x").tag(Float(1.25))
-              Text("1.5x").tag(Float(1.5))
-            }
-            .pickerStyle(.segmented)
-          }
-        }
-        .padding()
-        .background(.regularMaterial)
-      }
-    }
   }
 }
 

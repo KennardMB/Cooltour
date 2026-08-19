@@ -11,6 +11,9 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   private(set) var progress: Double = 0.0
   private(set) var rate: Float = 1.0
 
+  /// Fires on natural completion so the narration coordinator can advance the queue. Not called
+  /// on manual stop or device removal — those are the user (or the world) ending playback, not a
+  /// story running out.
   var onPlaybackFinished: (() -> Void)?
 
   private var player: AVAudioPlayer?
@@ -19,45 +22,11 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   override init() {
     super.init()
     configureAudioSession()
-    setupRemoteCommandCenter()
     handleInterruptionsAndRouteChanges()
+    configureRemoteCommands()
   }
 
   // MARK: - Setup
-
-  private func setupRemoteCommandCenter() {
-    let commandCenter = MPRemoteCommandCenter.shared()
-
-    commandCenter.nextTrackCommand.isEnabled = false
-    commandCenter.previousTrackCommand.isEnabled = false
-
-    commandCenter.playCommand.isEnabled = true
-    commandCenter.playCommand.addTarget { [weak self] _ in
-      guard let self = self else { return .commandFailed }
-      Task { @MainActor in
-        self.resume()
-      }
-      return .success
-    }
-
-    commandCenter.pauseCommand.isEnabled = true
-    commandCenter.pauseCommand.addTarget { [weak self] _ in
-      guard let self = self else { return .commandFailed }
-      Task { @MainActor in
-        self.pause()
-      }
-      return .success
-    }
-
-    commandCenter.stopCommand.isEnabled = true
-    commandCenter.stopCommand.addTarget { [weak self] _ in
-      guard let self = self else { return .commandFailed }
-      Task { @MainActor in
-        self.stop()
-      }
-      return .success
-    }
-  }
 
   private func configureAudioSession() {
     do {
@@ -72,6 +41,42 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     } catch {
       print("Failed to configure audio session: \(error)")
     }
+  }
+
+  /// AirPods' Automatic Ear Detection — pause when removed from the ear, resume when put back
+  /// in — never touches `AVAudioSession`. It's delivered as a standard system remote command,
+  /// the same channel as lock-screen and Control Center controls, so without a target here
+  /// none of that reaches us: audio just keeps playing silently into an empty ear.
+  private func configureRemoteCommands() {
+    let commandCenter = MPRemoteCommandCenter.shared()
+
+    commandCenter.pauseCommand.addTarget { [weak self] _ in
+      guard let self, self.isPlaying else { return .commandFailed }
+      self.pause()
+      return .success
+    }
+
+    commandCenter.playCommand.addTarget { [weak self] _ in
+      guard let self, self.currentStory != nil, !self.isPlaying else { return .commandFailed }
+      self.resume()
+      return .success
+    }
+
+    commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+      guard let self, self.currentStory != nil else { return .commandFailed }
+      self.isPlaying ? self.pause() : self.resume()
+      return .success
+    }
+
+    commandCenter.stopCommand.addTarget { [weak self] _ in
+      guard let self, self.currentStory != nil else { return .commandFailed }
+      self.stop()
+      return .success
+    }
+
+    // Not supported — leaving these enabled would show dead skip buttons on the lock screen.
+    commandCenter.nextTrackCommand.isEnabled = false
+    commandCenter.previousTrackCommand.isEnabled = false
   }
 
   // MARK: - Playback controls
@@ -117,8 +122,8 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
         self.player?.play()
         self.isPlaying = true
-        self.updateNowPlayingInfo()
         self.startProgressTimer()
+        self.updateNowPlayingInfo()
       } catch {
         print("Failed to play audio: \(error)")
       }
@@ -138,6 +143,22 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   }
 
   func stop() {
+    endPlayback()
+  }
+
+  func setRate(_ newRate: Float) {
+    rate = newRate
+    player?.rate = newRate
+    updateNowPlayingInfo()
+  }
+
+  // MARK: - Teardown
+
+  /// The one terminal path: releases the player and hands the session back to whatever we
+  /// interrupted (Spotify, Music, a podcast). Called by `stop()`, the finish delegate, and
+  /// AirPods disconnecting — every case where playback is actually done, not just paused,
+  /// so none of them can leave the session open with nothing using it.
+  private func endPlayback() {
     player?.stop()
     player = nil
     currentStory = nil
@@ -146,8 +167,6 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     progressTimer?.invalidate()
     updateNowPlayingInfo()
 
-    // Hand the session back so whatever we interrupted (Spotify, Music, a podcast) can
-    // resume — otherwise it stays silently paused until this app is force-quit.
     do {
       try AVAudioSession.sharedInstance().setActive(
         false,
@@ -158,28 +177,25 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     }
   }
 
-  func setRate(_ newRate: Float) {
-    rate = newRate
-    player?.rate = newRate
-    updateNowPlayingInfo()
-  }
+  // MARK: - Now Playing (lock screen, Control Center, AirPods ear detection)
 
-  // MARK: - Now Playing Info
-
+  /// The system only has a play/pause target to call — via `configureRemoteCommands` — once
+  /// it knows something is playing, and that knowledge comes entirely from this info, not
+  /// from the audio session. Cleared (nil `currentStory`/`player`) on every terminal path.
   private func updateNowPlayingInfo() {
-    guard let story = currentStory, let player = player else {
+    guard let story = currentStory, let activePlayer = player else {
       MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
       return
     }
 
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPMediaItemPropertyTitle] = story.title
-    nowPlayingInfo[MPMediaItemPropertyArtist] = story.site?.name ?? AppConfig.appName
-    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = player.duration
-    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime
-    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player.isPlaying ? player.rate : 0.0
-
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    let info: [String: Any] = [
+      MPMediaItemPropertyTitle: story.title,
+      MPMediaItemPropertyArtist: story.site?.name ?? AppConfig.appName,
+      MPMediaItemPropertyPlaybackDuration: activePlayer.duration,
+      MPNowPlayingInfoPropertyElapsedPlaybackTime: activePlayer.currentTime,
+      MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(rate) : 0.0,
+    ]
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = info
   }
 
   // MARK: - Progress tracking
@@ -200,19 +216,15 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 // MARK: - AVAudioPlayerDelegate & interruption handling
 
 extension AVAudioPlayerService: AVAudioPlayerDelegate {
-  /// A story finishing on its own is the only way playback ends today — nothing in the app
-  /// calls `stop()` directly — so this is what actually releases the session back to whatever
-  /// it interrupted. Reuses `stop()`'s teardown rather than duplicating it; `player?.stop()`
-  /// on an already-finished player is a no-op.
   nonisolated func audioPlayerDidFinishPlaying(
     _ player: AVAudioPlayer,
     successfully flag: Bool
   ) {
     Task { @MainActor in
-      self.stop()
-      // The story reached its end. Notify last, after teardown, so a listener sees a settled
-      // player. When Slice 10 introduces `endPlayback()`, move this into it so every terminal
-      // path (finish, manual stop, route removal) notifies exactly once.
+      self.endPlayback()
+      // A story reaching its end is the one terminal path the queue should follow on. Notify
+      // last, after teardown, so the coordinator advances into a settled player. Manual stop
+      // and device removal deliberately don't notify — the user ended playback, not the story.
       self.onPlaybackFinished?()
     }
   }
@@ -237,7 +249,15 @@ extension AVAudioPlayerService: AVAudioPlayerDelegate {
           self.pause()
         }
       case .ended:
-        break
+        // Without `.shouldResume` the system is saying don't — e.g. another app took over
+        // the session outright — so silence is the correct outcome, not a resume attempt.
+        guard
+          let optionsValue = info[AVAudioSessionInterruptionOptionKey] as? UInt,
+          AVAudioSession.InterruptionOptions(rawValue: optionsValue).contains(.shouldResume)
+        else { return }
+        Task { @MainActor in
+          self.resumeAfterInterruption()
+        }
       @unknown default:
         break
       }
@@ -255,11 +275,25 @@ extension AVAudioPlayerService: AVAudioPlayerDelegate {
       else { return }
 
       if reason == .oldDeviceUnavailable {
+        // The output she was listening on is gone — that's her stopping, not a pause to
+        // come back from, so this releases the session rather than just muting into it.
         Task { @MainActor in
-          self.pause()
+          self.endPlayback()
         }
       }
     }
+  }
+
+  /// `.ended` with `.shouldResume`: the interruption (a phone call) is over and the system
+  /// is inviting us back. Our session may have been deactivated for its duration, so it's
+  /// reactivated explicitly before asking the player to resume.
+  private func resumeAfterInterruption() {
+    do {
+      try AVAudioSession.sharedInstance().setActive(true)
+    } catch {
+      print("Failed to reactivate audio session: \(error)")
+    }
+    resume()
   }
 }
 
