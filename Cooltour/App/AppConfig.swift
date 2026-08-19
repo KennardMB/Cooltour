@@ -27,9 +27,9 @@ enum AppConfig {
   /// opt-in survives.
   static let walkingModeKey = "backgroundTriggeringEnabled"
 
-  /// How long a spoken prompt waits for an answer before it gives up and stays silent. Injected
-  /// into the coordinator as a `Duration` in tests so they resolve it without sleeping 20s.
-  static let consentTimeoutSeconds: Double = 20
+  /// How long after the spoken prompt finishes before an unanswered prompt auto-dismisses.
+  /// Injected into the coordinator as a `Duration` in tests so they don't sleep real seconds.
+  static let dismissCountdownSeconds: Double = 10
 
   static let usePHASE = false
   static let headingRefinement = false

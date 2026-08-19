@@ -8,8 +8,12 @@ import Foundation
 ///
 /// `stop` exists alongside `speak` so answering or cancelling a prompt before the sentence finishes
 /// cuts the voice instead of letting it talk over the story it just launched.
+///
+/// `onFinished` fires when an utterance completes normally (not when `stop` cancels it) so the
+/// dismiss countdown can start after she has heard the question (Slice 11.5).
 @MainActor
 protocol PromptVoice: AnyObject {
+  var onFinished: (() -> Void)? { get set }
   func speak(_ text: String)
   func stop()
 }

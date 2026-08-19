@@ -30,24 +30,29 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   private func makeCoordinator(
-    timeout: Duration = .seconds(60)
-  ) -> (ConsentNarrationCoordinator, MockAudioPlayerService, MockPromptVoice, MockConsentRemoteControl) {
+    countdown: Duration = .seconds(60)
+  ) -> (
+    ConsentNarrationCoordinator, MockAudioPlayerService, MockPromptVoice, MockConsentRemoteControl,
+    MockStoryQueue
+  ) {
     let audio = MockAudioPlayerService()
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
+    let queue = MockStoryQueue()
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
-      consentTimeout: timeout
+      storyQueue: queue,
+      dismissCountdown: countdown
     )
-    return (coordinator, audio, voice, remote)
+    return (coordinator, audio, voice, remote, queue)
   }
 
   // MARK: - Prompting
 
   @Test func triggerPromptsSpeaksAndArmsTheStem() {
-    let (coordinator, audio, voice, remote) = makeCoordinator()
+    let (coordinator, audio, voice, remote, _) = makeCoordinator()
 
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
 
@@ -62,7 +67,7 @@ struct ConsentNarrationCoordinatorTests {
   // MARK: - Accept
 
   @Test func acceptPlaysTheStoryAndHandsBackTheStem() {
-    let (coordinator, audio, voice, remote) = makeCoordinator()
+    let (coordinator, audio, voice, remote, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     let id = coordinator.pendingPrompt!.id
 
@@ -76,7 +81,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func stemPressPlaysTheStory() {
-    let (coordinator, audio, _, remote) = makeCoordinator()
+    let (coordinator, audio, _, remote, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
 
     remote.simulateStemPress()
@@ -88,7 +93,7 @@ struct ConsentNarrationCoordinatorTests {
   // MARK: - Dismiss
 
   @Test func dismissPlaysNothing() {
-    let (coordinator, audio, _, remote) = makeCoordinator()
+    let (coordinator, audio, _, remote, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     let id = coordinator.pendingPrompt!.id
 
@@ -108,7 +113,8 @@ struct ConsentNarrationCoordinatorTests {
       audio: audio,
       promptVoice: MockPromptVoice(),
       remoteControl: MockConsentRemoteControl(),
-      consentTimeout: .milliseconds(1)
+      storyQueue: MockStoryQueue(),
+      dismissCountdown: .milliseconds(1)
     )
     coordinator.onOutcome = { _, outcome in outcomes.append(outcome) }
 
@@ -123,7 +129,7 @@ struct ConsentNarrationCoordinatorTests {
   // MARK: - Idempotency and staleness
 
   @Test func answeringTwiceResolvesOnlyOnce() {
-    let (coordinator, _, _, _) = makeCoordinator()
+    let (coordinator, _, _, _, _) = makeCoordinator()
     var outcomes: [PromptOutcome] = []
     coordinator.onOutcome = { _, outcome in outcomes.append(outcome) }
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
@@ -138,7 +144,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func staleAnswerCannotResolveTheCurrentPrompt() {
-    let (coordinator, audio, _, _) = makeCoordinator()
+    let (coordinator, audio, _, _, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     let staleID = coordinator.pendingPrompt!.id
     coordinator.dismiss(promptID: staleID)
@@ -151,23 +157,90 @@ struct ConsentNarrationCoordinatorTests {
     #expect(audio.currentStory == nil)
   }
 
-  // MARK: - Busy
+  // MARK: - Queue (Slice 11.5)
 
-  @Test func triggerArrivingWhileBusyIsIgnored() {
-    let (coordinator, _, _, _) = makeCoordinator()
+  @Test func triggerWhilePromptingEnqueuesSilently() {
+    let (coordinator, _, _, _, queue) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     let firstID = coordinator.pendingPrompt!.id
 
     coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
 
     #expect(coordinator.pendingPrompt?.id == firstID)
-    #expect(coordinator.pendingPrompt?.siteSlug == "a")
+    #expect(queue.items.map(\.storySlug) == ["b-1"])
+  }
+
+  @Test func playingThenTriggerPausesDuringSpeechThenResumes() {
+    let (coordinator, audio, voice, _, _) = makeCoordinator()
+    voice.autoFinish = false
+
+    coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    #expect(audio.isPlaying)
+
+    coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
+    #expect(coordinator.state == .prompting)
+    #expect(!audio.isPlaying)
+    #expect(audio.currentStory?.slug == "a-1")
+
+    voice.finishSpeaking()
+
+    #expect(audio.isPlaying)
+    #expect(audio.currentStory?.slug == "a-1")
+    #expect(coordinator.state == .prompting)
+  }
+
+  @Test func queueKeepsUnderlyingStoryPlaying() {
+    let (coordinator, audio, _, _, queue) = makeCoordinator()
+    var outcomes: [PromptOutcome] = []
+    coordinator.onOutcome = { _, outcome in outcomes.append(outcome) }
+
+    coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
+    // autoFinish already resumed A under the open prompt
+    #expect(audio.isPlaying)
+
+    coordinator.queue(promptID: coordinator.pendingPrompt!.id)
+
+    #expect(coordinator.state == .playing)
+    #expect(audio.isPlaying)
+    #expect(audio.currentStory?.slug == "a-1")
+    #expect(queue.items.map(\.storySlug) == ["b-1"])
+    #expect(outcomes.last == .queued)
+  }
+
+  @Test func dismissKeepsUnderlyingStoryPlaying() {
+    let (coordinator, audio, _, _, queue) = makeCoordinator()
+    coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
+
+    coordinator.dismiss(promptID: coordinator.pendingPrompt!.id)
+
+    #expect(coordinator.state == .playing)
+    #expect(audio.isPlaying)
+    #expect(audio.currentStory?.slug == "a-1")
+    #expect(queue.items.isEmpty)
+  }
+
+  @Test func finishingStoryAutoPlaysQueuedNext() {
+    let (coordinator, audio, _, _, _) = makeCoordinator()
+    coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
+    coordinator.queue(promptID: coordinator.pendingPrompt!.id)
+
+    audio.simulatePlaybackFinished()
+
+    #expect(coordinator.state == .playing)
+    #expect(audio.currentStory?.slug == "b-1")
   }
 
   // MARK: - Return to idle
 
   @Test func playbackFinishingReturnsToIdleAndCanPromptAgain() {
-    let (coordinator, _, _, _) = makeCoordinator()
+    let (coordinator, _, _, _, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
     #expect(coordinator.state == .playing)
@@ -180,12 +253,11 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func audioFinishingIsWiredBackToTheCoordinator() {
-    let (coordinator, audio, _, _) = makeCoordinator()
+    let (coordinator, audio, _, _, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
     #expect(coordinator.state == .playing)
 
-    // Drive the real seam: the player reports its story ended, which the coordinator wired in init.
     audio.simulatePlaybackFinished()
 
     #expect(coordinator.state == .idle)

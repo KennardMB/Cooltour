@@ -55,11 +55,19 @@ struct ProximityDebugView: View {
       Section("Consent prompt") {
         Text(prompt.spokenText)
           .font(.subheadline)
-        Button("Play now") {
-          env.narration.accept(promptID: prompt.id)
-        }
-        Button("Dismiss", role: .destructive) {
-          env.narration.dismiss(promptID: prompt.id)
+        HStack {
+          Button("Play now") {
+            env.narration.accept(promptID: prompt.id)
+          }
+          Button("Add to queue") {
+            env.narration.queue(promptID: prompt.id)
+          }
+          Button(
+            env.narration.dismissCountdownSeconds.map { "Dismiss (\($0))" } ?? "Dismiss",
+            role: .destructive
+          ) {
+            env.narration.dismiss(promptID: prompt.id)
+          }
         }
       }
     }

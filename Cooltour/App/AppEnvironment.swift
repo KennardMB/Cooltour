@@ -7,6 +7,7 @@ final class AppEnvironment {
   let audio: any AudioPlayerService
   let proximity: any ProximityEngine
   let narration: any NarrationCoordinator
+  let storyQueue: any StoryQueue
   let notifications: any NotificationService
   let settings: SettingsStore
   let history: HistoryStore
@@ -16,6 +17,7 @@ final class AppEnvironment {
     audio: any AudioPlayerService = MockAudioPlayerService(),
     proximity: any ProximityEngine = MockProximityEngine(),
     narration: any NarrationCoordinator = MockNarrationCoordinator(),
+    storyQueue: any StoryQueue = MockStoryQueue(),
     notifications: any NotificationService = MockNotificationService(),
     settings: SettingsStore = SettingsStore(),
     history: HistoryStore = HistoryStore.inMemory()
@@ -24,6 +26,7 @@ final class AppEnvironment {
     self.audio = audio
     self.proximity = proximity
     self.narration = narration
+    self.storyQueue = storyQueue
     self.notifications = notifications
     self.settings = settings
     self.history = history

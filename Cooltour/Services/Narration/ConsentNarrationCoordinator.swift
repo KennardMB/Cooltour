@@ -1,56 +1,118 @@
 import Foundation
 import Observation
 
-/// The real consent gate (Slice 11b). Owns the `idle → prompting → playing → idle` machine: a
-/// trigger raises a spoken prompt and arms the stem, an answer plays the story, and no answer within
-/// the timeout leaves silence. Everything an `AVAudioSession` would make hard to test — an ignored
-/// prompt, a stale answer, a trigger arriving mid-story — lives here behind injected mocks.
+/// The consent gate (Slice 11 + 11.5). Owns prompting, briefly pausing the current story only for
+/// the spoken prompt line, and the three answers (play / dismiss / queue). List storage lives on
+/// `StoryQueue`.
 @Observable
 final class ConsentNarrationCoordinator: NarrationCoordinator {
   private(set) var state: NarrationState = .idle
   private(set) var pendingPrompt: PendingPrompt?
+  /// Seconds left on the post-speech dismiss countdown; nil when not counting.
+  private(set) var dismissCountdownSeconds: Int?
 
-  /// Fires when a prompt resolves, with the prompt and how it ended. `AppEnvironment` forwards this
-  /// to history at go-live (Slice 11 "G").
+  /// Fires when a prompt resolves (or a busy trigger is silently queued).
   var onOutcome: ((PendingPrompt, PromptOutcome) -> Void)?
 
-  /// Exposed so tests await the timeout deterministically (by injecting a tiny `Duration`) instead
-  /// of sleeping the real 20 seconds.
+  /// Exposed so tests await the dismiss countdown deterministically.
   private(set) var timeoutTask: Task<Void, Never>?
 
-  // `var` only because `onPlaybackFinished` is set below; the reference is never reassigned.
+  // `var` only because callbacks are assigned below; references are never reassigned for ownership.
   private var audio: any AudioPlayerService
-  private let promptVoice: any PromptVoice
+  private var promptVoice: any PromptVoice
   private let remoteControl: any ConsentRemoteControl
-  private let consentTimeout: Duration
+  private let storyQueue: any StoryQueue
+  private let dismissCountdown: Duration
 
-  /// The pending prompt's story, held privately so `PendingPrompt` stays free of SwiftData.
+  private var pendingSite: Site?
   private var pendingStory: Story?
+  /// True only while TTS is speaking over a paused story. Cleared when speech ends (resume) or
+  /// when the user answers during speech.
+  private var pausedForSpokenPrompt = false
 
   init(
     audio: any AudioPlayerService,
     promptVoice: any PromptVoice,
     remoteControl: any ConsentRemoteControl,
-    consentTimeout: Duration = .seconds(AppConfig.consentTimeoutSeconds)
+    storyQueue: any StoryQueue,
+    dismissCountdown: Duration = .seconds(AppConfig.dismissCountdownSeconds)
   ) {
     self.audio = audio
     self.promptVoice = promptVoice
     self.remoteControl = remoteControl
-    self.consentTimeout = consentTimeout
+    self.storyQueue = storyQueue
+    self.dismissCountdown = dismissCountdown
 
-    // Return to idle when the story we launched finishes on its own. Safe even for playback the
-    // coordinator didn't start: `playbackDidFinish` no-ops unless we're in `.playing`.
     self.audio.onPlaybackFinished = { [weak self] in
       self?.playbackDidFinish()
+    }
+    self.promptVoice.onFinished = { [weak self] in
+      self?.spokenPromptDidFinish()
     }
   }
 
   func handleTrigger(site: Site, story: Story) {
-    // One ask at a time. A trigger arriving mid-prompt or mid-story is dropped this slice and
-    // queued in Slice 11.5 — prompting over a playing story would talk across it.
-    guard state == .idle else { return }
+    // Already asking — don't stack prompts; keep the story for later.
+    if state == .prompting {
+      enqueueSilently(site: site, story: story)
+      return
+    }
 
-    // Direction is stubbed until Slice 12; nil omits the phrase rather than guessing.
+    if state == .playing {
+      audio.pause()
+      pausedForSpokenPrompt = true
+    } else {
+      pausedForSpokenPrompt = false
+    }
+
+    beginPrompt(site: site, story: story)
+  }
+
+  func accept(promptID: UUID) {
+    guard state == .prompting, let prompt = pendingPrompt, prompt.id == promptID,
+      let story = pendingStory
+    else { return }
+    // Play now replaces whatever was underneath — do not resume it.
+    pausedForSpokenPrompt = false
+    endPrompt()
+    state = .playing
+    audio.play(story: story)
+    onOutcome?(prompt, .played)
+  }
+
+  func dismiss(promptID: UUID) {
+    guard state == .prompting, let prompt = pendingPrompt, prompt.id == promptID else { return }
+    endPrompt()
+    onOutcome?(prompt, .dismissed)
+    settleAfterPromptResolved()
+  }
+
+  func queue(promptID: UUID) {
+    guard state == .prompting, let prompt = pendingPrompt, prompt.id == promptID,
+      let site = pendingSite, let story = pendingStory
+    else { return }
+    storyQueue.enqueue(site: site, story: story)
+    endPrompt()
+    onOutcome?(prompt, .queued)
+    settleAfterPromptResolved()
+  }
+
+  func playbackDidFinish() {
+    // Underlying story can finish while a prompt is still open (A resumed under B's ask).
+    // Leave the prompt up; settleAfterPromptResolved / accept handle what happens next.
+    if state == .prompting { return }
+
+    guard state == .playing else { return }
+    if let next = storyQueue.popNext() {
+      audio.play(story: next)
+    } else {
+      state = .idle
+    }
+  }
+
+  // MARK: - Private
+
+  private func beginPrompt(site: Site, story: Story) {
     let directionPhrase: String? = nil
     let spoken = ApproachPrompt.text(siteName: site.name, directionPhrase: directionPhrase)
     let prompt = PendingPrompt(
@@ -64,66 +126,112 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     )
 
     pendingPrompt = prompt
+    pendingSite = site
     pendingStory = story
     state = .prompting
+    dismissCountdownSeconds = nil
 
-    // The stem answers "play now" without the phone leaving a pocket — armed only now, disarmed
-    // the instant the prompt resolves.
     let id = prompt.id
     remoteControl.arm(title: story.title) { [weak self] in
       self?.accept(promptID: id)
     }
     promptVoice.speak(spoken)
+    // Resume + dismiss countdown start in `spokenPromptDidFinish`.
+  }
 
-    // No answer means silence.
-    timeoutTask = Task { [weak self, consentTimeout] in
-      try? await Task.sleep(for: consentTimeout)
-      guard !Task.isCancelled else { return }
-      self?.resolveTimeout(promptID: id)
+  private func enqueueSilently(site: Site, story: Story) {
+    storyQueue.enqueue(site: site, story: story)
+    let prompt = PendingPrompt(
+      id: UUID(),
+      siteSlug: site.slug,
+      siteName: site.name,
+      storySlug: story.slug,
+      storyTitle: story.title,
+      directionPhrase: nil,
+      spokenText: ApproachPrompt.text(siteName: site.name, directionPhrase: nil)
+    )
+    onOutcome?(prompt, .queued)
+  }
+
+  private func spokenPromptDidFinish() {
+    guard state == .prompting, let prompt = pendingPrompt else { return }
+
+    // Site A only stays paused for the spoken line — resume as soon as TTS ends, even if she
+    // hasn't answered yet. The dismiss countdown runs while A continues underneath.
+    if pausedForSpokenPrompt {
+      pausedForSpokenPrompt = false
+      audio.resume()
     }
+
+    startDismissCountdown(promptID: prompt.id)
   }
 
-  func accept(promptID: UUID) {
-    guard state == .prompting, let prompt = pendingPrompt, prompt.id == promptID,
-      let story = pendingStory
-    else { return }
-    endPrompt()
-    state = .playing
-    audio.play(story: story)
-    onOutcome?(prompt, .played)
-  }
+  private func startDismissCountdown(promptID: UUID) {
+    timeoutTask?.cancel()
+    let wholeSeconds = Int(dismissCountdown.components.seconds)
 
-  func dismiss(promptID: UUID) {
-    guard state == .prompting, let prompt = pendingPrompt, prompt.id == promptID else { return }
-    endPrompt()
-    state = .idle
-    onOutcome?(prompt, .dismissed)
-  }
+    // Sub-second injections are for unit tests — one sleep, then timeout.
+    if wholeSeconds == 0 {
+      dismissCountdownSeconds = 1
+      timeoutTask = Task { [weak self, dismissCountdown] in
+        try? await Task.sleep(for: dismissCountdown)
+        guard !Task.isCancelled else { return }
+        self?.dismissCountdownSeconds = 0
+        self?.resolveTimeout(promptID: promptID)
+      }
+      return
+    }
 
-  /// Wired to `AudioPlayerService.onPlaybackFinished` in the real init (Slice 11 "F") so the machine
-  /// returns to idle when the story ends and can prompt again. Internal rather than in the protocol:
-  /// it's an implementation detail of this coordinator, exercised directly in tests.
-  func playbackDidFinish() {
-    guard state == .playing else { return }
-    state = .idle
+    dismissCountdownSeconds = wholeSeconds
+    timeoutTask = Task { [weak self] in
+      var remaining = wholeSeconds
+      while remaining > 0 {
+        try? await Task.sleep(for: .seconds(1))
+        guard !Task.isCancelled else { return }
+        remaining -= 1
+        self?.dismissCountdownSeconds = remaining
+      }
+      guard !Task.isCancelled else { return }
+      self?.resolveTimeout(promptID: promptID)
+    }
   }
 
   private func resolveTimeout(promptID: UUID) {
     guard state == .prompting, let prompt = pendingPrompt, prompt.id == promptID else { return }
     endPrompt()
-    state = .idle
     onOutcome?(prompt, .timedOut)
+    settleAfterPromptResolved()
   }
 
-  /// Shared teardown for every prompt exit: cut the voice, hand the stem back, cancel the timeout,
-  /// and clear the pending prompt and its story. The caller sets the next state (and, on accept,
-  /// captures the story first).
+  /// After dismiss / queue / timeout: keep A going if it already resumed (or still needs resume
+  /// because she answered mid-TTS); otherwise idle or drain the queue.
+  private func settleAfterPromptResolved() {
+    if pausedForSpokenPrompt {
+      pausedForSpokenPrompt = false
+      audio.resume()
+      state = .playing
+      return
+    }
+    if audio.isPlaying {
+      state = .playing
+      return
+    }
+    if let next = storyQueue.popNext() {
+      state = .playing
+      audio.play(story: next)
+    } else {
+      state = .idle
+    }
+  }
+
   private func endPrompt() {
     promptVoice.stop()
     remoteControl.disarm()
     timeoutTask?.cancel()
     timeoutTask = nil
+    dismissCountdownSeconds = nil
     pendingPrompt = nil
+    pendingSite = nil
     pendingStory = nil
   }
 }

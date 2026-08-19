@@ -12,9 +12,11 @@ import Foundation
 protocol NarrationCoordinator: AnyObject, Observable {
   var state: NarrationState { get }
   var pendingPrompt: PendingPrompt? { get }
+  /// Seconds left on the post-speech dismiss countdown; nil when not counting (Slice 11.5).
+  var dismissCountdownSeconds: Int? { get }
 
-  /// A site came into range. The coordinator decides whether to prompt, ignore it (busy), or —
-  /// from Slice 11.5 — queue it. Wired to `proximity.onTrigger` in `AppEnvironment`.
+  /// A site came into range. The coordinator decides whether to prompt, ignore it (busy), or
+  /// queue it. Wired to `proximity.onTrigger` in `AppEnvironment`.
   func handleTrigger(site: Site, story: Story)
 
   /// "Play now." The stem, the notification action, and the on-screen button all land here.
@@ -23,4 +25,7 @@ protocol NarrationCoordinator: AnyObject, Observable {
 
   /// "Dismiss." Same three surfaces, same staleness guard. No story plays.
   func dismiss(promptID: UUID)
+
+  /// "Add to queue." Plays nothing now; the queue auto-plays it after the current story finishes.
+  func queue(promptID: UUID)
 }

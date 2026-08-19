@@ -9,4 +9,5 @@ enum PromptOutcome: String, Codable, Sendable, CaseIterable {
   case played
   case dismissed
   case timedOut
+  case queued
 }

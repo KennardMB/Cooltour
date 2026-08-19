@@ -27,6 +27,8 @@ struct RootView: View {
         environment.proximity.start()
       } else {
         environment.proximity.stop()
+        // Queue is walk-scoped — turning walking mode off drops anything she saved for later.
+        environment.storyQueue.clear()
       }
     }
     .onChange(of: environment.proximity.isListening) { _, isListening in
