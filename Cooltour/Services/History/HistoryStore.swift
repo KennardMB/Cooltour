@@ -38,7 +38,7 @@ final class HistoryStore {
     try? context.save()
   }
   
-  func addEvent(from event: ProximityEvent, wasAutoPlayed: Bool) {
+  func addEvent(from event: ProximityEvent, outcome: PromptOutcome) {
     if activeWalk == nil {
       startWalk()
     }
@@ -50,7 +50,7 @@ final class HistoryStore {
       storySlug: event.storySlug,
       storyTitle: event.storyTitle,
       firedAt: event.date,
-      wasAutoPlayed: wasAutoPlayed,
+      outcome: outcome,
       userLatitude: event.latitude,
       userLongitude: event.longitude,
       wasBackground: event.wasBackground
@@ -59,6 +59,38 @@ final class HistoryStore {
     trigger.walk = walk
     walk.triggerEvents.append(trigger)
     try? context.save()
+  }
+
+  /// Updates the newest `.pending` event for `storySlug` once the consent gate resolves.
+  /// Matching by slug + pending is enough for MVP — one ask per site entry, and the trigger
+  /// log always precedes the outcome callback.
+  @discardableResult
+  func resolveOutcome(storySlug: String, outcome: PromptOutcome) -> Bool {
+    guard outcome != .pending else { return false }
+
+    var descriptor = FetchDescriptor<TriggerEvent>(
+      predicate: #Predicate {
+        $0.storySlug == storySlug && $0.outcome == "pending"
+      },
+      sortBy: [SortDescriptor(\.firedAt, order: .reverse)]
+    )
+    descriptor.fetchLimit = 1
+
+    guard let event = (try? context.fetch(descriptor))?.first else { return false }
+    event.outcome = outcome.rawValue
+    try? context.save()
+    return true
+  }
+
+  /// Newest stored outcome for a story, if any. Used by tests and the proximity debug surface.
+  func latestOutcome(storySlug: String) -> PromptOutcome? {
+    var descriptor = FetchDescriptor<TriggerEvent>(
+      predicate: #Predicate { $0.storySlug == storySlug },
+      sortBy: [SortDescriptor(\.firedAt, order: .reverse)]
+    )
+    descriptor.fetchLimit = 1
+    guard let raw = (try? context.fetch(descriptor))?.first?.outcome else { return nil }
+    return PromptOutcome(rawValue: raw)
   }
   
   /// Provides recent events across all walks for the debug view.

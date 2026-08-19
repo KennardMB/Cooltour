@@ -1,4 +1,5 @@
 import AVFoundation
+import MediaPlayer
 import Observation
 
 @Observable
@@ -10,16 +11,53 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   private(set) var progress: Double = 0.0
   private(set) var rate: Float = 1.0
 
+  var onPlaybackFinished: (() -> Void)?
+
   private var player: AVAudioPlayer?
   private var progressTimer: Timer?
 
   override init() {
     super.init()
     configureAudioSession()
+    setupRemoteCommandCenter()
     handleInterruptionsAndRouteChanges()
   }
 
   // MARK: - Setup
+
+  private func setupRemoteCommandCenter() {
+    let commandCenter = MPRemoteCommandCenter.shared()
+
+    commandCenter.nextTrackCommand.isEnabled = false
+    commandCenter.previousTrackCommand.isEnabled = false
+
+    commandCenter.playCommand.isEnabled = true
+    commandCenter.playCommand.addTarget { [weak self] _ in
+      guard let self = self else { return .commandFailed }
+      Task { @MainActor in
+        self.resume()
+      }
+      return .success
+    }
+
+    commandCenter.pauseCommand.isEnabled = true
+    commandCenter.pauseCommand.addTarget { [weak self] _ in
+      guard let self = self else { return .commandFailed }
+      Task { @MainActor in
+        self.pause()
+      }
+      return .success
+    }
+
+    commandCenter.stopCommand.isEnabled = true
+    commandCenter.stopCommand.addTarget { [weak self] _ in
+      guard let self = self else { return .commandFailed }
+      Task { @MainActor in
+        self.stop()
+      }
+      return .success
+    }
+  }
 
   private func configureAudioSession() {
     do {
@@ -79,6 +117,7 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
         self.player?.play()
         self.isPlaying = true
+        self.updateNowPlayingInfo()
         self.startProgressTimer()
       } catch {
         print("Failed to play audio: \(error)")
@@ -89,11 +128,13 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   func pause() {
     player?.pause()
     isPlaying = false
+    updateNowPlayingInfo()
   }
 
   func resume() {
     player?.play()
     isPlaying = true
+    updateNowPlayingInfo()
   }
 
   func stop() {
@@ -103,6 +144,7 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     isPlaying = false
     progress = 0.0
     progressTimer?.invalidate()
+    updateNowPlayingInfo()
 
     // Hand the session back so whatever we interrupted (Spotify, Music, a podcast) can
     // resume — otherwise it stays silently paused until this app is force-quit.
@@ -119,6 +161,25 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   func setRate(_ newRate: Float) {
     rate = newRate
     player?.rate = newRate
+    updateNowPlayingInfo()
+  }
+
+  // MARK: - Now Playing Info
+
+  private func updateNowPlayingInfo() {
+    guard let story = currentStory, let player = player else {
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+      return
+    }
+
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyTitle] = story.title
+    nowPlayingInfo[MPMediaItemPropertyArtist] = story.site?.name ?? AppConfig.appName
+    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = player.duration
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player.isPlaying ? player.rate : 0.0
+
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
   }
 
   // MARK: - Progress tracking
@@ -149,6 +210,10 @@ extension AVAudioPlayerService: AVAudioPlayerDelegate {
   ) {
     Task { @MainActor in
       self.stop()
+      // The story reached its end. Notify last, after teardown, so a listener sees a settled
+      // player. When Slice 10 introduces `endPlayback()`, move this into it so every terminal
+      // path (finish, manual stop, route removal) notifies exactly once.
+      self.onPlaybackFinished?()
     }
   }
 

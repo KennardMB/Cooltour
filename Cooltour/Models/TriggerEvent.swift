@@ -9,7 +9,12 @@ final class TriggerEvent {
   var storySlug: String
   var storyTitle: String
   var firedAt: Date
-  var wasAutoPlayed: Bool
+  /// Raw value of `PromptOutcome`. A three-way (plus `pending`) outcome replaces the old
+  /// `wasAutoPlayed` Bool now that every story is consented to (Slice 11). Stored as a String so
+  /// SwiftData persists it without a custom transformer.
+  /// Default is required for lightweight migration: older stores have rows with no `outcome`, and
+  /// Core Data refuses to migrate a mandatory attribute that has nothing to fill it with.
+  var outcome: String = PromptOutcome.pending.rawValue
   var userLatitude: Double
   var userLongitude: Double
   var wasBackground: Bool
@@ -22,7 +27,7 @@ final class TriggerEvent {
     storySlug: String,
     storyTitle: String,
     firedAt: Date = .now,
-    wasAutoPlayed: Bool,
+    outcome: PromptOutcome,
     userLatitude: Double,
     userLongitude: Double,
     wasBackground: Bool
@@ -32,7 +37,7 @@ final class TriggerEvent {
     self.storySlug = storySlug
     self.storyTitle = storyTitle
     self.firedAt = firedAt
-    self.wasAutoPlayed = wasAutoPlayed
+    self.outcome = outcome.rawValue
     self.userLatitude = userLatitude
     self.userLongitude = userLongitude
     self.wasBackground = wasBackground
