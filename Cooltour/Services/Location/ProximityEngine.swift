@@ -9,12 +9,38 @@ protocol ProximityEngine: AnyObject {
   var lastFix: ProximityFix? { get }
   /// Every seeded site with its live distance, nearest first.
   var nearbySites: [NearbySite] { get }
-  var recentEvents: [TriggerEvent] { get }
+  var onEventLogged: ((ProximityEvent) -> Void)? { get set }
   /// Called on the main actor when a site fires. Wired to playback in `AppEnvironment`.
   var onTrigger: ((Site, Story) -> Void)? { get set }
 
   func start()
   func stop()
+}
+
+extension ProximityEngine {
+  /// Debug/preview affordance: fires a site through the same `onEventLogged` → `onTrigger` path
+  /// as a real GPS entry, so Now / previews can exercise the consent gate without walking.
+  func simulateTrigger(
+    site: Site,
+    distanceMeters: Double = 10,
+    wasBackground: Bool = false
+  ) {
+    guard let story = site.stories.first else { return }
+    let event = ProximityEvent(
+      date: .now,
+      siteSlug: site.slug,
+      siteName: site.name,
+      storySlug: story.slug,
+      storyTitle: story.title,
+      distanceMeters: distanceMeters,
+      horizontalAccuracyMeters: 8,
+      latitude: site.latitude,
+      longitude: site.longitude,
+      wasBackground: wasBackground
+    )
+    onEventLogged?(event)
+    onTrigger?(site, story)
+  }
 }
 
 /// `nonisolated` because the project defaults every declaration to `@MainActor`, and an
@@ -48,35 +74,11 @@ final class MockProximityEngine: ProximityEngine {
   var authorizationStatus: CLAuthorizationStatus = .authorizedWhenInUse
   var lastFix: ProximityFix?
   var nearbySites: [NearbySite] = []
-  private(set) var recentEvents: [TriggerEvent] = []
+  var onEventLogged: ((ProximityEvent) -> Void)?
   var onTrigger: ((Site, Story) -> Void)?
 
   func start() { isListening = true }
   func stop() { isListening = false }
-
-  /// Fires a site through the same path as the real engine, so previews and tests can
-  /// exercise the trigger → playback wiring without GPS.
-  func simulateTrigger(
-    site: Site,
-    distanceMeters: Double = 10,
-    wasBackground: Bool = false
-  ) {
-    guard let story = site.stories.first else { return }
-    recentEvents.insert(
-      TriggerEvent(
-        date: .now,
-        siteSlug: site.slug,
-        siteName: site.name,
-        storySlug: story.slug,
-        storyTitle: story.title,
-        distanceMeters: distanceMeters,
-        horizontalAccuracyMeters: 8,
-        wasBackground: wasBackground
-      ),
-      at: 0
-    )
-    onTrigger?(site, story)
-  }
 }
 
 extension CLAuthorizationStatus {

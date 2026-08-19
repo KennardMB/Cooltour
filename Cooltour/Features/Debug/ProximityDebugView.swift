@@ -13,14 +13,15 @@ struct ProximityDebugView: View {
   var body: some View {
     List {
       engineSection
+      promptSection
       fixSection
       triggerSection
       distanceSection
     }
     .navigationTitle("Proximity")
     .navigationBarTitleDisplayMode(.inline)
-    // Background triggering only means anything if the engine outlives this screen.
-    .onDisappear { if !env.settings.backgroundTriggering { env.proximity.stop() } }
+    // Only tear the engine down on leaving if walking mode isn't keeping it alive.
+    .onDisappear { if !env.settings.walkingMode { env.proximity.stop() } }
   }
 
   private var engineSection: some View {
@@ -37,22 +38,53 @@ struct ProximityDebugView: View {
         value: env.proximity.authorizationStatus.displayName
       )
       LabeledContent(
-        "Background",
-        value: env.settings.backgroundTriggering ? "On" : "Off"
+        "Walking mode",
+        value: env.settings.walkingMode ? "On" : "Off"
       )
+      LabeledContent("Narration", value: narrationStateLabel)
       LabeledContent("Last geofence wake", value: wakeText)
-      LabeledContent(
-        "Auto-play",
-        value: env.settings.autoPlay ? "On" : "Off"
-      )
       LabeledContent("Playing", value: env.audio.currentStory?.title ?? "—")
+    }
+  }
+
+  /// Temporary until Slice 14 puts Play/Dismiss on the Now screen — device testing needs a
+  /// non-stem way to dismiss without waiting out the 20s timeout.
+  @ViewBuilder
+  private var promptSection: some View {
+    if env.narration.state == .prompting, let prompt = env.narration.pendingPrompt {
+      Section("Consent prompt") {
+        Text(prompt.spokenText)
+          .font(.subheadline)
+        HStack {
+          Button("Play now") {
+            env.narration.accept(promptID: prompt.id)
+          }
+          Button("Add to queue") {
+            env.narration.queue(promptID: prompt.id)
+          }
+          Button(
+            env.narration.dismissCountdownSeconds.map { "Dismiss (\($0))" } ?? "Dismiss",
+            role: .destructive
+          ) {
+            env.narration.dismiss(promptID: prompt.id)
+          }
+        }
+      }
+    }
+  }
+
+  private var narrationStateLabel: String {
+    switch env.narration.state {
+    case .idle: "Idle"
+    case .prompting: "Prompting"
+    case .playing: "Playing"
     }
   }
 
   /// Distinguishes "the system never woke us" from "it woke us but no fix was good enough".
   private var wakeText: String {
     guard let wake = engine?.lastWake else {
-      return env.settings.backgroundTriggering ? "None yet" : "—"
+      return env.settings.walkingMode ? "None yet" : "—"
     }
     return
       "\(wake.siteSlug) · \(wake.date.formatted(date: .omitted, time: .shortened))"
@@ -102,33 +134,32 @@ struct ProximityDebugView: View {
 
   @ViewBuilder
   private var triggerSection: some View {
-    Section("Triggers (\(env.proximity.recentEvents.count))") {
-      if env.proximity.recentEvents.isEmpty {
-        Text("Nothing has fired yet.").foregroundStyle(.secondary)
+    Section("Triggers (\(env.history.recentEvents.count))") {
+      if env.history.recentEvents.isEmpty {
+        Text("No triggers yet")
+          .foregroundStyle(.tertiary)
       }
-      ForEach(env.proximity.recentEvents) { event in
-        VStack(alignment: .leading, spacing: 2) {
+      ForEach(env.history.recentEvents) { event in
+        VStack(alignment: .leading, spacing: 4) {
           HStack {
-            Text(event.siteName).font(.headline)
-            if event.wasBackground {
-              Image(systemName: "moon.fill")
-                .foregroundStyle(.purple)
-                .accessibilityLabel("Fired in the background")
-            }
+            Text(event.storyTitle).font(.headline)
+            Spacer()
+            Text(event.date.formatted(date: .omitted, time: .shortened))
+              .font(.caption.monospacedDigit())
+              .foregroundStyle(.secondary)
           }
-          Text(event.storyTitle).font(.subheadline)
-          Text(
-            "\(event.date.formatted(date: .abbreviated, time: .standard)) · \(Int(event.distanceMeters)) m · ±\(Int(event.horizontalAccuracyMeters)) m"
-          )
+          Text(event.siteName).font(.subheadline)
+          HStack {
+            Text("Distance: \(Int(event.distanceMeters))m")
+            Text("•")
+            Text("GPS error: \(Int(event.horizontalAccuracyMeters))m")
+          }
           .font(.caption)
           .foregroundStyle(.secondary)
-          .monospacedDigit()
         }
-        .accessibilityElement(children: .combine)
+        .padding(.vertical, 4)
       }
-      if let engine, !engine.recentEvents.isEmpty {
-        Button("Clear log", role: .destructive) { engine.clearLog() }
-      }
+
     }
   }
 

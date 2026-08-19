@@ -9,6 +9,14 @@ final class MockAudioPlayerService: AudioPlayerService {
   private(set) var progress: Double = 0.0
   private(set) var rate: Float = 1.0
 
+  var onPlaybackFinished: (() -> Void)?
+
+  /// Test affordance: simulate a story reaching its end, driving whatever the coordinator wired.
+  func simulatePlaybackFinished() {
+    stop()
+    onPlaybackFinished?()
+  }
+
   func play(story: Story) {
     currentStory = story
     isPlaying = true

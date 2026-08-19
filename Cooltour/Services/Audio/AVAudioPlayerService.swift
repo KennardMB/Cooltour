@@ -11,6 +11,11 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   private(set) var progress: Double = 0.0
   private(set) var rate: Float = 1.0
 
+  /// Fires on natural completion so the narration coordinator can advance the queue. Not called
+  /// on manual stop or device removal — those are the user (or the world) ending playback, not a
+  /// story running out.
+  var onPlaybackFinished: (() -> Void)?
+
   private var player: AVAudioPlayer?
   private var progressTimer: Timer?
 
@@ -60,6 +65,12 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
       guard let self, self.currentStory != nil else { return .commandFailed }
       self.isPlaying ? self.pause() : self.resume()
+      return .success
+    }
+
+    commandCenter.stopCommand.addTarget { [weak self] _ in
+      guard let self, self.currentStory != nil else { return .commandFailed }
+      self.stop()
       return .success
     }
 
@@ -177,15 +188,13 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       return
     }
 
-    var info: [String: Any] = [
+    let info: [String: Any] = [
       MPMediaItemPropertyTitle: story.title,
+      MPMediaItemPropertyArtist: story.site?.name ?? AppConfig.appName,
       MPMediaItemPropertyPlaybackDuration: activePlayer.duration,
       MPNowPlayingInfoPropertyElapsedPlaybackTime: activePlayer.currentTime,
       MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(rate) : 0.0,
     ]
-    if let siteName = story.site?.name {
-      info[MPMediaItemPropertyArtist] = siteName
-    }
     MPNowPlayingInfoCenter.default().nowPlayingInfo = info
   }
 
@@ -213,6 +222,10 @@ extension AVAudioPlayerService: AVAudioPlayerDelegate {
   ) {
     Task { @MainActor in
       self.endPlayback()
+      // A story reaching its end is the one terminal path the queue should follow on. Notify
+      // last, after teardown, so the coordinator advances into a settled player. Manual stop
+      // and device removal deliberately don't notify — the user ended playback, not the story.
+      self.onPlaybackFinished?()
     }
   }
 
