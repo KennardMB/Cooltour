@@ -6,6 +6,7 @@ final class AppEnvironment {
   let content: any ContentStore
   let audio: any AudioPlayerService
   let proximity: any ProximityEngine
+  let narration: any NarrationCoordinator
   let notifications: any NotificationService
   let settings: SettingsStore
   let history: HistoryStore
@@ -14,6 +15,7 @@ final class AppEnvironment {
     content: any ContentStore = LocalContentStore.inMemory(),
     audio: any AudioPlayerService = MockAudioPlayerService(),
     proximity: any ProximityEngine = MockProximityEngine(),
+    narration: any NarrationCoordinator = MockNarrationCoordinator(),
     notifications: any NotificationService = MockNotificationService(),
     settings: SettingsStore = SettingsStore(),
     history: HistoryStore = HistoryStore.inMemory()
@@ -21,6 +23,7 @@ final class AppEnvironment {
     self.content = content
     self.audio = audio
     self.proximity = proximity
+    self.narration = narration
     self.notifications = notifications
     self.settings = settings
     self.history = history
@@ -29,19 +32,25 @@ final class AppEnvironment {
     self.audio.setRate(Float(settings.defaultPlaybackSpeed))
     
     // Wire history logging. Capturing `history` weakly isn't strictly necessary since it doesn't
-    // retain the proximity engine, but keeps closures clean. We use the settings from the closure 
-    // to record whether it was auto-played.
-    self.proximity.onEventLogged = { [weak history, weak settings] event in
-      let autoPlay = settings?.autoPlay ?? false
-      history?.addEvent(from: event, wasAutoPlayed: autoPlay)
+    // retain the proximity engine, but keeps closures clean.
+    // Logged as `.pending` at trigger time; the coordinator's `onOutcome` resolves it once the
+    // user answers (or the prompt times out).
+    self.proximity.onEventLogged = { [weak history] event in
+      history?.addEvent(from: event, outcome: .pending)
     }
 
-    // The one place proximity meets playback. Auto-play is a persisted preference
-    // now, not a static flag. Captures the locals rather than self, so the engine's
-    // callback can't retain the environment.
-    self.proximity.onTrigger = { _, story in
-      guard settings.autoPlay else { return }
-      audio.play(story: story)
+    // The one place proximity meets the consent gate. Captures the local rather than self, so
+    // the engine's callback can't retain the environment.
+    self.proximity.onTrigger = { site, story in
+      narration.handleTrigger(site: site, story: story)
+    }
+
+    // Production injects `ConsentNarrationCoordinator`; previews keep the mock, which has no
+    // outcome callback to wire.
+    if let consent = narration as? ConsentNarrationCoordinator {
+      consent.onOutcome = { [weak history] prompt, outcome in
+        history?.resolveOutcome(storySlug: prompt.storySlug, outcome: outcome)
+      }
     }
   }
 }

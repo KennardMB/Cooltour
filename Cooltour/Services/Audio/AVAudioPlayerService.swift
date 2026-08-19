@@ -10,6 +10,8 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   private(set) var progress: Double = 0.0
   private(set) var rate: Float = 1.0
 
+  var onPlaybackFinished: (() -> Void)?
+
   private var player: AVAudioPlayer?
   private var progressTimer: Timer?
 
@@ -149,6 +151,10 @@ extension AVAudioPlayerService: AVAudioPlayerDelegate {
   ) {
     Task { @MainActor in
       self.stop()
+      // The story reached its end. Notify last, after teardown, so a listener sees a settled
+      // player. When Slice 10 introduces `endPlayback()`, move this into it so every terminal
+      // path (finish, manual stop, route removal) notifies exactly once.
+      self.onPlaybackFinished?()
     }
   }
 

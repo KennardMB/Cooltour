@@ -19,15 +19,18 @@ enum AppConfig {
   /// the precise fix that follows still has to pass the accuracy gate before a story plays.
   static let monitorWakeRadiusMeters: Double = 150
 
-  /// Off until the user asks for it: turning it on is what prompts for "Always" location.
-  /// `SettingsStore` owns this value; the key is shared rather than private to the store
-  /// because `CooltourApp` and `CoreLocationProximityEngine` read it straight from
-  /// `UserDefaults` at launch, where no view exists to reach the store.
-  static let backgroundTriggeringKey = "backgroundTriggeringEnabled"
+  /// Persisted opt-in for background listening — the storage behind walking mode. Off until the
+  /// user asks for it: turning it on is what prompts for "Always" location. The key is shared
+  /// rather than private to `SettingsStore` because `CooltourApp` and `CoreLocationProximityEngine`
+  /// read it straight from `UserDefaults` at launch, where no view exists to reach the store.
+  /// The string value is intentionally left unchanged across the rename so the existing persisted
+  /// opt-in survives.
+  static let walkingModeKey = "backgroundTriggeringEnabled"
 
-  /// Seeds `SettingsStore` on first launch only. Read the store, not this, for the
-  /// live value — the user can change it in Settings.
-  static let autoPlayDefault = true
+  /// How long a spoken prompt waits for an answer before it gives up and stays silent. Injected
+  /// into the coordinator as a `Duration` in tests so they resolve it without sleeping 20s.
+  static let consentTimeoutSeconds: Double = 20
+
   static let usePHASE = false
   static let headingRefinement = false
 }

@@ -17,6 +17,32 @@ protocol ProximityEngine: AnyObject {
   func stop()
 }
 
+extension ProximityEngine {
+  /// Debug/preview affordance: fires a site through the same `onEventLogged` → `onTrigger` path
+  /// as a real GPS entry, so Now / previews can exercise the consent gate without walking.
+  func simulateTrigger(
+    site: Site,
+    distanceMeters: Double = 10,
+    wasBackground: Bool = false
+  ) {
+    guard let story = site.stories.first else { return }
+    let event = ProximityEvent(
+      date: .now,
+      siteSlug: site.slug,
+      siteName: site.name,
+      storySlug: story.slug,
+      storyTitle: story.title,
+      distanceMeters: distanceMeters,
+      horizontalAccuracyMeters: 8,
+      latitude: site.latitude,
+      longitude: site.longitude,
+      wasBackground: wasBackground
+    )
+    onEventLogged?(event)
+    onTrigger?(site, story)
+  }
+}
+
 /// `nonisolated` because the project defaults every declaration to `@MainActor`, and an
 /// isolated value type can't satisfy SwiftUI's generic (non-isolated) requirements.
 nonisolated struct ProximityFix: Sendable {
@@ -53,30 +79,6 @@ final class MockProximityEngine: ProximityEngine {
 
   func start() { isListening = true }
   func stop() { isListening = false }
-
-  /// Fires a site through the same path as the real engine, so previews and tests can
-  /// exercise the trigger → playback wiring without GPS.
-  func simulateTrigger(
-    site: Site,
-    distanceMeters: Double = 10,
-    wasBackground: Bool = false
-  ) {
-    guard let story = site.stories.first else { return }
-    let event = ProximityEvent(
-      date: .now,
-      siteSlug: site.slug,
-      siteName: site.name,
-      storySlug: story.slug,
-      storyTitle: story.title,
-      distanceMeters: distanceMeters,
-      horizontalAccuracyMeters: 8,
-      latitude: site.latitude,
-      longitude: site.longitude,
-      wasBackground: wasBackground
-    )
-    onEventLogged?(event)
-    onTrigger?(site, story)
-  }
 }
 
 extension CLAuthorizationStatus {

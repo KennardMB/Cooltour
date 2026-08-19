@@ -6,9 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		A100000000000000000000EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CBAFE4E302A0ABA0064E786 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0CBAFE55302A0ABA0064E786;
+			remoteInfo = Cooltour;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0CBAFE56302A0ABA0064E786 /* Cooltour.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cooltour.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CEC1EF3302C5667000A409D /* DenpasarWalk.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = DenpasarWalk.gpx; path = Testing/DenpasarWalk.gpx; sourceTree = "<group>"; };
+		A100000000000000000000E2 /* CooltourTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CooltourTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -30,10 +41,22 @@
 			path = Cooltour;
 			sourceTree = "<group>";
 		};
+		A100000000000000000000E9 /* CooltourTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CooltourTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		0CBAFE53302A0ABA0064E786 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A100000000000000000000E4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -48,6 +71,7 @@
 			children = (
 				0CEC1EF3302C5667000A409D /* DenpasarWalk.gpx */,
 				0CBAFE58302A0ABA0064E786 /* Cooltour */,
+				A100000000000000000000E9 /* CooltourTests */,
 				0CBAFE57302A0ABA0064E786 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				0CBAFE56302A0ABA0064E786 /* Cooltour.app */,
+				A100000000000000000000E2 /* CooltourTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -85,6 +110,29 @@
 			productReference = 0CBAFE56302A0ABA0064E786 /* Cooltour.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A100000000000000000000E1 /* CooltourTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A100000000000000000000E6 /* Build configuration list for PBXNativeTarget "CooltourTests" */;
+			buildPhases = (
+				A100000000000000000000E3 /* Sources */,
+				A100000000000000000000E4 /* Frameworks */,
+				A100000000000000000000E5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A100000000000000000000EA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A100000000000000000000E9 /* CooltourTests */,
+			);
+			name = CooltourTests;
+			packageProductDependencies = (
+			);
+			productName = CooltourTests;
+			productReference = A100000000000000000000E2 /* CooltourTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -97,6 +145,10 @@
 				TargetAttributes = {
 					0CBAFE55302A0ABA0064E786 = {
 						CreatedOnToolsVersion = 26.6;
+					};
+					A100000000000000000000E1 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 0CBAFE55302A0ABA0064E786;
 					};
 				};
 			};
@@ -115,12 +167,20 @@
 			projectRoot = "";
 			targets = (
 				0CBAFE55302A0ABA0064E786 /* Cooltour */,
+				A100000000000000000000E1 /* CooltourTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0CBAFE54302A0ABA0064E786 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A100000000000000000000E5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -137,7 +197,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A100000000000000000000E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A100000000000000000000EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0CBAFE55302A0ABA0064E786 /* Cooltour */;
+			targetProxy = A100000000000000000000EB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0CBAFE5F302A0ABB0064E786 /* Debug */ = {
@@ -339,6 +414,48 @@
 			};
 			name = Release;
 		};
+		A100000000000000000000E7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 325M9R8DH7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.challenge5.CooltourTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cooltour.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cooltour";
+			};
+			name = Debug;
+		};
+		A100000000000000000000E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 325M9R8DH7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.challenge5.CooltourTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cooltour.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cooltour";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -356,6 +473,15 @@
 			buildConfigurations = (
 				0CBAFE62302A0ABB0064E786 /* Debug */,
 				0CBAFE63302A0ABB0064E786 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A100000000000000000000E6 /* Build configuration list for PBXNativeTarget "CooltourTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000000000000000000E7 /* Debug */,
+				A100000000000000000000E8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

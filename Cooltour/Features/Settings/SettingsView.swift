@@ -10,27 +10,20 @@ struct SettingsView: View {
     NavigationStack {
       List {
         Section {
-          Toggle("Background triggering", isOn: $settings.backgroundTriggering)
-            .onChange(of: settings.backgroundTriggering) { _, isOn in
-              // Restart so the engine picks the setting up: it decides on the
-              // background session and the monitored geofences at start().
-              let wasListening = env.proximity.isListening
-              env.proximity.stop()
-              if isOn || wasListening { env.proximity.start() }
-            }
+          // No manual restart here: `RootView` observes `walkingMode` and starts or stops the
+          // engine, which is where the background session and geofences are decided.
+          Toggle("Walking mode", isOn: $settings.walkingMode)
           LabeledContent(
             "Location access",
             value: env.proximity.authorizationStatus.displayName
           )
         } header: {
-          Text("Background")
+          Text("Walking mode")
         } footer: {
-          Text(backgroundFooter)
+          Text(walkingModeFooter)
         }
 
         Section("Playback") {
-          Toggle("Auto-play nearby stories", isOn: $settings.autoPlay)
-
           Picker("Default Speed", selection: $settings.defaultPlaybackSpeed) {
             ForEach(SettingsStore.availablePlaybackSpeeds, id: \.self) { speed in
               Text("\(speed.formatted())×").tag(speed)
@@ -71,21 +64,24 @@ struct SettingsView: View {
     }
   }
 
-  /// Says what the app will actually do, including when it can't — "Always" is a big ask and
+  /// Says what walking mode will actually do, including when it can't — "Always" is a big ask and
   /// the honest answer to a refusal is that the app still works, just not with the screen off.
-  private var backgroundFooter: String {
-    guard env.settings.backgroundTriggering else {
-      return "Stories only trigger while \(AppConfig.appName) is open on screen."
+  /// Turning walking mode off stops all use of location, but iOS still shows the granted level in
+  /// Settings until the user changes it there; it can't be revoked from code.
+  private var walkingModeFooter: String {
+    guard env.settings.walkingMode else {
+      return
+        "Turn on walking mode to listen for nearby stories. \(AppConfig.appName) asks before playing each one."
     }
     return switch env.proximity.authorizationStatus {
     case .authorizedAlways:
-      "Stories trigger with the app in your pocket or the screen locked. Triggers are listed under Debug ▸ Proximity."
+      "Listening with the app in your pocket or the screen locked. Triggers are listed under Debug ▸ Proximity."
     case .authorizedWhenInUse:
-      "Needs “Always” to trigger with the screen locked — grant it in iOS Settings ▸ Privacy ▸ Location Services. Until then triggering works only with the app open."
+      "Needs “Always” to keep listening with the screen locked or after the app closes — grant it in iOS Settings ▸ Privacy ▸ Location Services. Until then it listens only while open."
     case .denied, .restricted:
       "Location is off for \(AppConfig.appName), so nothing can trigger. Turn it on in iOS Settings."
     default:
-      "Start listening to be asked for location access."
+      "Grant location access to start listening."
     }
   }
 }

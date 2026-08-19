@@ -50,7 +50,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
   }
 
   var isBackgroundTriggeringEnabled: Bool {
-    UserDefaults.standard.bool(forKey: AppConfig.backgroundTriggeringKey)
+    UserDefaults.standard.bool(forKey: AppConfig.walkingModeKey)
   }
 
   func start() {
