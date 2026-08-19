@@ -21,11 +21,13 @@ struct CooltourApp: App {
     self.container = container
     let audio = AVAudioPlayerService()
     let storyQueue = WalkStoryQueue()
+    let notifications = UNNotificationService()
     let narration = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: SystemPromptVoice(),
       remoteControl: SystemConsentRemoteControl(),
-      storyQueue: storyQueue
+      storyQueue: storyQueue,
+      notifications: notifications
     )
     let environment = AppEnvironment(
       content: store,
@@ -33,6 +35,7 @@ struct CooltourApp: App {
       proximity: CoreLocationProximityEngine(content: store),
       narration: narration,
       storyQueue: storyQueue,
+      notifications: notifications,
       settings: SettingsStore(),
       history: HistoryStore(container: container)
     )

@@ -48,6 +48,18 @@ final class AppEnvironment {
       narration.handleTrigger(site: site, story: story)
     }
 
+    // Route interactive notification answers into the narration coordinator.
+    self.notifications.onAnswer = { [weak narration] answer in
+      switch answer {
+      case .accept(let id):
+        narration?.accept(promptID: id)
+      case .dismiss(let id):
+        narration?.dismiss(promptID: id)
+      case .queue(let id):
+        narration?.queue(promptID: id)
+      }
+    }
+
     // Production injects `ConsentNarrationCoordinator`; previews keep the mock, which has no
     // outcome callback to wire.
     if let consent = narration as? ConsentNarrationCoordinator {
