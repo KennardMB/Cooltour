@@ -11,6 +11,7 @@ struct NowView: View {
       // Opens existentials so Observation tracks concrete `@Observable` types.
       ObservingNarration(coordinator: env.narration) { state, prompt, countdown in
         ObservingQueue(queue: env.storyQueue) { queueItems in
+          ObservingAudio(audio: env.audio) { isPlaying, isLoading, currentStory, progress in
           VStack(spacing: 24) {
             Text(statusLine(state: state, prompt: prompt))
               .font(.title3)
@@ -30,24 +31,33 @@ struct NowView: View {
                 .multilineTextAlignment(.center)
             }
 
-            Menu {
-              ForEach(SettingsStore.availablePlaybackSpeeds, id: \.self) { speed in
-                Button("\(speed.formatted())×") {
+            // The audio player, shown whenever a story is loaded — playing, or briefly paused
+            // while the consent prompt speaks over it. Speed lives here now (the old standalone
+            // × Speed menu was dropped); it's reachable only while there's audio to affect.
+            if let currentStory {
+              NowCard(
+                siteName: currentStory.site?.name ?? "",
+                distanceMeters: distance(for: currentStory),
+                storyTitle: currentStory.title,
+                snippet: snippet(for: currentStory),
+                transcript: currentStory.transcript,
+                isPlaying: isPlaying,
+                isLoading: isLoading,
+                progress: progress,
+                durationSeconds: currentStory.durationSeconds,
+                speed: env.settings.defaultPlaybackSpeed,
+                onTogglePlayback: {
+                  if env.audio.isPlaying {
+                    env.audio.pause()
+                  } else {
+                    env.audio.resume()
+                  }
+                },
+                onSelectSpeed: { speed in
                   env.settings.defaultPlaybackSpeed = speed
                   env.audio.setRate(Float(speed))
                 }
-              }
-            } label: {
-              Label(
-                "\(env.settings.defaultPlaybackSpeed.formatted())× Speed",
-                systemImage: "speedometer"
               )
-              .font(.footnote)
-              .padding(.horizontal, 12)
-              .padding(.vertical, 6)
-              .background(Color.gray.opacity(0.15))
-              .foregroundStyle(.primary)
-              .clipShape(Capsule())
             }
 
             // Temporary Slice 11 debug — allow while playing so you can test the interrupt prompt.
@@ -122,6 +132,7 @@ struct NowView: View {
               .font(.footnote)
               .foregroundStyle(.tertiary)
           }
+          }
         }
       }
       .padding()
@@ -133,6 +144,18 @@ struct NowView: View {
     let puras = env.content.allSites().filter { $0.slug.hasPrefix("pura-") }
     guard let site = puras.randomElement() else { return }
     env.proximity.simulateTrigger(site: site)
+  }
+
+  /// First line or so of the transcript for the card's preview text.
+  private func snippet(for story: Story, limit: Int = 140) -> String {
+    guard story.transcript.count > limit else { return story.transcript }
+    return String(story.transcript.prefix(limit)) + "…"
+  }
+
+  /// Best-effort live distance for the card header — nil when the site isn't in range readings.
+  private func distance(for story: Story) -> Double? {
+    guard let slug = story.site?.slug else { return nil }
+    return env.proximity.nearbySites.first { $0.id == slug }?.distanceMeters
   }
 
   private func dismissTitle(countdown: Int?) -> String {
@@ -199,6 +222,22 @@ private struct ObservingQueue<Content: View>: View {
 
   private func observe<Q: StoryQueue>(_ queue: Q) -> Content {
     content(queue.items)
+  }
+}
+
+/// Opens an `any AudioPlayerService` existential into a generic so Observation tracks the
+/// concrete `@Observable` player — otherwise `progress`/`isPlaying` never drive a redraw and
+/// the card would freeze the moment it appeared.
+private struct ObservingAudio<Content: View>: View {
+  let audio: any AudioPlayerService
+  @ViewBuilder let content: (Bool, Bool, Story?, Double) -> Content
+
+  var body: some View {
+    observe(audio)
+  }
+
+  private func observe<A: AudioPlayerService>(_ audio: A) -> Content {
+    content(audio.isPlaying, audio.isLoading, audio.currentStory, audio.progress)
   }
 }
 
