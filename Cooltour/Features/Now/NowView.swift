@@ -23,6 +23,13 @@ struct NowView: View {
               .buttonStyle(.borderedProminent)
               .controlSize(.large)
               .accessibilityHint("Listens for nearby stories and asks before playing each one.")
+              .onChange(of: settings.walkingMode) { _, isOn in
+                if isOn {
+                  Task {
+                    _ = await env.notifications.requestAuthorization()
+                  }
+                }
+              }
 
             if env.settings.walkingMode {
               Text(permissionNote)

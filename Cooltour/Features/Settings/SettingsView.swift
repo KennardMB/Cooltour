@@ -37,8 +37,15 @@ struct SettingsView: View {
         Section("Permissions") {
           LabeledContent(
             "Notifications",
-            value: env.notifications.isAuthorized ? "Allowed" : "Not requested"
+            value: env.notifications.isAuthorized ? "Allowed" : "Not allowed"
           )
+          if !env.notifications.isAuthorized {
+            Button("Request Permission") {
+              Task {
+                _ = await env.notifications.requestAuthorization()
+              }
+            }
+          }
           Button("Open System Settings") {
             if let url = URL(string: UIApplication.openSettingsURLString) {
               UIApplication.shared.open(url)
@@ -61,6 +68,9 @@ struct SettingsView: View {
         }
       }
       .navigationTitle("Settings")
+      .task {
+        await env.notifications.refreshAuthorization()
+      }
     }
   }
 

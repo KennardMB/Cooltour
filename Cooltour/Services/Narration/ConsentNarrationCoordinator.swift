@@ -22,6 +22,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   private var promptVoice: any PromptVoice
   private let remoteControl: any ConsentRemoteControl
   private let storyQueue: any StoryQueue
+  private let notifications: (any NotificationService)?
   private let dismissCountdown: Duration
 
   private var pendingSite: Site?
@@ -35,12 +36,14 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     promptVoice: any PromptVoice,
     remoteControl: any ConsentRemoteControl,
     storyQueue: any StoryQueue,
+    notifications: (any NotificationService)? = nil,
     dismissCountdown: Duration = .seconds(AppConfig.dismissCountdownSeconds)
   ) {
     self.audio = audio
     self.promptVoice = promptVoice
     self.remoteControl = remoteControl
     self.storyQueue = storyQueue
+    self.notifications = notifications
     self.dismissCountdown = dismissCountdown
 
     self.audio.onPlaybackFinished = { [weak self] in
@@ -136,6 +139,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
       self?.accept(promptID: id)
     }
     promptVoice.speak(spoken)
+    notifications?.postPrompt(prompt)
     // Resume + dismiss countdown start in `spokenPromptDidFinish`.
   }
 
@@ -225,6 +229,9 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   }
 
   private func endPrompt() {
+    if let id = pendingPrompt?.id {
+      notifications?.withdrawPrompt(id: id)
+    }
     promptVoice.stop()
     remoteControl.disarm()
     timeoutTask?.cancel()
