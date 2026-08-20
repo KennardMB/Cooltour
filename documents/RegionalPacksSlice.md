@@ -2,11 +2,24 @@
 ### Downloadable city content — Phase 2 of the audio architecture
 
 **Companion to:** [`AudioArchitectureAnalysis.md`](AudioArchitectureAnalysis.md) (this *is* Phase 2), [`MilaSlices.md`](MilaSlices.md), [`InitialCooltour.md`](InitialCooltour.md).
-**Branch:** `feature/slice-audio-architecture`
+**Branch:** `feature/slice-audio-architecture` (parked)
 **Depends on:** Slice 1 (ContentStore), Slice 7 (Settings stub). Independent of Mila slices 12–16. Does **not** wait on Slice 13 — pack notifications use their own category.
-**Status:** design approved 2026-08-19. Ready to plan implementation.
+**Status:** **Deferred — 2026-08-20.** Exhibition is next week; shipping with **all demo audio in the app bundle** (Phase 1). R2 / downloadable city packs move to the **back of the queue** until after the show. Design below stays valid when we resume; do not start R2 wiring or strip Kuta from the binary for the demo build.
+
+**Exhibition rule:** treat Cooltour as Phase 1 only — offline, zero download step, Denpasar + walk-test sites bundled. Resume this slice when multi-city storage matters again.
 
 This is not Mila-test work. It is the storage/delivery slice the audio architecture called for once Denpasar no longer fits in the app bundle.
+
+---
+
+## 0. Deferral note (post-exhibition resume checklist)
+
+When picking this up again:
+
+1. Re-read this doc and [`docs/superpowers/plans/2026-08-19-regional-packs.md`](../docs/superpowers/plans/2026-08-19-regional-packs.md).
+2. Decide whether to keep any in-progress pack library code on `feature/slice-audio-architecture` or re-branch from `main`.
+3. Exhibition demo must stay fully playable **without** Settings → Download and **without** a network.
+4. R2 (catalog + versioned zips) is still the target hosting; Supabase is still not the playback path.
 
 ---
 

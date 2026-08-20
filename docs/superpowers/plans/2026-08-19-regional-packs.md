@@ -1,6 +1,8 @@
 # Regional Packs Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **DEFERRED (2026-08-20):** Exhibition next week. Do **not** execute this plan for the demo build. Ship **Phase 1 — all audio in the app bundle**. Resume R2 / downloadable packs after the show. Spec: [`documents/RegionalPacksSlice.md`](../../../documents/RegionalPacksSlice.md).
+
+> **For agentic workers (when resumed):** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Let the user download and delete a Kuta city pack while Denpasar stays bundled; playback is always a local file and never a stream.
 
@@ -9,6 +11,8 @@
 **Tech Stack:** Swift 6, SwiftData, Swift Testing, URLSession, Core Location `CLMonitor`, UserNotifications, AVFoundation. No third-party zip library — packs are an exploded folder (`kuta.json` + `audio/`) that can later be served as a zip from R2.
 
 **Spec:** [`documents/RegionalPacksSlice.md`](../../../documents/RegionalPacksSlice.md)
+
+**Exhibition override:** Prefer merging walk-test sites back into the bundled `denpasar` pack (or shipping whatever is already on `main`) so a visitor never taps Download. Any half-finished pack/R2 work on `feature/slice-audio-architecture` stays parked.
 
 ## Global Constraints
 

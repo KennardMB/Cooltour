@@ -27,6 +27,7 @@ The core dilemma of Cooltour is balancing **device storage footprint** against *
              │ 1. Voice-optimized compression (32-48 kbps AAC)  │
              │    → 100 stories is ONLY ~25 MB (not hundreds)   │
              │ 2. Regional Content Packs for multi-city scale   │
+             │    (Phase 2 — deferred until after exhibition)   │
              │ 3. Predictive Geofenced Pre-cache + LRU Cache    │
              │ 4. Local-first playback pipeline via AVFoundation│
              └──────────────────────────────────────────────────┘
@@ -37,8 +38,8 @@ The core dilemma of Cooltour is balancing **device storage footprint** against *
 1. **The "Storage Problem" is Smaller Than Expected**: A common misconception is that 100 audio files consume hundreds of megabytes. Because Cooltour stories are short spoken-word narrations (45–90 seconds), properly encoded audio (HE-AAC / AAC-LC @ 32–48 kbps mono) requires only **~250 KB per story**. A full library of **100 sites consumes only ~25 MB**—smaller than a single modern social media video.
 2. **Pure Online Streaming is an Anti-Pattern for Proximity Walking Apps**: Streaming audio on-demand (e.g. from Supabase / S3) when entering a 30m geofence causes a **2 to 5-second buffering delay**, cellular handshake failures in stone alleys/temples, and breaks completely in airplane mode or with spotty tourist eSIMs. The user walks past the POI before the audio starts, pulling out their phone in confusion—violating the **Screen-Free Attention Test**.
 3. **The Recommended Architecture: 3-Phase Scalable Strategy**:
-   - **Phase 1 (Current MVP / 10–50 sites in Denpasar)**: **Bundled Regional Content Pack**. 100% offline, zero latency, ~10 MB storage.
-   - **Phase 2 (Growth / 50–200 sites across Bali / 3–5 cities)**: **On-Demand Regional Packs**. Download "Denpasar Heritage" (15 MB) or "Ubud Temples" (20 MB) over Wi-Fi, stored locally in SwiftData/App Support, removable anytime.
+   - **Phase 1 (Current / exhibition — 10–50 sites in Denpasar + walk tests)**: **Bundled Regional Content Pack**. 100% offline, zero latency, ~10 MB storage. **Ship this for the show.**
+   - **Phase 2 (Growth / 50–200 sites across Bali / 3–5 cities)**: **On-Demand Regional Packs** — **deferred post-exhibition** (see [`RegionalPacksSlice.md`](RegionalPacksSlice.md)). Download city packs over Wi-Fi into App Support when multi-city scale returns.
    - **Phase 3 (Scale / 1,000+ pins / Global Free-Roam)**: **Predictive Geofenced Pre-fetching + LRU Cache**. Store lightweight metadata on device; transparently pre-cache the nearest 15 POIs into a bounded 50 MB local cache when entering a 2 km district geofence.
 
 ---
@@ -141,19 +142,20 @@ To provide the ultimate user experience while keeping storage lean and server co
 
 ## 6. Phased Implementation Roadmap
 
-### Phase 1: MVP Optimization (Current Status & Quick Wins)
-- **Action**: Keep the Denpasar content pack bundled locally.
+### Phase 1: MVP Optimization (Current Status — exhibition path)
+- **Action**: Keep the Denpasar (and walk-test) content pack **bundled locally**. No download step for the demo.
 - **Audio Optimization**: Transcode all audio files to **AAC-LC @ 48 kbps mono** (or **HE-AAC @ 32 kbps mono**).
-- **Result**: Entire Denpasar tour with 20–30 sites is **under 6 MB total**. Zero architectural bloat, 100% offline compliance for ADA review.
+- **Result**: Entire Denpasar tour with 20–30 sites is **under 6 MB total**. Zero architectural bloat, 100% offline compliance for ADA review / exhibition.
 
-### Phase 2: Regional Content Packs (Multi-City Expansion)
-- **Build spec:** [`documents/RegionalPacksSlice.md`](RegionalPacksSlice.md) — city zips on Cloudflare R2, Denpasar stays bundled, Settings download/delete, city-geofence notification. No streaming.
+### Phase 2: Regional Content Packs (Multi-City Expansion) — **DEFERRED**
+- **Status (2026-08-20):** Parked until **after the exhibition**. Priority is back-of-queue. Demo ships Phase 1 (in-app audio only).
+- **Build spec (when resumed):** [`documents/RegionalPacksSlice.md`](RegionalPacksSlice.md) — city zips on Cloudflare R2, Denpasar stays bundled, Settings download/delete, city-geofence notification. No streaming.
 - **Action**: Separate content by regions (e.g. *Denpasar.json + audio*, *Ubud.json + audio*, *Sanur.json + audio*).
 - **Storage Backend**: Store zipped packs in **Cloudflare R2** behind a public `catalog.json`. (Supabase is an editorial CMS later, not the playback path.)
 - **Settings UI**: Add a **"Downloaded Content"** section in `SettingsView` where users can view installed city packs (e.g., "Denpasar Heritage: 12.4 MB") and download/delete the others.
 
 ### Phase 3: Autonomous Predictive Smart-Cache (Global Free Roam)
-- **Action**: Integrate `CLMonitor` district geofences (1.5 km – 3 km radius).
+- **Action**: Integrate `CLMonitor` district geofences (1.5 km – 3 km radius). Still after Phase 2.
 - **Background Pipeline**: As user moves, silently download the next 10 POIs ahead of time using `URLSessionConfiguration.background`.
 - **Playback**: Seamless, invisible, bounded at 50 MB storage forever.
 
