@@ -237,6 +237,82 @@ struct ConsentNarrationCoordinatorTests {
     #expect(audio.currentStory?.slug == "b-1")
   }
 
+  @Test func triggerWhilePlayingDoesNotArmStemPressForNewPrompt() {
+    let (coordinator, audio, _, remote, _) = makeCoordinator()
+    coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    #expect(audio.isPlaying)
+    #expect(!remote.isArmed)
+
+    // Trigger site B while A is playing
+    coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
+    #expect(coordinator.state == .prompting)
+    #expect(coordinator.pendingPrompt?.siteSlug == "b")
+    #expect(!remote.isArmed)
+
+    // Simulating stem press should not trigger acceptance of site B
+    remote.simulateStemPress()
+    #expect(coordinator.state == .prompting)
+    #expect(audio.currentStory?.slug == "a-1")
+  }
+
+  @Test func pauseAndResumeDuringPromptKeepsOriginalStory() async {
+    let audio = MockAudioPlayerService()
+    let voice = MockPromptVoice()
+    let remote = MockConsentRemoteControl()
+    let queue = MockStoryQueue()
+    let coordinator = ConsentNarrationCoordinator(
+      audio: audio,
+      promptVoice: voice,
+      remoteControl: remote,
+      storyQueue: queue,
+      dismissCountdown: .milliseconds(1)
+    )
+
+    coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    #expect(audio.isPlaying)
+
+    coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
+    #expect(coordinator.state == .prompting)
+    #expect(!remote.isArmed)
+
+    // Pause audio while prompt is active
+    audio.pause()
+    #expect(!audio.isPlaying)
+    #expect(audio.currentStory?.slug == "a-1")
+
+    // Resume audio while prompt is active
+    audio.resume()
+    #expect(audio.isPlaying)
+    #expect(audio.currentStory?.slug == "a-1")
+
+    // Allow prompt to time out
+    await coordinator.timeoutTask?.value
+
+    #expect(coordinator.state == .playing)
+    #expect(audio.isPlaying)
+    #expect(audio.currentStory?.slug == "a-1")
+  }
+
+  @Test func triggerWhilePlayingDismissPreservesPausedStoryState() {
+    let (coordinator, audio, _, _, _) = makeCoordinator()
+    coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+
+    coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
+    let promptID = coordinator.pendingPrompt!.id
+
+    audio.pause()
+    #expect(!audio.isPlaying)
+
+    coordinator.dismiss(promptID: promptID)
+
+    #expect(coordinator.state == .playing)
+    #expect(audio.currentStory?.slug == "a-1")
+    #expect(!audio.isPlaying)
+  }
+
   // MARK: - Return to idle
 
   @Test func playbackFinishingReturnsToIdleAndCanPromptAgain() {
