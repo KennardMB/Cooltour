@@ -12,10 +12,13 @@ final class SystemPromptVoice: NSObject, PromptVoice, AVSpeechSynthesizerDelegat
     synthesizer.delegate = self
   }
 
-  func speak(_ text: String) {
+  func speak(_ text: String, languageCode: String) {
     // Replace any in-flight utterance so a new prompt doesn't stack.
     synthesizer.stopSpeaking(at: .immediate)
     let utterance = AVSpeechUtterance(string: text)
+    utterance.voice =
+      AVSpeechSynthesisVoice(language: languageCode)
+      ?? AVSpeechSynthesisVoice(language: "en")
     synthesizer.speak(utterance)
   }
 

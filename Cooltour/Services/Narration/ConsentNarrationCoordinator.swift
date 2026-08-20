@@ -23,6 +23,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   private let remoteControl: any ConsentRemoteControl
   private let storyQueue: any StoryQueue
   private let notifications: (any NotificationService)?
+  private let settings: SettingsStore
   private let dismissCountdown: Duration
 
   private var pendingSite: Site?
@@ -37,6 +38,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     remoteControl: any ConsentRemoteControl,
     storyQueue: any StoryQueue,
     notifications: (any NotificationService)? = nil,
+    settings: SettingsStore = SettingsStore(),
     dismissCountdown: Duration = .seconds(AppConfig.dismissCountdownSeconds)
   ) {
     self.audio = audio
@@ -44,6 +46,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     self.remoteControl = remoteControl
     self.storyQueue = storyQueue
     self.notifications = notifications
+    self.settings = settings
     self.dismissCountdown = dismissCountdown
 
     self.audio.onPlaybackFinished = { [weak self] in
@@ -78,9 +81,13 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     // Play now replaces whatever was underneath — do not resume it.
     pausedForSpokenPrompt = false
     endPrompt()
-    state = .playing
-    audio.play(story: story)
-    onOutcome?(prompt, .played)
+    if startPlayback(story) {
+      onOutcome?(prompt, .played)
+    } else {
+      // Chosen language has no audio — silence, treat as a dismiss for history.
+      onOutcome?(prompt, .dismissed)
+      settleAfterPromptResolved()
+    }
   }
 
   func dismiss(promptID: UUID) {
@@ -107,7 +114,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
 
     guard state == .playing else { return }
     if let next = storyQueue.popNext() {
-      audio.play(story: next)
+      _ = startPlayback(next)
     } else {
       state = .idle
     }
@@ -117,7 +124,12 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
 
   private func beginPrompt(site: Site, story: Story) {
     let directionPhrase: String? = nil
-    let spoken = ApproachPrompt.text(siteName: site.name, directionPhrase: directionPhrase)
+    let languageCode = settings.resolvedLanguageCode
+    let spoken = ApproachPrompt.text(
+      siteName: site.name,
+      directionPhrase: directionPhrase,
+      languageCode: languageCode
+    )
     let prompt = PendingPrompt(
       id: UUID(),
       siteSlug: site.slug,
@@ -142,7 +154,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
         self?.accept(promptID: id)
       }
     }
-    promptVoice.speak(spoken)
+    promptVoice.speak(spoken, languageCode: languageCode)
     notifications?.postPrompt(prompt)
     // Resume + dismiss countdown start in `spokenPromptDidFinish`.
   }
@@ -156,7 +168,11 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
       storySlug: story.slug,
       storyTitle: story.title,
       directionPhrase: nil,
-      spokenText: ApproachPrompt.text(siteName: site.name, directionPhrase: nil)
+      spokenText: ApproachPrompt.text(
+        siteName: site.name,
+        directionPhrase: nil,
+        languageCode: settings.resolvedLanguageCode
+      )
     )
     onOutcome?(prompt, .queued)
   }
@@ -225,11 +241,25 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
       return
     }
     if let next = storyQueue.popNext() {
-      state = .playing
-      audio.play(story: next)
+      _ = startPlayback(next)
     } else {
       state = .idle
     }
+  }
+
+  /// Starts story audio or advances past unavailable assets. Returns whether something is playing.
+  @discardableResult
+  private func startPlayback(_ story: Story) -> Bool {
+    if audio.play(story: story) {
+      state = .playing
+      return true
+    }
+    // Missing recording for the selected language — try the next queued story, else idle.
+    if let next = storyQueue.popNext() {
+      return startPlayback(next)
+    }
+    state = .idle
+    return false
   }
 
   private func endPrompt() {

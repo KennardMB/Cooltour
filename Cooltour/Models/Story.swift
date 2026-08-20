@@ -45,4 +45,37 @@ final class Story {
     self.narratorNote = narratorNote
     self.timeOfDayTag = timeOfDayTag
   }
+
+  /// Asset for the chosen audio language. `nil` when Indonesian was requested but not shipped.
+  func audioAssetName(for language: AudioLanguagePreference) -> String? {
+    switch language {
+    case .english:
+      return audioAssetName
+    case .indonesian:
+      guard let audioAssetNameIndonesian, !audioAssetNameIndonesian.isEmpty else {
+        return nil
+      }
+      return audioAssetNameIndonesian
+    }
+  }
+
+  /// Transcript for the chosen audio language. Falls back to English text when ID is absent
+  /// (screen fallback only — playback still refuses a missing ID asset).
+  func transcript(for language: AudioLanguagePreference) -> String {
+    switch language {
+    case .english:
+      return transcript
+    case .indonesian:
+      return transcriptIndonesian ?? transcript
+    }
+  }
+
+  func durationSeconds(for language: AudioLanguagePreference) -> Double {
+    switch language {
+    case .english:
+      return durationSeconds
+    case .indonesian:
+      return durationSecondsIndonesian ?? durationSeconds
+    }
+  }
 }

@@ -10,24 +10,29 @@ import UserNotifications
 final class UNNotificationService: NSObject, NotificationService {
   private(set) var isAuthorized: Bool = false
   var onAnswer: ((NotificationAnswer) -> Void)?
-  
+
   static let categoryIdentifier = "APPROACH_PROMPT"
   static let playActionIdentifier = "PLAY_ACTION"
   static let dismissActionIdentifier = "DISMISS_ACTION"
   static let queueActionIdentifier = "QUEUE_ACTION"
-  
+
   private let center: UNUserNotificationCenter
-  
-  init(center: UNUserNotificationCenter = .current()) {
+  private let settings: SettingsStore
+
+  init(
+    center: UNUserNotificationCenter = .current(),
+    settings: SettingsStore = SettingsStore()
+  ) {
     self.center = center
+    self.settings = settings
     super.init()
     self.center.delegate = self
-    self.registerCategories()
+    self.syncLocalizedContent()
     Task { @MainActor in
       await self.refreshAuthorization()
     }
   }
-  
+
   func requestAuthorization() async -> Bool {
     do {
       let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
@@ -38,15 +43,21 @@ final class UNNotificationService: NSObject, NotificationService {
       return false
     }
   }
-  
+
   func refreshAuthorization() async {
     let settings = await center.notificationSettings()
-    self.isAuthorized = (settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional)
+    self.isAuthorized =
+      settings.authorizationStatus == .authorized
+      || settings.authorizationStatus == .provisional
   }
-  
+
   func postPrompt(_ prompt: PendingPrompt) {
+    let languageCode = settings.resolvedLanguageCode
     let content = UNMutableNotificationContent()
-    content.title = "Approaching \(prompt.siteName)"
+    content.title = ConsentStrings.notificationTitle(
+      siteName: prompt.siteName,
+      languageCode: languageCode
+    )
     if let direction = prompt.directionPhrase, !direction.isEmpty {
       content.body = "\(direction) · \(prompt.storyTitle)"
     } else {
@@ -59,54 +70,58 @@ final class UNNotificationService: NSObject, NotificationService {
       "siteSlug": prompt.siteSlug,
       "storySlug": prompt.storySlug,
     ]
-    
+
     let request = UNNotificationRequest(
       identifier: prompt.id.uuidString,
       content: content,
       trigger: nil
     )
-    
+
     center.add(request) { error in
       if let error {
         print("Failed to schedule notification: \(error)")
       }
     }
   }
-  
+
   func withdrawPrompt(id: UUID) {
     let idString = id.uuidString
     center.removePendingNotificationRequests(withIdentifiers: [idString])
     center.removeDeliveredNotifications(withIdentifiers: [idString])
   }
-  
+
+  func syncLocalizedContent() {
+    registerCategories(languageCode: settings.resolvedLanguageCode)
+  }
+
   // MARK: - Categories Setup
-  
-  private func registerCategories() {
+
+  private func registerCategories(languageCode: String) {
     let playAction = UNNotificationAction(
       identifier: Self.playActionIdentifier,
-      title: "Play now",
+      title: ConsentStrings.playNowAction(languageCode: languageCode),
       options: [.foreground]
     )
-    
+
     let queueAction = UNNotificationAction(
       identifier: Self.queueActionIdentifier,
-      title: "Add to queue",
+      title: ConsentStrings.addToQueueAction(languageCode: languageCode),
       options: []
     )
-    
+
     let dismissAction = UNNotificationAction(
       identifier: Self.dismissActionIdentifier,
-      title: "Dismiss",
+      title: ConsentStrings.dismissAction(languageCode: languageCode),
       options: [.destructive]
     )
-    
+
     let category = UNNotificationCategory(
       identifier: Self.categoryIdentifier,
       actions: [playAction, queueAction, dismissAction],
       intentIdentifiers: [],
       options: [.customDismissAction]
     )
-    
+
     center.setNotificationCategories([category])
   }
 }
@@ -122,7 +137,7 @@ extension UNNotificationService: UNUserNotificationCenterDelegate {
   ) {
     completionHandler([.banner, .sound, .badge, .list])
   }
-  
+
   /// Handles user tapping notification actions or the banner itself.
   nonisolated func userNotificationCenter(
     _ center: UNUserNotificationCenter,
@@ -130,14 +145,14 @@ extension UNNotificationService: UNUserNotificationCenterDelegate {
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
     defer { completionHandler() }
-    
+
     let userInfo = response.notification.request.content.userInfo
     guard let promptIDString = userInfo["promptID"] as? String,
-          let promptID = UUID(uuidString: promptIDString)
+      let promptID = UUID(uuidString: promptIDString)
     else { return }
-    
+
     let actionIdentifier = response.actionIdentifier
-    
+
     Task { @MainActor in
       switch actionIdentifier {
       case Self.playActionIdentifier:
@@ -151,18 +166,5 @@ extension UNNotificationService: UNUserNotificationCenterDelegate {
       default: break
       }
     }
-    
-    // Task { @MainActor in
-    //   switch actionIdentifier {
-    //   case Self.playActionIdentifier, UNNotificationDefaultActionIdentifier:
-    //     self.onAnswer?(.accept(promptID: promptID))
-    //   case Self.dismissActionIdentifier, UNNotificationDismissActionIdentifier:
-    //     self.onAnswer?(.dismiss(promptID: promptID))
-    //   case Self.queueActionIdentifier:
-    //     self.onAnswer?(.queue(promptID: promptID))
-    //   default:
-    //     break
-    //   }
-    // }
   }
 }

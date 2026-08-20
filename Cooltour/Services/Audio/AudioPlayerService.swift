@@ -12,7 +12,11 @@ protocol AudioPlayerService {
   /// Slice 11 — a finished story simply released the session.
   var onPlaybackFinished: (() -> Void)? { get set }
 
-  func play(story: Story)
+  /// Starts playback for the story in the user's chosen audio language.
+  /// - Returns: `false` when the asset is missing (e.g. Indonesian not recorded yet) — callers
+  ///   must silence / dismiss rather than falling back to another language.
+  @discardableResult
+  func play(story: Story) -> Bool
   func pause()
   func resume()
   func stop()
