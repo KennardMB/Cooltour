@@ -46,9 +46,26 @@ struct SettingsView: View {
           }
         }
 
-        Section("Content") {
-          LabeledContent("Downloaded status", value: "Offline ready")
-          LabeledContent("Sites loaded", value: "\(env.content.siteCount)")
+        Section("Downloaded content") {
+          ObservingPacks(library: env.packs) { catalog, error in
+            LabeledContent("Denpasar", value: "Included with the app")
+              .accessibilityHint("Ships with \(AppConfig.appName) and cannot be deleted.")
+
+            if let error {
+              Text(error)
+                .foregroundStyle(.secondary)
+              Button("Retry") {
+                Task {
+                  await env.packs.refreshCatalog()
+                  env.syncPackGeofences()
+                }
+              }
+            }
+
+            ForEach(catalog?.packs ?? []) { pack in
+              packRow(pack)
+            }
+          }
         }
 
         Section("About") {
@@ -83,6 +100,54 @@ struct SettingsView: View {
     default:
       "Grant location access to start listening."
     }
+  }
+
+  @ViewBuilder
+  private func packRow(_ pack: RemotePack) -> some View {
+    let status = env.packs.status(for: pack.id)
+    let sizeText = String(format: "%.1f MB", Double(pack.sizeBytes) / 1_000_000)
+    VStack(alignment: .leading, spacing: 8) {
+      LabeledContent(pack.name, value: sizeText)
+      switch status {
+      case .notInstalled:
+        Button("Download") { env.downloadPack(pack.id) }
+          .accessibilityHint("Downloads \(pack.name) stories to this iPhone.")
+      case .downloading(let progress):
+        ProgressView(value: progress)
+        Button("Cancel", role: .cancel) { env.packs.cancel(pack.id) }
+      case .installed(let version, _):
+        Text("Installed · \(version)")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+        Button("Delete", role: .destructive) { env.deletePack(pack.id) }
+          .accessibilityHint("Removes \(pack.name) stories from this iPhone. Denpasar stays.")
+      case .failed(let message):
+        Text(message)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+        Button("Retry") { env.downloadPack(pack.id) }
+      }
+    }
+    .accessibilityElement(children: .contain)
+  }
+}
+
+/// Opens `any ContentPackLibrary` so Observation tracks catalog and status.
+private struct ObservingPacks<Content: View>: View {
+  let library: any ContentPackLibrary
+  @ViewBuilder let content: (PackCatalog?, String?) -> Content
+
+  var body: some View {
+    observe(library)
+  }
+
+  private func observe<L: ContentPackLibrary>(_ library: L) -> Content {
+    if let catalog = library.catalog {
+      for pack in catalog.packs {
+        _ = library.status(for: pack.id)
+      }
+    }
+    return content(library.catalog, library.lastCatalogError)
   }
 }
 

@@ -78,9 +78,10 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
   func play(story: Story) {
     guard
-      let url = Bundle.main.url(
-        forResource: story.audioAssetName,
-        withExtension: nil
+      let url = AudioResourceResolver.url(
+        for: story.audioAssetName,
+        packID: story.site?.packID,
+        packsRoot: AudioResourceResolver.defaultPacksRoot()
       )
     else {
       print("Audio file not found: \(story.audioAssetName)")

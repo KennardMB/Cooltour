@@ -12,6 +12,9 @@ final class Site {
   var triggerRadiusMeters: Double
   var headingRequired: Bool
   var thumbnailAssetName: String?
+  /// Catalog pack this site belongs to. Bundled Denpasar uses `AppConfig.bundledPackID`;
+  /// downloaded cities use their catalog id so a bundled reseed cannot delete them.
+  var packID: String
 
   @Relationship(deleteRule: .cascade, inverse: \Story.site)
   var stories: [Story] = []
@@ -24,7 +27,8 @@ final class Site {
     longitude: Double,
     triggerRadiusMeters: Double,
     headingRequired: Bool,
-    thumbnailAssetName: String? = nil
+    thumbnailAssetName: String? = nil,
+    packID: String = AppConfig.bundledPackID
   ) {
     self.slug = slug
     self.name = name
@@ -34,5 +38,6 @@ final class Site {
     self.triggerRadiusMeters = triggerRadiusMeters
     self.headingRequired = headingRequired
     self.thumbnailAssetName = thumbnailAssetName
+    self.packID = packID
   }
 }

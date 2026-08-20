@@ -5,6 +5,14 @@ enum AppConfig {
 
   static let contentPackName = "denpasar"
 
+  /// SwiftData `Site.packID` for rows seeded from the bundled pack. Downloaded cities use
+  /// their catalog id (`kuta`, …) so a bundled reseed cannot wipe them.
+  /// `nonisolated` so SwiftData model inits (not MainActor) can use it as a default.
+  nonisolated static let bundledPackID = "bundled"
+
+  /// Bundled catalog resource name (`catalog.json`) used until `contentCatalogURL` points at R2.
+  static let contentCatalogResourceName = "catalog"
+
   static let defaultTriggerRadiusMeters: Double = 60
 
   /// Above this horizontal accuracy the fix is too vague to name a site, so we stay silent.
@@ -12,7 +20,7 @@ enum AppConfig {
 
   /// A site only re-arms once the user is this much past its radius, so standing on the
   /// boundary with a jittery fix can't fire the same story twice.
-  static let reArmRadiusMultiplier: Double = 1.35
+  nonisolated static let reArmRadiusMultiplier: Double = 1.35
 
   /// Region monitoring wakes the app; it doesn't decide anything. Core Location's geofences are
   /// only dependable around 100 m and up, so the wake ring is wider than any trigger radius —

@@ -1,0 +1,15 @@
+{
+  "catalogVersion": "1",
+  "packs": [
+    {
+      "id": "kuta",
+      "name": "Kuta",
+      "version": "1.0.0",
+      "sizeBytes": 433984,
+      "zipPath": "Packs/kuta/1.0.0",
+      "latitude": -8.737,
+      "longitude": 115.175,
+      "radiusMeters": 8000
+    }
+  ]
+}

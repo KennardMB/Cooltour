@@ -5,6 +5,8 @@ import SwiftData
 protocol ContentStore: AnyObject {
   var siteCount: Int { get }
   func allSites() -> [Site]
+  func install(_ pack: ContentPack, packID: String) throws
+  func uninstall(packID: String) throws
 }
 
 @MainActor
@@ -48,8 +50,26 @@ final class LocalContentStore: ContentStore {
     }
     #endif
 
+    try replaceSites(in: pack, packID: AppConfig.bundledPackID)
+    UserDefaults.standard.set(
+      pack.contentPackVersion,
+      forKey: Self.seededVersionKey
+    )
+  }
+
+  func install(_ pack: ContentPack, packID: String) throws {
+    try replaceSites(in: pack, packID: packID)
+  }
+
+  func uninstall(packID: String) throws {
+    try deleteSites(packID: packID)
+    try context.save()
     cachedSites = nil
-    try context.delete(model: Site.self)
+  }
+
+  /// Deletes only this pack's rows, then inserts the pack. Never `delete(model: Site.self)`.
+  private func replaceSites(in pack: ContentPack, packID: String) throws {
+    try deleteSites(packID: packID)
 
     for siteData in pack.sites {
       let site = Site(
@@ -59,7 +79,8 @@ final class LocalContentStore: ContentStore {
         latitude: siteData.lat,
         longitude: siteData.lng,
         triggerRadiusMeters: siteData.triggerRadiusMeters,
-        headingRequired: siteData.headingRequired
+        headingRequired: siteData.headingRequired,
+        packID: packID
       )
       context.insert(site)
 
@@ -79,10 +100,17 @@ final class LocalContentStore: ContentStore {
     }
 
     try context.save()
-    UserDefaults.standard.set(
-      pack.contentPackVersion,
-      forKey: Self.seededVersionKey
+    cachedSites = nil
+  }
+
+  private func deleteSites(packID: String) throws {
+    let target = packID
+    let descriptor = FetchDescriptor<Site>(
+      predicate: #Predicate<Site> { $0.packID == target }
     )
+    for site in try context.fetch(descriptor) {
+      context.delete(site)
+    }
   }
 
   private var cachedSites: [Site]?

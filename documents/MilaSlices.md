@@ -4,6 +4,7 @@
 **Source:** user test with Mila (Apple Developer Academy mentor, solo traveler), Aug 2026.
 **Companion to:** [`InitialCooltour.md`](InitialCooltour.md) — that document is still the spec for
 everything it covers. This one adds slices 10–16 and supersedes several of its slices (see §3).
+Downloadable city audio is **not** a Mila slice — see [`RegionalPacksSlice.md`](RegionalPacksSlice.md).
 **Phase length:** 2 weeks. **Team:** Kean, Nanda, Tami.
 **Status:** approved, ready to build.
 **Revised** during Slice 11 planning: auto-play is deleted rather than redefined, walking mode

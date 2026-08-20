@@ -12,9 +12,12 @@ protocol ProximityEngine: AnyObject {
   var onEventLogged: ((ProximityEvent) -> Void)? { get set }
   /// Called on the main actor when a site fires. Wired to playback in `AppEnvironment`.
   var onTrigger: ((Site, Story) -> Void)? { get set }
+  /// Called when the user enters an undownloaded city's circle. Not a story trigger.
+  var onPackRegionEntered: ((RemotePack) -> Void)? { get set }
 
   func start()
   func stop()
+  func setUninstalledPacks(_ packs: [RemotePack])
 }
 
 extension ProximityEngine {
@@ -76,9 +79,12 @@ final class MockProximityEngine: ProximityEngine {
   var nearbySites: [NearbySite] = []
   var onEventLogged: ((ProximityEvent) -> Void)?
   var onTrigger: ((Site, Story) -> Void)?
+  var onPackRegionEntered: ((RemotePack) -> Void)?
+  private var uninstalledPacks: [RemotePack] = []
 
   func start() { isListening = true }
   func stop() { isListening = false }
+  func setUninstalledPacks(_ packs: [RemotePack]) { uninstalledPacks = packs }
 }
 
 extension CLAuthorizationStatus {

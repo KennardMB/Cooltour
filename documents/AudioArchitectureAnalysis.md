@@ -147,9 +147,10 @@ To provide the ultimate user experience while keeping storage lean and server co
 - **Result**: Entire Denpasar tour with 20–30 sites is **under 6 MB total**. Zero architectural bloat, 100% offline compliance for ADA review.
 
 ### Phase 2: Regional Content Packs (Multi-City Expansion)
+- **Build spec:** [`documents/RegionalPacksSlice.md`](RegionalPacksSlice.md) — city zips on Cloudflare R2, Denpasar stays bundled, Settings download/delete, city-geofence notification. No streaming.
 - **Action**: Separate content by regions (e.g. *Denpasar.json + audio*, *Ubud.json + audio*, *Sanur.json + audio*).
-- **Storage Backend**: Store zipped packs or audio files in **Cloudflare R2** or **Supabase Storage** behind Cloudflare CDN.
-- **Settings UI**: Add a **"Downloaded Content"** section in `SettingsView` where users can view installed city packs (e.g., "Denpasar Heritage: 12.4 MB - [Delete]") and download new ones.
+- **Storage Backend**: Store zipped packs in **Cloudflare R2** behind a public `catalog.json`. (Supabase is an editorial CMS later, not the playback path.)
+- **Settings UI**: Add a **"Downloaded Content"** section in `SettingsView` where users can view installed city packs (e.g., "Denpasar Heritage: 12.4 MB") and download/delete the others.
 
 ### Phase 3: Autonomous Predictive Smart-Cache (Global Free Roam)
 - **Action**: Integrate `CLMonitor` district geofences (1.5 km – 3 km radius).

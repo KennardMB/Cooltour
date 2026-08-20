@@ -25,10 +25,12 @@ struct RootView: View {
     .onChange(of: environment.settings.walkingMode) { _, isOn in
       if isOn {
         environment.proximity.start()
+        environment.syncPackGeofences()
       } else {
         environment.proximity.stop()
-        // Queue is walk-scoped — turning walking mode off drops anything she saved for later.
         environment.storyQueue.clear()
+        environment.packCooldown.endWalk()
+        environment.syncPackGeofences()
       }
     }
     .onChange(of: environment.proximity.isListening) { _, isListening in

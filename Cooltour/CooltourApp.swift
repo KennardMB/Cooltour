@@ -27,15 +27,24 @@ struct CooltourApp: App {
       remoteControl: SystemConsentRemoteControl(),
       storyQueue: storyQueue
     )
+    let packs = LocalContentPackLibrary(content: store)
+    let notifications = LocalNotificationService()
     let environment = AppEnvironment(
       content: store,
       audio: audio,
       proximity: CoreLocationProximityEngine(content: store),
       narration: narration,
       storyQueue: storyQueue,
+      notifications: notifications,
+      packs: packs,
       settings: SettingsStore(),
       history: HistoryStore(container: container)
     )
+
+    Task { @MainActor in
+      await packs.refreshCatalog()
+      environment.syncPackGeofences()
+    }
 
     // Core Location can relaunch the app straight into the background, where no view ever
     // appears — so listening has to start with the process, not with a screen. Gated on the

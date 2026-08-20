@@ -19,6 +19,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
   private(set) var nearbySites: [NearbySite] = []
   var onEventLogged: ((ProximityEvent) -> Void)?
   var onTrigger: ((Site, Story) -> Void)?
+  var onPackRegionEntered: ((RemotePack) -> Void)?
 
   /// Last geofence wake. Separates "never woken" from "woken but the fix wasn't good enough" —
   /// two failures that look identical from an empty trigger log.
@@ -43,6 +44,8 @@ final class CoreLocationProximityEngine: ProximityEngine {
   private var hasRequestedAlways = false
   /// Site coordinates don't move; rebuilding a `CLLocation` per site per fix is pure waste.
   private var cachedLocations: [String: CLLocation] = [:]
+  private var uninstalledPacks: [RemotePack] = []
+  private var packEvaluator = PackRegionEvaluator()
 
   init(content: any ContentStore) {
     self.content = content
@@ -107,8 +110,15 @@ final class CoreLocationProximityEngine: ProximityEngine {
     cachedLocations.removeAll()
   }
 
-  func clearLog() {
-    // Engine no longer manages history logs directly
+  func setUninstalledPacks(_ packs: [RemotePack]) {
+    uninstalledPacks = packs
+    packEvaluator = PackRegionEvaluator()
+    guard isListening else { return }
+    let backgroundEnabled = isBackgroundTriggeringEnabled
+    monitorTask?.cancel()
+    monitorTask = Task { [weak self] in
+      await self?.syncMonitor(enabled: backgroundEnabled)
+    }
   }
 
   /// "Always" can only be asked for once When-In-Use is granted, so the escalation rides on the
@@ -136,9 +146,11 @@ final class CoreLocationProximityEngine: ProximityEngine {
 
     // Conditions outlive the process, so a content pack that drops or renames a site would
     // otherwise keep waking the app for a place that has no story left to play.
-    let currentSlugs = Set(content.allSites().map(\.slug))
+    let currentIDs =
+      Set(content.allSites().map(\.slug))
+      .union(uninstalledPacks.map { Self.packMonitorID($0.id) })
     for identifier in await monitor.identifiers
-    where !currentSlugs.contains(identifier) {
+    where !currentIDs.contains(identifier) {
       await monitor.remove(identifier)
     }
 
@@ -159,6 +171,21 @@ final class CoreLocationProximityEngine: ProximityEngine {
       )
     }
 
+    for pack in uninstalledPacks {
+      let identifier = Self.packMonitorID(pack.id)
+      guard await monitor.record(for: identifier) == nil else { continue }
+      await monitor.add(
+        CLMonitor.CircularGeographicCondition(
+          center: CLLocationCoordinate2D(
+            latitude: pack.latitude,
+            longitude: pack.longitude
+          ),
+          radius: pack.radiusMeters
+        ),
+        identifier: identifier
+      )
+    }
+
     // Draining the stream is what keeps the app subscribed — including for the launch event
     // when Core Location relaunches a terminated app. The event fires no story itself: a
     // geofence this wide can't tell the user is close enough and carries no accuracy, so it
@@ -174,6 +201,10 @@ final class CoreLocationProximityEngine: ProximityEngine {
       // A later stream failure doesn't unmake a wake that already happened — keep the
       // evidence, it's the only thing that separates "never woken" from "woken, no fix".
     }
+  }
+
+  private static func packMonitorID(_ packID: String) -> String {
+    "pack:\(packID)"
   }
 
   private func handle(_ location: CLLocation) {
@@ -252,6 +283,10 @@ final class CoreLocationProximityEngine: ProximityEngine {
       if slug == fired.first {
         onTrigger?(entry.site, story)
       }
+    }
+
+    for pack in packEvaluator.evaluate(packs: uninstalledPacks, at: location) {
+      onPackRegionEntered?(pack)
     }
   }
 }
