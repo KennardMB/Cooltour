@@ -68,7 +68,8 @@ final class LocalContentStore: ContentStore {
           slug: storyData.slug,
           title: storyData.title,
           audioAssetName: storyData.audioFile,
-          transcript: storyData.transcript,
+          transcript: storyData.transcript.en,
+          transcriptIndonesian: storyData.transcript.id,
           durationSeconds: storyData.durationSeconds,
           narratorNote: storyData.narratorNote,
           timeOfDayTag: storyData.timeOfDayTag
