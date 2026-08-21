@@ -13,15 +13,15 @@ public enum AppTextStyle: Sendable {
     /// 16pt Baru Lagi (Line Height: 1.2) — Cultural badges, small headings
     case title
 
-    /// 24pt SF Pro Rounded Bold — Large system titles
+    /// 24pt SF Pro Bold — Large system titles
     case titleL
-    /// 20pt SF Pro Rounded Semibold — Subheadings, modal titles
+    /// 20pt SF Pro Semibold — Subheadings, modal titles
     case titleM
-    /// 16pt SF Pro Rounded Regular — Primary body copy, transcripts
+    /// 16pt SF Pro Regular — Primary body copy, transcripts
     case captionL
-    /// 14pt SF Pro Rounded Regular — Secondary descriptions, timestamps
+    /// 14pt SF Pro Regular — Secondary descriptions, timestamps
     case captionS
-    /// 12pt SF Pro Rounded Regular — Metadata, distance tags, chip labels
+    /// 12pt SF Pro Regular — Metadata, distance tags, chip labels
     case label
 
     public static let customFontPostScriptName = "BaruLagi-Regular"
@@ -63,11 +63,11 @@ public enum AppTextStyle: Sendable {
         case .heading1, .heading2, .heading3, .title:
             return .custom(Self.customFontPostScriptName, size: pointSize, relativeTo: dynamicTextStyle)
         case .titleL:
-            return .system(size: pointSize, weight: .bold, design: .rounded)
+            return .system(size: pointSize, weight: .bold, design: .default)
         case .titleM:
-            return .system(size: pointSize, weight: .semibold, design: .rounded)
+            return .system(size: pointSize, weight: .semibold, design: .default)
         case .captionL, .captionS, .label:
-            return .system(size: pointSize, weight: .regular, design: .rounded)
+            return .system(size: pointSize, weight: .regular, design: .default)
         }
     }
 
@@ -121,19 +121,19 @@ extension View {
 
 // MARK: - Previews
 
-#Preview("Typography Scale") {
+#Preview("Typography Scale (SF Pro & Baru Lagi)") {
     ScrollView {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Heading 1 (32pt)").appFont(.heading1)
-            Text("Heading 2 (28pt)").appFont(.heading2)
-            Text("Heading 3 (20pt)").appFont(.heading3)
-            Text("Title (16pt)").appFont(.title)
+            Text("Heading 1 (32pt Baru Lagi)").appFont(.heading1)
+            Text("Heading 2 (28pt Baru Lagi)").appFont(.heading2)
+            Text("Heading 3 (20pt Baru Lagi)").appFont(.heading3)
+            Text("Title (16pt Baru Lagi)").appFont(.title)
             Divider()
-            Text("Title-L Rounded (24pt)").appFont(.titleL)
-            Text("Title-M Rounded (20pt)").appFont(.titleM)
-            Text("Caption-L Rounded (16pt)").appFont(.captionL)
-            Text("Caption-S Rounded (14pt)").appFont(.captionS)
-            Text("Label Rounded (12pt)").appFont(.label)
+            Text("Title-L SF Pro (24pt)").appFont(.titleL)
+            Text("Title-M SF Pro (20pt)").appFont(.titleM)
+            Text("Caption-L SF Pro (16pt)").appFont(.captionL)
+            Text("Caption-S SF Pro (14pt)").appFont(.captionS)
+            Text("Label SF Pro (12pt)").appFont(.label)
         }
         .padding(24)
     }

@@ -17,7 +17,7 @@
 
 The app utilizes a dual-typography hierarchy:
 - **Display & Cultural Headings**: Custom Display font **`Sore-Bold`** (Internal PostScript Name: `BaruLagi-Regular`, Full Name: `Baru Lagi Regular`).
-- **Body, Captions & System UI**: **`SF Pro Rounded`** for clean, readable layout hierarchy.
+- **Body, Captions & System UI**: **`SF Pro`** for clean, legible, and standard iOS typography.
 
 ### Font Registration
 - **File**: `Cooltour/Resources/Fonts/Sore-Bold.ttf`
@@ -32,11 +32,12 @@ The app utilizes a dual-typography hierarchy:
 | `appFont(.heading2)` | `BaruLagi-Regular` | 28pt | Bold (Regular) | 1.4 (~39pt) | 0 | Section headers, sheet titles |
 | `appFont(.heading3)` | `BaruLagi-Regular` | 20pt | Bold (Regular) | 1.2 (~24pt) | 0 | Card titles, primary button text |
 | `appFont(.title)` | `BaruLagi-Regular` | 16pt | Bold (Regular) | 1.2 (~19pt) | 0 | Small headings, badge labels |
-| `appFont(.titleL)` | `SF Pro Rounded` | 24pt | Bold | 1.2 (~29pt) | 0 | Large system headers |
-| `appFont(.titleM)` | `SF Pro Rounded` | 20pt | Semibold | 1.2 (~24pt) | 0 | Sub-headers, modal titles |
-| `appFont(.captionL)` | `SF Pro Rounded` | 16pt | Regular | 1.2 (~19pt) | 0 | Primary body text, transcripts |
-| `appFont(.captionS)` | `SF Pro Rounded` | 14pt | Regular | 1.2 (~17pt) | 0 | Secondary descriptions, timestamps |
-| `appFont(.label)` | `SF Pro Rounded` | 12pt | Regular | 1.2 (~14pt) | 0 | Metadata, distances, pill badges |
+| `appFont(.titleL)` | `SF Pro` | 24pt | Bold | 1.2 (~29pt) | 0 | Large system headers |
+| `appFont(.titleM)` | `SF Pro` | 20pt | Semibold | 1.2 (~24pt) | 0 | Sub-headers, modal titles |
+| `appFont(.captionL)` | `SF Pro` | 16pt | Regular | 1.2 (~19pt) | 0 | Primary body text, transcripts |
+| `appFont(.captionS)` | `SF Pro` | 14pt | Regular | 1.2 (~17pt) | 0 | Secondary descriptions, timestamps |
+| `appFont(.label)` | `SF Pro` | 12pt | Regular | 1.2 (~14pt) | 0 | Metadata, distances, pill badges |
+
 
 ---
 
@@ -165,7 +166,7 @@ AppProfileButton(initial: "A") {
 ### 5. `AppCard` (Container)
 - **Visuals**: Supports `.standard` (4pt `#E2E1DE` border) and `.brush` (hand-drawn `BrushCard` outline).
 - **Header**: `Baru Lagi` 16pt `#111111`.
-- **Subheadline**: `SF Pro Rounded` 12pt `#393939`.
+- **Subheadline**: `SF Pro` 12pt `#393939`.
 
 ```swift
 AppCard(title: "Pura Maospahit", caption: "80m · on your left", style: .brush) {
@@ -182,12 +183,50 @@ AchievementBadge(.travelerSpecial, isUnlocked: true)
 ```
 
 ### 7. `AppIcon` (Custom Brush Audio & Navigation Icons)
-- **Assets**: `IconForward10`, `IconRewind10`, `IconPlaybackSpeed`, `IconQueue`, `IconArrowDown`, `IconArrowUp`.
+- **Assets**: `IconForward10`, `IconRewind10`, `IconPlaybackSpeed`, `IconQueue`, `IconArrowDown`, `IconArrowUp`, `IconDirectionLeft`, `IconDirectionRight`, `IconClose`, `IconSlideHandle`, `IconSpeed0_5`...`IconSpeed1_5`.
 - **Usage**: Type-safe vector icon component with optional explicit size.
 
 ```swift
 AppIcon(.forward10, size: 36)
 AppIcon(.playbackSpeed, size: 32)
+```
+
+### 8. `PlaybackSpeedSheet` (Speed Selector Modal)
+- **Options**: `0.5x`, `0.75x`, `1.0x`, `1.25x`, `1.5x`.
+- **Features**: Interactive selection with custom speed brush icons, selected highlight, and dismiss action.
+
+```swift
+PlaybackSpeedSheet(selectedSpeed: $speed, onClose: { showSheet = false })
+```
+
+### 9. `AudioScrubber` (Playback Timeline)
+- **Features**: Interactive progress drag scrubber with elapsed and remaining timestamps, custom thumb, and VoiceOver percentage announcements.
+
+```swift
+AudioScrubber(progress: $progress, durationSeconds: story.durationSeconds) { seekSeconds in
+    audio.seek(to: seekSeconds)
+}
+```
+
+### 10. `ColorThemeSelector` (Cultural Palette Switcher)
+- **Colors**: Royal Azure, Pink Carnation, Bright Gold, Tiger Flame, Jade Green.
+
+```swift
+ColorThemeSelector(selectedTheme: $theme)
+```
+
+### 11. `ListButton` (Story & Queue Rows)
+- **Visuals**: Reusable card row with title, relative direction/distance, duration text, and right-aligned Play icon button.
+
+```swift
+ListButton(title: "Pura Jagatnatha", subtitle: "80m · on your left", durationText: "1:45", onPlay: { ... })
+```
+
+### 12. `DirectionBadge` (Relative Wayfinding Indicator)
+- **Visuals**: Direction arrows (`IconDirectionLeft`, `IconDirectionRight`) with distance phrase.
+
+```swift
+DirectionBadge("80m · on your left", direction: .left)
 ```
 
 ---
@@ -197,5 +236,6 @@ AppIcon(.playbackSpeed, size: 32)
 1. **VoiceOver Support**: Every button and card must declare `.accessibilityLabel`, `.accessibilityHint`, and `.accessibilityAddTraits`.
 2. **Dynamic Type Scaling**: Use `@ScaledMetric` on custom layout dimensions so touch targets expand proportionally.
 3. **Strict Concurrency (`@MainActor`)**: All views and modifiers run on `@MainActor` with zero data races per `AGENTS.md`.
+
 
 
