@@ -17,10 +17,12 @@ final class MockAudioPlayerService: AudioPlayerService {
     onPlaybackFinished?()
   }
 
-  func play(story: Story) {
+  @discardableResult
+  func play(story: Story) -> Bool {
     currentStory = story
     isPlaying = true
     progress = 0.3  // pretend it's already 30%
+    return true
   }
 
   func pause() {

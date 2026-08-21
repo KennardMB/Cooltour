@@ -17,6 +17,8 @@ protocol NotificationService: AnyObject, Observable {
   func refreshAuthorization() async
   func postPrompt(_ prompt: PendingPrompt)
   func withdrawPrompt(id: UUID)
+  /// Re-register notification action labels when app language changes.
+  func syncLocalizedContent()
 }
 
 @Observable
@@ -42,6 +44,8 @@ final class MockNotificationService: NotificationService {
     withdrawnPromptIDs.append(id)
     postedPrompts.removeAll { $0.id == id }
   }
+
+  func syncLocalizedContent() {}
 
   func simulateAnswer(_ answer: NotificationAnswer) {
     onAnswer?(answer)

@@ -39,11 +39,14 @@ struct ConsentNarrationCoordinatorTests {
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
     let queue = MockStoryQueue()
+    let settings = SettingsStore()
+    settings.appLanguage = .english
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
       storyQueue: queue,
+      settings: settings,
       dismissCountdown: countdown
     )
     return (coordinator, audio, voice, remote, queue)
@@ -62,6 +65,30 @@ struct ConsentNarrationCoordinatorTests {
     #expect(remote.isArmed)
     #expect(remote.armedTitle == "The Split Gate")
     #expect(!audio.isPlaying)
+  }
+
+  @Test func triggerUsesAppLanguageForSpokenPrompt() {
+    let audio = MockAudioPlayerService()
+    let voice = MockPromptVoice()
+    let remote = MockConsentRemoteControl()
+    let queue = MockStoryQueue()
+    let settings = SettingsStore()
+    settings.appLanguage = .indonesian
+    let coordinator = ConsentNarrationCoordinator(
+      audio: audio,
+      promptVoice: voice,
+      remoteControl: remote,
+      storyQueue: queue,
+      settings: settings
+    )
+
+    coordinator.handleTrigger(site: makeSite(), story: makeStory())
+
+    #expect(
+      voice.lastSpoken
+        == "Anda mendekati Pura Maospahit. Tekan putar untuk mendengarkannya."
+    )
+    #expect(coordinator.pendingPrompt?.spokenText == voice.lastSpoken)
   }
 
   // MARK: - Accept
@@ -109,11 +136,14 @@ struct ConsentNarrationCoordinatorTests {
   @Test func noAnswerTimesOutIntoSilence() async {
     var outcomes: [PromptOutcome] = []
     let audio = MockAudioPlayerService()
+    let settings = SettingsStore()
+    settings.appLanguage = .english
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: MockPromptVoice(),
       remoteControl: MockConsentRemoteControl(),
       storyQueue: MockStoryQueue(),
+      settings: settings,
       dismissCountdown: .milliseconds(1)
     )
     coordinator.onOutcome = { _, outcome in outcomes.append(outcome) }
@@ -261,11 +291,14 @@ struct ConsentNarrationCoordinatorTests {
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
     let queue = MockStoryQueue()
+    let settings = SettingsStore()
+    settings.appLanguage = .english
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
       storyQueue: queue,
+      settings: settings,
       dismissCountdown: .milliseconds(1)
     )
 

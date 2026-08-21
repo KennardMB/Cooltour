@@ -18,8 +18,10 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
   private var player: AVAudioPlayer?
   private var progressTimer: Timer?
+  private let settings: SettingsStore
 
-  override init() {
+  init(settings: SettingsStore = SettingsStore()) {
+    self.settings = settings
     super.init()
     configureAudioSession()
     handleInterruptionsAndRouteChanges()
@@ -81,15 +83,26 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
   // MARK: - Playback controls
 
-  func play(story: Story) {
+  @discardableResult
+  func play(story: Story) -> Bool {
+    let language = settings.audioLanguage
+    guard let assetName = story.audioAssetName(for: language) else {
+      print(
+        "Audio unavailable for \(language.rawValue): \(story.slug) — staying silent"
+      )
+      stop()
+      return false
+    }
+
     guard
       let url = Bundle.main.url(
-        forResource: story.audioAssetName,
+        forResource: assetName,
         withExtension: nil
       )
     else {
-      print("Audio file not found: \(story.audioAssetName)")
-      return
+      print("Audio file not found: \(assetName)")
+      stop()
+      return false
     }
 
     self.currentStory = story
@@ -126,8 +139,10 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
         self.updateNowPlayingInfo()
       } catch {
         print("Failed to play audio: \(error)")
+        self.stop()
       }
     }
+    return true
   }
 
   func pause() {

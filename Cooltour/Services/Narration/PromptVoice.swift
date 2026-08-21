@@ -14,6 +14,6 @@ import Foundation
 @MainActor
 protocol PromptVoice: AnyObject {
   var onFinished: (() -> Void)? { get set }
-  func speak(_ text: String)
+  func speak(_ text: String, languageCode: String)
   func stop()
 }
