@@ -7,20 +7,25 @@ public enum AppIconType: String, CaseIterable, Sendable {
     case rewind10 = "IconRewind10"
     case playbackSpeed = "IconPlaybackSpeed"
     case queue = "IconQueue"
-    case arrowDown = "IconArrowDown"
-    case arrowUp = "IconArrowUp"
-    case play = "BrushIconButtonPlay"
-    case pause = "BrushIconButtonPause"
-    case profile = "BrushProfile"
-    case directionLeft = "IconDirectionLeft"
-    case directionRight = "IconDirectionRight"
+    case chevronDown = "IconChevronDown"
+    case chevronUp = "IconChevronUp"
+    case chevronLeft = "IconChevronLeft"
+    case chevronRight = "IconChevronRight"
     case close = "IconClose"
+    case check = "IconCheck"
     case slideHandle = "IconSlideHandle"
     case speed0_5 = "IconSpeed0_5"
     case speed0_75 = "IconSpeed0_75"
     case speed1_0 = "IconSpeed1_0"
     case speed1_25 = "IconSpeed1_25"
     case speed1_5 = "IconSpeed1_5"
+    case play = "BrushIconButtonPlay"
+    case pause = "BrushIconButtonPause"
+    case profile = "BrushProfile"
+    case placeVisited = "IconPlaceVisited"
+    case distance = "IconDistance"
+    case playRed = "IconPlayRed"
+    case pauseRed = "IconPauseRed"
 
     public var assetName: String {
         rawValue
@@ -86,23 +91,18 @@ extension View {
             }
 
             HStack(spacing: 20) {
+                AppIcon(.placeVisited, size: 32)
+                AppIcon(.distance, size: 32)
+                AppIcon(.playRed, size: 32)
+                AppIcon(.pauseRed, size: 32)
+            }
+
+            HStack(spacing: 20) {
                 AppIcon(.playbackSpeed, size: 32)
                 AppIcon(.queue, size: 32)
                 AppIcon(.close, size: 28)
+                AppIcon(.check, size: 28)
                 AppIcon(.slideHandle, size: 28)
-                AppIcon(.directionLeft, size: 28)
-                AppIcon(.directionRight, size: 28)
-            }
-
-            Text("Playback Speed Icons")
-                .appFont(.heading3)
-
-            HStack(spacing: 16) {
-                AppIcon(.speed0_5, size: 36)
-                AppIcon(.speed0_75, size: 36)
-                AppIcon(.speed1_0, size: 36)
-                AppIcon(.speed1_25, size: 36)
-                AppIcon(.speed1_5, size: 36)
             }
         }
         .padding(24)

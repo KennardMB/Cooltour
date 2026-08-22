@@ -34,6 +34,97 @@ public enum PlaybackSpeed: Double, CaseIterable, Sendable, Identifiable {
     public var iconType: AppIconType {
         AppIconType.forSpeed(rawValue)
     }
+
+    public static func nearest(to value: Double) -> PlaybackSpeed {
+        var closest = PlaybackSpeed.normal
+        var minDiff = Double.infinity
+        for speed in allCases {
+            let diff = abs(speed.rawValue - value)
+            if diff < minDiff {
+                minDiff = diff
+                closest = speed
+            }
+        }
+        return closest
+    }
+}
+
+// MARK: - Playback Speed Horizontal Slider Component
+
+public struct PlaybackSpeedPicker: View {
+    @Binding public var selectedSpeed: Double
+    public let onSelect: ((Double) -> Void)?
+
+    public init(
+        selectedSpeed: Binding<Double>,
+        onSelect: ((Double) -> Void)? = nil
+    ) {
+        self._selectedSpeed = selectedSpeed
+        self.onSelect = onSelect
+    }
+
+    private var currentOption: PlaybackSpeed {
+        PlaybackSpeed.nearest(to: selectedSpeed)
+    }
+
+    public var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Pre-rendered brush slider artwork
+                Image(currentOption.assetName)
+                    .resizable()
+                    .scaledToFit()
+
+                // Interactive tap/drag horizontal zones
+                HStack(spacing: 0) {
+                    ForEach(PlaybackSpeed.allCases) { speed in
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                updateSpeed(speed.rawValue)
+                            }
+                    }
+                }
+            }
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        let fraction = max(0, min(value.location.x / geometry.size.width, 1.0))
+                        let stepCount = PlaybackSpeed.allCases.count
+                        let stepIndex = min(Int(fraction * CGFloat(stepCount)), stepCount - 1)
+                        let targetSpeed = PlaybackSpeed.allCases[stepIndex].rawValue
+                        if abs(selectedSpeed - targetSpeed) > 0.01 {
+                            updateSpeed(targetSpeed)
+                        }
+                    }
+            )
+        }
+        .frame(height: 84)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Playback speed")
+        .accessibilityValue(currentOption.label)
+        .accessibilityAdjustableAction { direction in
+            let all = PlaybackSpeed.allCases
+            guard let currentIndex = all.firstIndex(of: currentOption) else { return }
+            switch direction {
+            case .increment:
+                if currentIndex < all.count - 1 {
+                    updateSpeed(all[currentIndex + 1].rawValue)
+                }
+            case .decrement:
+                if currentIndex > 0 {
+                    updateSpeed(all[currentIndex - 1].rawValue)
+                }
+            @unknown default:
+                break
+            }
+        }
+    }
+
+    private func updateSpeed(_ speed: Double) {
+        selectedSpeed = speed
+        onSelect?(speed)
+    }
 }
 
 // MARK: - Playback Speed Sheet Component
@@ -55,7 +146,7 @@ public struct PlaybackSpeedSheet: View {
 
     public var body: some View {
         VStack(spacing: AppSpacing.lg) {
-            // Header with title and close button
+            // Drag handle / header
             HStack {
                 Text("Playback Speed")
                     .appFont(.heading3, color: AppColor.Text.primary)
@@ -73,57 +164,27 @@ public struct PlaybackSpeedSheet: View {
             .padding(.horizontal, AppSpacing.lg)
             .padding(.top, AppSpacing.lg)
 
-            // Speed options list
-            VStack(spacing: AppSpacing.sm) {
-                ForEach(PlaybackSpeed.allCases) { speed in
-                    Button {
-                        selectedSpeed = speed.rawValue
-                        onSelect?(speed.rawValue)
-                    } label: {
-                        HStack(spacing: AppSpacing.md) {
-                            AppIcon(speed.iconType, size: 32)
-
-                            Text(speed.label)
-                                .appFont(.titleM, color: isSelected(speed) ? AppColor.Brand.primary : AppColor.Text.primary)
-
-                            Spacer()
-
-                            if isSelected(speed) {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundStyle(AppColor.Brand.primary)
-                            }
-                        }
-                        .padding(.horizontal, AppSpacing.lg)
-                        .frame(height: 56)
-                        .background(isSelected(speed) ? AppColor.Brand.tint : AppColor.Background.pure)
-                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.standard))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppRadius.standard)
-                                .strokeBorder(
-                                    isSelected(speed) ? AppColor.Brand.primary : AppColor.Background.border,
-                                    lineWidth: isSelected(speed) ? AppBorderWidth.standard : AppBorderWidth.thin
-                                )
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("\(speed.label) playback speed")
-                    .accessibilityAddTraits(isSelected(speed) ? [.isSelected] : [])
-                }
-            }
-            .padding(.horizontal, AppSpacing.lg)
-            .padding(.bottom, AppSpacing.xl)
+            // Horizontal Slider
+            PlaybackSpeedPicker(selectedSpeed: $selectedSpeed, onSelect: onSelect)
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.bottom, AppSpacing.xl)
         }
         .background(AppColor.Background.canvas)
-    }
-
-    private func isSelected(_ speed: PlaybackSpeed) -> Bool {
-        abs(selectedSpeed - speed.rawValue) < 0.05
     }
 }
 
 // MARK: - Previews
 
-#Preview("Playback Speed Sheet") {
-    PlaybackSpeedSheet(selectedSpeed: .constant(1.0), onClose: {})
+#Preview("Playback Speed Picker") {
+    VStack(spacing: 32) {
+        Text("Horizontal Speed Slider")
+            .appFont(.heading2)
+
+        PlaybackSpeedPicker(selectedSpeed: .constant(1.0))
+            .padding(.horizontal, 20)
+
+        PlaybackSpeedSheet(selectedSpeed: .constant(1.25), onClose: {})
+    }
+    .padding(24)
+    .background(AppColor.Background.canvas)
 }

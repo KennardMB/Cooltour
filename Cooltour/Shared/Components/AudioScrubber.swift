@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Audio Playback Scrubber
+// MARK: - Brush Audio Scrubber (Figma Node 194:211)
 
 public struct AudioScrubber: View {
     @Binding public var progress: Double // 0.0 ... 1.0
@@ -34,48 +34,52 @@ public struct AudioScrubber: View {
     public var body: some View {
         VStack(spacing: AppSpacing.xs) {
             GeometryReader { geometry in
+                let trackWidth = geometry.size.width
+                let thumbWidth: CGFloat = 13
+                let thumbOffset = max(0, min((trackWidth - thumbWidth) * CGFloat(activeProgress), trackWidth - thumbWidth))
+
                 ZStack(alignment: .leading) {
-                    // Background track
-                    RoundedRectangle(cornerRadius: AppRadius.pill)
-                        .fill(AppColor.Background.border)
-                        .frame(height: 6)
+                    // 1. White background track frame
+                    Image("BrushScrubberTrackWhite")
+                        .resizable()
+                        .frame(width: trackWidth, height: 13)
 
-                    // Active progress fill
-                    RoundedRectangle(cornerRadius: AppRadius.pill)
-                        .fill(AppColor.Brand.primary)
-                        .frame(width: max(0, min(geometry.size.width * CGFloat(activeProgress), geometry.size.width)), height: 6)
+                    // 2. Blue progress track frame (clipped by active progress)
+                    Image("BrushScrubberTrackBlue")
+                        .resizable()
+                        .frame(width: trackWidth, height: 13)
+                        .mask(alignment: .leading) {
+                            Rectangle()
+                                .frame(width: trackWidth * CGFloat(activeProgress), height: 13)
+                        }
 
-                    // Slider thumb
-                    Circle()
-                        .fill(AppColor.Brand.primary)
-                        .frame(width: 18, height: 18)
-                        .overlay(
-                            Circle()
-                                .strokeBorder(AppColor.Background.pure, lineWidth: 3)
-                        )
-                        .shadow(color: .black.opacity(0.15), radius: 2, y: 1)
-                        .offset(x: max(0, min(geometry.size.width * CGFloat(activeProgress) - 9, geometry.size.width - 18)))
+                    // 3. Slider position thumb (13x32pt)
+                    Image("BrushScrubberThumb")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: thumbWidth, height: 32)
+                        .offset(x: thumbOffset)
                 }
-                .frame(height: 24)
+                .frame(height: 32, alignment: .center)
                 .contentShape(Rectangle())
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { value in
                             guard isInteractive else { return }
                             isDragging = true
-                            let newProgress = Double(max(0, min(value.location.x / geometry.size.width, 1.0)))
+                            let newProgress = Double(max(0, min(value.location.x / trackWidth, 1.0)))
                             dragProgress = newProgress
                         }
                         .onEnded { value in
                             guard isInteractive else { return }
-                            let finalProgress = Double(max(0, min(value.location.x / geometry.size.width, 1.0)))
+                            let finalProgress = Double(max(0, min(value.location.x / trackWidth, 1.0)))
                             progress = finalProgress
                             isDragging = false
                             onSeek?(finalProgress * durationSeconds)
                         }
                 )
             }
-            .frame(height: 24)
+            .frame(height: 32)
 
             // Timestamps
             HStack {
@@ -89,7 +93,7 @@ public struct AudioScrubber: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Audio progress")
+        .accessibilityLabel("Audio progress scrubber")
         .accessibilityValue("\(Int(activeProgress * 100)) percent, \(formatTime(currentSeconds)) of \(formatTime(durationSeconds))")
     }
 
@@ -104,10 +108,11 @@ public struct AudioScrubber: View {
 
 // MARK: - Previews
 
-#Preview("Audio Scrubber") {
-    VStack(spacing: 24) {
-        AudioScrubber(progress: .constant(0.35), durationSeconds: 145)
-        AudioScrubber(progress: .constant(0.8), durationSeconds: 60)
+#Preview("Brush Audio Scrubber") {
+    VStack(spacing: 32) {
+        AudioScrubber(progress: .constant(0.0), durationSeconds: 120)
+        AudioScrubber(progress: .constant(0.45), durationSeconds: 145)
+        AudioScrubber(progress: .constant(0.85), durationSeconds: 180)
     }
     .padding(24)
     .background(AppColor.Background.canvas)

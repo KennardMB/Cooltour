@@ -5,9 +5,9 @@ import SwiftUI
 public enum CulturalColorTheme: String, CaseIterable, Identifiable, Sendable {
     case blue = "Royal Azure"
     case pink = "Pink Carnation"
+    case green = "Jade Green"
     case yellow = "Bright Gold"
     case orange = "Tiger Flame"
-    case green = "Jade Green"
 
     public var id: String { rawValue }
 
@@ -21,13 +21,14 @@ public enum CulturalColorTheme: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    public var tintColor: Color {
+    /// Normalized center-X position (0.0 ... 1.0) on the BrushColorChooseOptions SVG (359x35).
+    public var relativeCenterX: CGFloat {
         switch self {
-        case .blue: return AppColor.Accent.blueTint
-        case .pink: return AppColor.Accent.pinkTint
-        case .yellow: return AppColor.Accent.yellowTint
-        case .orange: return AppColor.Accent.orangeTint
-        case .green: return AppColor.Accent.greenTint
+        case .blue:   return 17.36 / 359.0
+        case .pink:   return 98.36 / 359.0
+        case .green:  return 179.36 / 359.0
+        case .yellow: return 260.36 / 359.0
+        case .orange: return 341.36 / 359.0
         }
     }
 }
@@ -47,47 +48,54 @@ public struct ColorThemeSelector: View {
     }
 
     public var body: some View {
-        HStack(spacing: AppSpacing.md) {
-            ForEach(CulturalColorTheme.allCases) { theme in
-                Button {
-                    selectedTheme = theme
-                    onSelect?(theme)
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(theme.color)
-                            .frame(width: 44, height: 44)
+        GeometryReader { geometry in
+            let width = geometry.size.width
+//            let circleSize: CGFloat = 35
 
-                        if selectedTheme == theme {
-                            Circle()
-                                .strokeBorder(AppColor.Background.pure, lineWidth: 3)
-                                .frame(width: 44, height: 44)
+            ZStack(alignment: .leading) {
+                // 1. Authentic Brush-stroke Color Palette Artwork
+                Image("BrushColorChooseOptions")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: width)
 
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundStyle(AppColor.Background.pure)
-                        }
+                // 2. Animated Checkmark Indicator positioned over selected circle
+                AppIcon(.check, size: 22)
+                    .offset(x: width * selectedTheme.relativeCenterX - 11, y: 0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTheme)
+
+                // 3. 5 Interactive Tap Areas
+                HStack(spacing: 0) {
+                    ForEach(CulturalColorTheme.allCases) { theme in
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                selectedTheme = theme
+                                onSelect?(theme)
+                            }
+                            .accessibilityElement()
+                            .accessibilityLabel("\(theme.rawValue) theme")
+                            .accessibilityAddTraits(selectedTheme == theme ? [.isSelected] : [])
                     }
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(theme.rawValue) theme")
-                .accessibilityAddTraits(selectedTheme == theme ? [.isSelected] : [])
             }
         }
-        .padding(AppSpacing.md)
-        .background(AppColor.Background.pure)
-        .clipShape(RoundedRectangle(cornerRadius: AppRadius.standard))
-        .overlay(
-            RoundedRectangle(cornerRadius: AppRadius.standard)
-                .strokeBorder(AppColor.Background.border, lineWidth: AppBorderWidth.standard)
-        )
+        .frame(height: 40)
+        .padding(.vertical, AppSpacing.sm)
     }
 }
 
 // MARK: - Previews
 
 #Preview("Color Theme Selector") {
-    ColorThemeSelector(selectedTheme: .constant(.blue))
-        .padding(24)
-        .background(AppColor.Background.canvas)
+    VStack(spacing: 32) {
+        Text("Cultural Theme Selector")
+            .appFont(.heading3)
+
+        ColorThemeSelector(selectedTheme: .constant(.blue))
+        ColorThemeSelector(selectedTheme: .constant(.green))
+        ColorThemeSelector(selectedTheme: .constant(.orange))
+    }
+    .padding(24)
+    .background(AppColor.Background.canvas)
 }

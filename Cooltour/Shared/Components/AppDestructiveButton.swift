@@ -20,6 +20,27 @@ public struct AppDestructiveButtonStyle: ButtonStyle {
             case .small: return .title
             }
         }
+
+        var activeAssetName: String {
+            switch self {
+            case .large: return "BrushButtonDestructiveActiveLarge"
+            case .small: return "BrushButtonDestructiveActiveSmall"
+            }
+        }
+
+        var pressedAssetName: String {
+            switch self {
+            case .large: return "BrushButtonDestructivePressedLarge"
+            case .small: return "BrushButtonDestructivePressedSmall"
+            }
+        }
+
+        var disabledAssetName: String {
+            switch self {
+            case .large: return "BrushButtonDestructiveDisabledLarge"
+            case .small: return "BrushButtonDestructiveDisabledSmall"
+            }
+        }
     }
 
     public let size: Size
@@ -42,41 +63,28 @@ private struct AppDestructiveButtonContent: View {
     let fullWidth: Bool
 
     var body: some View {
-        configuration.label
-            .appFont(size.textStyle)
-            .foregroundStyle(textColor(isPressed: configuration.isPressed))
-            .padding(.horizontal, AppSpacing.lg)
-            .frame(maxWidth: fullWidth ? .infinity : nil)
-            .frame(height: size.height)
-            .background(backgroundColor(isPressed: configuration.isPressed))
-            .clipShape(RoundedRectangle(cornerRadius: AppRadius.standard))
-            .overlay(
-                RoundedRectangle(cornerRadius: AppRadius.standard)
-                    .strokeBorder(borderColor(isPressed: configuration.isPressed), lineWidth: AppBorderWidth.standard)
-            )
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+        ZStack {
+            // Authentic Brush Background Asset
+            Image(currentAssetName)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: fullWidth ? .infinity : nil)
+                .frame(height: size.height)
+
+            // Label & Content
+            configuration.label
+                .appFont(size.textStyle, color: AppColor.Background.pure)
+                .padding(.horizontal, AppSpacing.lg)
+        }
+        .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+        .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
     }
 
-    private func backgroundColor(isPressed: Bool) -> Color {
+    private var currentAssetName: String {
         if !isEnabled {
-            return AppColor.Destructive.tint
+            return size.disabledAssetName
         }
-        return isPressed ? AppColor.Destructive.dark : AppColor.Destructive.primary
-    }
-
-    private func borderColor(isPressed: Bool) -> Color {
-        if !isEnabled {
-            return AppColor.Background.pure
-        }
-        return AppColor.Destructive.dark
-    }
-
-    private func textColor(isPressed: Bool) -> Color {
-        if !isEnabled {
-            return AppColor.Background.muted
-        }
-        return AppColor.Background.pure
+        return configuration.isPressed ? size.pressedAssetName : size.activeAssetName
     }
 }
 
@@ -104,7 +112,7 @@ public struct AppDestructiveButton: View {
     }
 
     public var body: some View {
-        Button(role: .destructive, action: action) {
+        Button(action: action) {
             HStack(spacing: AppSpacing.md) {
                 if let systemImage {
                     Image(systemName: systemImage)
@@ -121,9 +129,9 @@ public struct AppDestructiveButton: View {
 
 #Preview("Destructive Buttons") {
     VStack(spacing: 20) {
-        AppDestructiveButton("Dismiss (20s)", systemImage: "xmark") {}
-        AppDestructiveButton("Skip story", size: .small, fullWidth: false) {}
-        AppDestructiveButton("Disabled action") {}
+        AppDestructiveButton("", systemImage: "") {}
+        AppDestructiveButton("", size: .small, fullWidth: false) {}
+        AppDestructiveButton("") {}
             .disabled(true)
     }
     .padding(24)

@@ -143,10 +143,11 @@ AppIconButton(.play) {
 ```
 
 ### 3. `AppDestructiveButton` (Dismiss / Skip)
-- **Visuals**: 60pt / 40pt height, 4pt border (`#821111`), 4pt corner radius.
+- **Visuals**: 60pt (Large) / 40pt (Small) height, authentic brush stroke backgrounds (`BrushButtonDestructiveActiveLarge`/`Small`, `BrushButtonDestructivePressedLarge`/`Small`, `BrushButtonDestructiveDisabledLarge`/`Small`).
 - **States**:
-  - *Active*: bg `#D81D1D`, border `#821111`, text `#FEFEFE` (`Baru Lagi` 20pt / 16pt).
-  - *Pressed*: bg `#821111`, border `#821111`, text `#FEFEFE`.
+  - *Active*: Red brush stroke with `#FEFEFE` text (`Baru Lagi` 20pt / 16pt).
+  - *Pressed*: Dark red pressed brush asset.
+  - *Disabled*: Muted disabled brush asset.
 
 ```swift
 AppDestructiveButton("Dismiss", size: .large) {
@@ -176,31 +177,36 @@ AppCard(title: "Pura Maospahit", caption: "80m · on your left", style: .brush) 
 
 ### 6. `AchievementBadge` (Cultural Badges)
 - **Assets**: `BadgeTravelerSpecial`, `BadgeSunnySideUp`, `BadgeExplorer`.
-- **Features**: Interactive size, unlocked/locked states with grayscale and lock indicator.
+- **Features**: Scalable size, title and VoiceOver hints.
 
 ```swift
-AchievementBadge(.travelerSpecial, isUnlocked: true)
+AchievementBadge(.travelerSpecial)
 ```
 
 ### 7. `AppIcon` (Custom Brush Audio & Navigation Icons)
-- **Assets**: `IconForward10`, `IconRewind10`, `IconPlaybackSpeed`, `IconQueue`, `IconArrowDown`, `IconArrowUp`, `IconDirectionLeft`, `IconDirectionRight`, `IconClose`, `IconSlideHandle`, `IconSpeed0_5`...`IconSpeed1_5`.
-- **Usage**: Type-safe vector icon component with optional explicit size.
+- **Assets**: `IconForward10`, `IconRewind10`, `IconPlaybackSpeed`, `IconQueue`, `IconChevronDown`, `IconChevronUp`, `IconChevronLeft`, `IconChevronRight`, `IconClose`, `IconCheck`, `IconSlideHandle`, `IconSpeed0_5`...`IconSpeed1_5`.
+- **Usage**: Type-safe vector icon component with optional explicit size and `.forSpeed(rate)` mapping.
 
 ```swift
 AppIcon(.forward10, size: 36)
 AppIcon(.playbackSpeed, size: 32)
 ```
 
-### 8. `PlaybackSpeedSheet` (Speed Selector Modal)
+### 8. `PlaybackSpeedPicker` (Horizontal Speed Slider)
+- **Visuals**: Pre-rendered brush slider steps (`BrushSpeedOption0_5`...`BrushSpeedOption1_5`) per Figma Node `194:28`.
 - **Options**: `0.5x`, `0.75x`, `1.0x`, `1.25x`, `1.5x`.
-- **Features**: Interactive selection with custom speed brush icons, selected highlight, and dismiss action.
+- **Features**: Interactive horizontal tap & drag zones, VoiceOver adjustable actions, and sheet container (`PlaybackSpeedSheet`).
 
 ```swift
-PlaybackSpeedSheet(selectedSpeed: $speed, onClose: { showSheet = false })
+PlaybackSpeedPicker(selectedSpeed: $speed)
 ```
 
-### 9. `AudioScrubber` (Playback Timeline)
-- **Features**: Interactive progress drag scrubber with elapsed and remaining timestamps, custom thumb, and VoiceOver percentage announcements.
+### 9. `AudioScrubber` (Figma Node 194:211)
+- **Visuals**: 3-part atomic brush construction:
+  1. `BrushScrubberTrackWhite` (white background track frame)
+  2. `BrushScrubberTrackBlue` (blue progress fill track, masked by progress)
+  3. `BrushScrubberThumb` (13×32pt thumb indicator)
+- **Features**: Full interactive drag seeking with elapsed and remaining timestamps.
 
 ```swift
 AudioScrubber(progress: $progress, durationSeconds: story.durationSeconds) { seekSeconds in
@@ -209,7 +215,8 @@ AudioScrubber(progress: $progress, durationSeconds: story.durationSeconds) { see
 ```
 
 ### 10. `ColorThemeSelector` (Cultural Palette Switcher)
-- **Colors**: Royal Azure, Pink Carnation, Bright Gold, Tiger Flame, Jade Green.
+- **Visuals**: Authentic `BrushColorChooseOptions` (359×35) palette with smooth animated `IconCheck` overlay on selected theme.
+- **Colors**: Royal Azure, Pink Carnation, Jade Green, Bright Gold, Tiger Flame.
 
 ```swift
 ColorThemeSelector(selectedTheme: $theme)
@@ -222,11 +229,20 @@ ColorThemeSelector(selectedTheme: $theme)
 ListButton(title: "Pura Jagatnatha", subtitle: "80m · on your left", durationText: "1:45", onPlay: { ... })
 ```
 
-### 12. `DirectionBadge` (Relative Wayfinding Indicator)
-- **Visuals**: Direction arrows (`IconDirectionLeft`, `IconDirectionRight`) with distance phrase.
+### 12. `TiledBackgroundView` (Cultural Grid Background)
+- **Visuals**: High-performance GPU-tiled grid (`BrushBackgroundTile` 124×124) dynamically tinted across all 5 cultural themes.
+- **Usage**: View modifier `.culturalTiledBackground(theme:)` or standalone container.
 
 ```swift
-DirectionBadge("80m · on your left", direction: .left)
+ExplorationDoneView()
+    .culturalTiledBackground(theme: selectedTheme)
+```
+
+### 13. `PostageStatBadge` & `ExplorationSummaryStats` (Figma Node 196:233)
+- **Visuals**: Scalloped postage ticket cards (`BrushPostageOrange`, `BrushPostagePink`) with custom icons (`IconPlaceVisited`, `IconDistance`) and `Baru Lagi` headline metrics.
+
+```swift
+ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7)
 ```
 
 ---
@@ -236,6 +252,8 @@ DirectionBadge("80m · on your left", direction: .left)
 1. **VoiceOver Support**: Every button and card must declare `.accessibilityLabel`, `.accessibilityHint`, and `.accessibilityAddTraits`.
 2. **Dynamic Type Scaling**: Use `@ScaledMetric` on custom layout dimensions so touch targets expand proportionally.
 3. **Strict Concurrency (`@MainActor`)**: All views and modifiers run on `@MainActor` with zero data races per `AGENTS.md`.
+
+
 
 
 
