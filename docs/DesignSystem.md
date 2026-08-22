@@ -229,13 +229,23 @@ ColorThemeSelector(selectedTheme: $theme)
 ListButton(title: "Pura Jagatnatha", subtitle: "80m · on your left", durationText: "1:45", onPlay: { ... })
 ```
 
-### 12. `TiledBackgroundView` (Cultural Grid Background)
-- **Visuals**: High-performance GPU-tiled grid (`BrushBackgroundTile` 124×124) dynamically tinted across all 5 cultural themes.
-- **Usage**: View modifier `.culturalTiledBackground(theme:)` or standalone container.
+### 12. `TiledBackgroundView` (Tiled Grid Background)
+- **Visuals**: High-performance GPU-tiled grid (`BrushBackgroundTile` 124×124).
+- **Scale Customization (1:1 with Figma Tile %)**:
+  - `scale`: Relative tile width percentage compared to screen width (e.g. `0.20` = 20%, `0.60` = 60%).
+  - `tilesPerRow`: Explicit count of tiles per row (e.g. `tilesPerRow: 5` or `tilesPerRow: 2`).
+- **Styles**:
+  - `.default` / `defaultTiledBackground(scale:)`: Standard warm off-white canvas (`#F8F7F4`) with subtle 35% tile opacity (default `scale: 0.20` = 20%).
+  - `.theme(CulturalColorTheme)` / `culturalTiledBackground(theme:scale:)`: Vibrant theme-tinted backgrounds for special celebratory views (default `scale: 0.60` = 60% matching Figma celebration art).
 
 ```swift
+// Default screen background (20% tile scale)
+ProfileView()
+    .defaultTiledBackground(scale: 0.20)
+
+// Special celebratory themed background (60% large tiles)
 ExplorationDoneView()
-    .culturalTiledBackground(theme: selectedTheme)
+    .culturalTiledBackground(theme: selectedTheme, scale: 0.60)
 ```
 
 ### 13. `PostageStatBadge` & `ExplorationSummaryStats` (Figma Node 196:233)
