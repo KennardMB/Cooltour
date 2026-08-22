@@ -21,4 +21,7 @@ protocol AudioPlayerService {
   func resume()
   func stop()
   func setRate(_ rate: Float)
+  /// Jumps by `deltaSeconds` within the current story, clamped to `[0, duration]`.
+  /// Negative values rewind; positive values skip forward. No-op when nothing is loaded.
+  func seek(bySeconds deltaSeconds: TimeInterval)
 }

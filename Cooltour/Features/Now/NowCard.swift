@@ -14,7 +14,12 @@ struct NowCard: View {
   let durationSeconds: Double
   let speed: Double
   let onTogglePlayback: () -> Void
+  let onSkipBack: () -> Void
+  let onSkipForward: () -> Void
   let onSelectSpeed: (Double) -> Void
+
+  /// Fixed 10s jump — matches spoken-word baseline without a Settings knob (YAGNI for MVP).
+  static let skipIntervalSeconds: TimeInterval = 10
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
@@ -37,29 +42,49 @@ struct NowCard: View {
           .lineLimit(2)
       }
 
-      HStack(spacing: 20) {
-        Button(action: onTogglePlayback) {
-          Group {
-            if isLoading {
-              ProgressView()
-            } else {
-              Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                .resizable()
-            }
-          }
-          .frame(width: 64, height: 64)
-        }
-        .buttonStyle(.plain)
-        .disabled(isLoading)
-        .accessibilityLabel(isPlaying ? "Pause" : "Play")
+      VStack(spacing: 8) {
+        ProgressView(value: progress)
+        Text(Self.timeText(progress: progress, durationSeconds: durationSeconds))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .monospacedDigit()
+          .frame(maxWidth: .infinity, alignment: .leading)
 
-        VStack(alignment: .leading, spacing: 4) {
-          ProgressView(value: progress)
-          Text(Self.timeText(progress: progress, durationSeconds: durationSeconds))
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .monospacedDigit()
+        HStack(spacing: 28) {
+          Button(action: onSkipBack) {
+            Image(systemName: "gobackward.10")
+              .font(.title2)
+              .frame(width: 44, height: 44)
+          }
+          .buttonStyle(.plain)
+          .disabled(isLoading)
+          .accessibilityLabel("Skip back 10 seconds")
+
+          Button(action: onTogglePlayback) {
+            Group {
+              if isLoading {
+                ProgressView()
+              } else {
+                Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                  .resizable()
+              }
+            }
+            .frame(width: 64, height: 64)
+          }
+          .buttonStyle(.plain)
+          .disabled(isLoading)
+          .accessibilityLabel(isPlaying ? "Pause" : "Play")
+
+          Button(action: onSkipForward) {
+            Image(systemName: "goforward.10")
+              .font(.title2)
+              .frame(width: 44, height: 44)
+          }
+          .buttonStyle(.plain)
+          .disabled(isLoading)
+          .accessibilityLabel("Skip forward 10 seconds")
         }
+        .frame(maxWidth: .infinity)
       }
 
       SpeedChips(
@@ -104,6 +129,8 @@ struct NowCard: View {
     durationSeconds: 95,
     speed: 1.0,
     onTogglePlayback: {},
+    onSkipBack: {},
+    onSkipForward: {},
     onSelectSpeed: { _ in }
   )
   .padding()

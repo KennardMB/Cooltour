@@ -167,6 +167,14 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     updateNowPlayingInfo()
   }
 
+  func seek(bySeconds deltaSeconds: TimeInterval) {
+    guard let player, player.duration > 0 else { return }
+    let newTime = min(max(0, player.currentTime + deltaSeconds), player.duration)
+    player.currentTime = newTime
+    progress = newTime / player.duration
+    updateNowPlayingInfo()
+  }
+
   // MARK: - Teardown
 
   /// The one terminal path: releases the player and hands the session back to whatever we

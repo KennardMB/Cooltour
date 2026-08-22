@@ -42,4 +42,13 @@ final class MockAudioPlayerService: AudioPlayerService {
   func setRate(_ newRate: Float) {
     rate = newRate
   }
+
+  func seek(bySeconds deltaSeconds: TimeInterval) {
+    guard currentStory != nil else { return }
+    // Mock has no real duration — treat progress as a 100s track so tests can assert clamps.
+    let fakeDurationSeconds = 100.0
+    let currentSeconds = progress * fakeDurationSeconds
+    let newSeconds = min(max(0, currentSeconds + deltaSeconds), fakeDurationSeconds)
+    progress = newSeconds / fakeDurationSeconds
+  }
 }
