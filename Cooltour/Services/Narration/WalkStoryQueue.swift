@@ -9,6 +9,8 @@ final class WalkStoryQueue: StoryQueue {
 
   func enqueue(site: Site, story: Story) {
     guard !items.contains(where: { $0.storySlug == story.slug }) else { return }
+    // Keep the relationship warm so wayfinding can arm when the queue auto-plays (Slice 20).
+    if story.site == nil { story.site = site }
     let item = QueuedStory(
       id: UUID(),
       siteSlug: site.slug,
