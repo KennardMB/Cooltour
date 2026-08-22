@@ -13,10 +13,19 @@ struct NowCard: View {
   let progress: Double
   let durationSeconds: Double
   let speed: Double
+  /// Identity for the loaded story — resets scrub state when a new site takes over.
+  let storyID: String
   let onTogglePlayback: () -> Void
   let onSkipBack: () -> Void
   let onSkipForward: () -> Void
+  /// Progress fraction 0…1 — the card stays free of duration math beyond the time label.
+  let onSeek: (Double) -> Void
   let onSelectSpeed: (Double) -> Void
+
+  /// Local thumb position. Slider always binds here; we mirror `progress` only while not dragging
+  /// so the system Slider can't latch onto a stale value after scrub (asymmetric Binding gotcha).
+  @State private var isScrubbing = false
+  @State private var displayProgress: Double = 0
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
@@ -40,8 +49,21 @@ struct NowCard: View {
       }
 
       VStack(spacing: 8) {
-        ProgressView(value: progress)
-        Text(Self.timeText(progress: progress, durationSeconds: durationSeconds))
+        Slider(
+          value: $displayProgress,
+          in: 0...1,
+          onEditingChanged: { editing in
+            isScrubbing = editing
+            if !editing {
+              onSeek(displayProgress)
+            }
+          }
+        )
+        .id(storyID)
+        .disabled(isLoading)
+        .accessibilityLabel("Playback position")
+
+        Text(Self.timeText(progress: displayProgress, durationSeconds: durationSeconds))
           .font(.caption)
           .foregroundStyle(.secondary)
           .monospacedDigit()
@@ -94,6 +116,23 @@ struct NowCard: View {
     }
     .padding()
     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+    .onAppear {
+      displayProgress = Self.clampedProgress(progress)
+    }
+    .onChange(of: progress) { _, newValue in
+      // Follow live playback (and ±10s seeks) unless the user is dragging the thumb.
+      guard !isScrubbing else { return }
+      displayProgress = Self.clampedProgress(newValue)
+    }
+    .onChange(of: storyID) { _, _ in
+      isScrubbing = false
+      displayProgress = 0
+    }
+  }
+
+  private static func clampedProgress(_ value: Double) -> Double {
+    guard value.isFinite else { return 0 }
+    return min(max(0, value), 1)
   }
 
   private static func distanceText(_ meters: Double) -> String {
@@ -125,9 +164,11 @@ struct NowCard: View {
     progress: 0.4,
     durationSeconds: 95,
     speed: 1.0,
+    storyID: "pura-maospahit",
     onTogglePlayback: {},
     onSkipBack: {},
     onSkipForward: {},
+    onSeek: { _ in },
     onSelectSpeed: { _ in }
   )
   .padding()

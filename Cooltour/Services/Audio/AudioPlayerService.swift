@@ -24,4 +24,7 @@ protocol AudioPlayerService {
   /// Jumps by `deltaSeconds` within the current story, clamped to `[0, duration]`.
   /// Negative values rewind; positive values skip forward. No-op when nothing is loaded.
   func seek(bySeconds deltaSeconds: TimeInterval)
+  /// Seeks to an absolute position within the current story, clamped to `[0, duration]`.
+  /// No-op when nothing is loaded.
+  func seek(toSeconds seconds: TimeInterval)
 }

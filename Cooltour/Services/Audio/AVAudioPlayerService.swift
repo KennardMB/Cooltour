@@ -70,6 +70,14 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       return .success
     }
 
+    commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+      guard let self, self.currentStory != nil, self.player != nil,
+        let positionEvent = event as? MPChangePlaybackPositionCommandEvent
+      else { return .commandFailed }
+      self.seek(toSeconds: positionEvent.positionTime)
+      return .success
+    }
+
     commandCenter.pauseCommand.addTarget { [weak self] _ in
       guard let self, self.isPlaying else { return .commandFailed }
       self.pause()
@@ -125,6 +133,8 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
     self.currentStory = story
     self.isLoading = true
+    // Don't leave the previous story's playhead visible while the next file loads.
+    self.progress = 0.0
 
     // A standard Task inherits the @MainActor context of this class
     Task {
@@ -186,8 +196,13 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   }
 
   func seek(bySeconds deltaSeconds: TimeInterval) {
+    guard let player else { return }
+    seek(toSeconds: player.currentTime + deltaSeconds)
+  }
+
+  func seek(toSeconds seconds: TimeInterval) {
     guard let player, player.duration > 0 else { return }
-    let newTime = min(max(0, player.currentTime + deltaSeconds), player.duration)
+    let newTime = min(max(0, seconds), player.duration)
     player.currentTime = newTime
     progress = newTime / player.duration
     updateNowPlayingInfo()
