@@ -32,16 +32,25 @@ struct CooltourApp: App {
       notifications: notifications,
       settings: settings
     )
+    let proximity = CoreLocationProximityEngine(content: store)
+    let watchSession = WCWatchSessionBridge(
+      settings: settings,
+      narration: narration,
+      audio: audio,
+      proximity: proximity
+    )
     let environment = AppEnvironment(
       content: store,
       audio: audio,
-      proximity: CoreLocationProximityEngine(content: store),
+      proximity: proximity,
       narration: narration,
       storyQueue: storyQueue,
       notifications: notifications,
       settings: settings,
-      history: HistoryStore(container: container)
+      history: HistoryStore(container: container),
+      watchSession: watchSession
     )
+    watchSession.activate()
 
     // Core Location can relaunch the app straight into the background, where no view ever
     // appears — so listening has to start with the process, not with a screen. Gated on the

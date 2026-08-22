@@ -10,11 +10,23 @@ final class MockNarrationCoordinator: NarrationCoordinator {
   private(set) var state: NarrationState = .idle
   private(set) var pendingPrompt: PendingPrompt?
   private(set) var dismissCountdownSeconds: Int?
+  private(set) var wayfindingTarget: WayfindingTarget?
 
   func handleTrigger(site: Site, story: Story) {}
   func accept(promptID: UUID) {}
   func dismiss(promptID: UUID) {}
   func queue(promptID: UUID) {}
+
+  func cancelSession() {
+    pendingPrompt = nil
+    dismissCountdownSeconds = nil
+    wayfindingTarget = nil
+    state = .idle
+  }
+
+  func clearWayfindingTarget() {
+    wayfindingTarget = nil
+  }
 
   /// Preview/UI affordance only — puts the coordinator into `prompting` with a plausible prompt,
   /// using the same `ApproachPrompt` wording the real coordinator speaks.
