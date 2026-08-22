@@ -9,8 +9,8 @@ struct RootView: View {
         .tabItem { Label("Now", systemImage: "waveform") }
       MapView()
         .tabItem { Label("Map", systemImage: "map") }
-      HistoryView()
-        .tabItem { Label("History", systemImage: "clock") }
+      MyExplorationsView()
+        .tabItem { Label("Exploration", systemImage: "clock") }
       SettingsView()
         .tabItem { Label("Settings", systemImage: "gearshape") }
     }

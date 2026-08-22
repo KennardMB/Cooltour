@@ -255,6 +255,19 @@ ExplorationDoneView()
 ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7)
 ```
 
+### 14. `ExplorationBinderCard` (Figma Node 202:1287)
+- **Visuals**: 3-hole notebook binder punch ticket card (`356×120pt`) with dynamic cultural theme palette (Pink, Orange, Blue, Green, Yellow).
+- **Features**: Displays exploration title in `Baru Lagi` 16pt with start time and date stamps in `SF Pro` 12pt.
+
+```swift
+ExplorationBinderCard(
+    title: "sabtu sama kean tami nanda nisa shin ke gajah mada",
+    timeText: "11.30 AM",
+    dateText: "21/12/2025",
+    theme: .pink
+)
+```
+
 ---
 
 ## 6. Accessibility & Concurrency Guidelines

@@ -121,6 +121,9 @@ public struct ProfileView: View {
         }
       }
       .defaultTiledBackground(scale: 0.20)
+      .navigationDestination(isPresented: $showExplorations) {
+        MyExplorationsView()
+      }
       .navigationDestination(isPresented: $showSettings) {
         SettingsView()
       }
