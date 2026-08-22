@@ -289,6 +289,14 @@ SitePolaroidCollage(sites: [
 - **Playback Speed Half-Sheet (`210:1033`)**: 356pt white card with 4pt `#E7E7E7` border, `Baru Lagi` header, close button, and horizontal `PlaybackSpeedPicker` (0.5x, 0.75x, 1x, 1.25x, 1.5x) sliding over a 90% opacity `#E2E1DE` backdrop.
 - **Queue Half-Sheet (`210:1078`)**: 356pt white card displaying "Now Playing" with active site title in `Baru Lagi` 20pt blue, remaining time, mini 40x40 play/pause button, and "Next stops:" section with dynamic queued sites from `env.storyQueue` and reorder handles (`IconSlideHandle`).
 
+### 18. `FullTranscriptSheet` (Figma Node 210:1123)
+- **Visuals**: Full vibrant Coral (`#FF6634`) canvas with top header (Site Title in `Baru Lagi` 24pt white with full multi-line display up to 50 characters, District in `SF Pro` 16pt, and dismiss `AppIcon(.chevronDown)` in white).
+- **Karaoke Highlight Reader**: Interactive scrollable transcript where the current active sentence is highlighted inside a white card pill (`#FEFEFE`) with bold coral text, surrounded by inactive lines in `#FFDACE`.
+- **SVG Audio Controls & Color Modifiers**:
+  - `IconRewind10` and `IconForward10` SVGs use `currentColor` and template rendering mode, allowing dynamic tinting via `.foregroundStyle(...)`.
+  - `AudioScrubber` supports `theme: .orange` (peach track `#FFDACE`, `#C44B25` stroke, and peach thumb `#FFDACE`).
+  - Play/Pause button uses `BrushIconButtonPlayOrange` / `BrushIconButtonPauseOrange` (60x60) in Peach/Dark Coral palette.
+
 ```swift
 SitesPlayerView()
     .environment(env)

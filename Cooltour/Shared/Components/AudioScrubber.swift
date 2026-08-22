@@ -2,9 +2,15 @@ import SwiftUI
 
 // MARK: - Brush Audio Scrubber (Figma Node 194:211)
 
+public enum AudioScrubberTheme: Sendable {
+    case blue
+    case orange
+}
+
 public struct AudioScrubber: View {
     @Binding public var progress: Double // 0.0 ... 1.0
     public let durationSeconds: Double
+    public let theme: AudioScrubberTheme
     public let isInteractive: Bool
     public let onSeek: ((Double) -> Void)?
 
@@ -14,11 +20,13 @@ public struct AudioScrubber: View {
     public init(
         progress: Binding<Double>,
         durationSeconds: Double,
+        theme: AudioScrubberTheme = .blue,
         isInteractive: Bool = true,
         onSeek: ((Double) -> Void)? = nil
     ) {
         self._progress = progress
         self.durationSeconds = durationSeconds
+        self.theme = theme
         self.isInteractive = isInteractive
         self.onSeek = onSeek
     }
@@ -39,22 +47,34 @@ public struct AudioScrubber: View {
                 let thumbOffset = max(0, min((trackWidth - thumbWidth) * CGFloat(activeProgress), trackWidth - thumbWidth))
 
                 ZStack(alignment: .leading) {
-                    // 1. White background track frame
-                    Image("BrushScrubberTrackWhite")
+                    // 1. Background (unplayed) track frame
+                    Image(theme == .orange ? "BrushScrubberTrackOrange" : "BrushScrubberTrackWhite")
                         .resizable()
                         .frame(width: trackWidth, height: 13)
 
-                    // 2. Blue progress track frame (clipped by active progress)
-                    Image("BrushScrubberTrackBlue")
-                        .resizable()
-                        .frame(width: trackWidth, height: 13)
-                        .mask(alignment: .leading) {
-                            Rectangle()
-                                .frame(width: trackWidth * CGFloat(activeProgress), height: 13)
-                        }
+                    // 2. Foreground (played) progress track frame (clipped by active progress)
+                    if theme == .orange {
+                        Image("BrushScrubberTrackWhite")
+                            .resizable()
+                            .renderingMode(.template)
+                            .foregroundStyle(Color(red: 255/255, green: 218/255, blue: 206/255))
+                            .frame(width: trackWidth, height: 13)
+                            .mask(alignment: .leading) {
+                                Rectangle()
+                                    .frame(width: trackWidth * CGFloat(activeProgress), height: 13)
+                            }
+                    } else {
+                        Image("BrushScrubberTrackBlue")
+                            .resizable()
+                            .frame(width: trackWidth, height: 13)
+                            .mask(alignment: .leading) {
+                                Rectangle()
+                                    .frame(width: trackWidth * CGFloat(activeProgress), height: 13)
+                            }
+                    }
 
                     // 3. Slider position thumb (13x32pt)
-                    Image("BrushScrubberThumb")
+                    Image(theme == .orange ? "BrushScrubberThumbOrange" : "BrushScrubberThumb")
                         .resizable()
                         .scaledToFit()
                         .frame(width: thumbWidth, height: 32)
@@ -84,12 +104,14 @@ public struct AudioScrubber: View {
             // Timestamps
             HStack {
                 Text(formatTime(currentSeconds))
-                    .appFont(.captionS, color: AppColor.Text.secondary)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(theme == .orange ? Color.white.opacity(0.9) : AppColor.Text.secondary)
 
                 Spacer()
 
                 Text("-\(formatTime(max(0, durationSeconds - currentSeconds)))")
-                    .appFont(.captionS, color: AppColor.Text.secondary)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(theme == .orange ? Color.white.opacity(0.9) : AppColor.Text.secondary)
             }
         }
         .accessibilityElement(children: .ignore)

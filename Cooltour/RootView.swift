@@ -4,14 +4,19 @@ struct RootView: View {
   @Environment(AppEnvironment.self) private var environment
 
   var body: some View {
-    TabView {
+    @Bindable var env = environment
+    TabView(selection: $env.selectedTab) {
       NowView()
+        .tag(AppTab.now)
         .tabItem { Label("Now", systemImage: "waveform") }
       MapView()
+        .tag(AppTab.map)
         .tabItem { Label("Map", systemImage: "map") }
       MyExplorationsView()
+        .tag(AppTab.exploration)
         .tabItem { Label("Exploration", systemImage: "clock") }
       SettingsView()
+        .tag(AppTab.settings)
         .tabItem { Label("Settings", systemImage: "gearshape") }
     }
     // Walking mode, not the app appearing, is what starts listening now (Slice 11). A walk that

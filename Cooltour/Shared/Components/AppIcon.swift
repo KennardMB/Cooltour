@@ -21,6 +21,8 @@ public enum AppIconType: String, CaseIterable, Sendable {
     case speed1_5 = "IconSpeed1_5"
     case play = "BrushIconButtonPlay"
     case pause = "BrushIconButtonPause"
+    case playOrange = "BrushIconButtonPlayOrange"
+    case pauseOrange = "BrushIconButtonPauseOrange"
     case profile = "BrushProfile"
     case placeVisited = "IconPlaceVisited"
     case distance = "IconDistance"

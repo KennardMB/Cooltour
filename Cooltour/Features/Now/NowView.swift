@@ -151,7 +151,9 @@ struct NowView: View {
       .padding()
       .navigationTitle("Now")
       .fullScreenCover(isPresented: $isShowingSitesPlayer) {
-        SitesPlayerView()
+        SitesPlayerView(onOpenMap: {
+          env.selectedTab = .map
+        })
       }
     }
   }

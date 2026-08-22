@@ -81,171 +81,176 @@ public struct SitesPlayerView: View {
                     .padding(.horizontal, AppSpacing.lg)
                     .padding(.top, AppSpacing.sm)
 
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 16) {
-                            // 2. Nearby POI Detection Banner ("X sites detected near you! Open Map")
-                            let nearbyCount = countNearbyPOIs()
-                            HStack {
-                                HStack(spacing: 8) {
-                                    // Pulsating glowing orange dot
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color(red: 255/255, green: 102/255, blue: 52/255).opacity(0.3))
-                                            .frame(width: 16, height: 16)
+                    // 2. Nearby POI Detection Banner ("X sites detected near you! Open Map")
+                    let nearbyCount = countNearbyPOIs()
+                    HStack {
+                        HStack(spacing: 8) {
+                            // Pulsating glowing orange dot
+                            ZStack {
+                                Circle()
+                                    .fill(Color(red: 255/255, green: 102/255, blue: 52/255).opacity(0.3))
+                                    .frame(width: 16, height: 16)
 
-                                        Circle()
-                                            .fill(Color(red: 255/255, green: 102/255, blue: 52/255))
-                                            .frame(width: 8, height: 8)
-                                    }
-
-                                    Text("\(nearbyCount) sites detected near you!")
-                                        .font(.system(size: 14, weight: .regular))
-                                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
-                                }
-
-                                Spacer()
-
-                                Button {
-                                    onOpenMap?()
-                                    dismiss()
-                                } label: {
-                                    Text("Open Map")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundStyle(Color(red: 255/255, green: 102/255, blue: 52/255))
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Open Map")
+                                Circle()
+                                    .fill(Color(red: 255/255, green: 102/255, blue: 52/255))
+                                    .frame(width: 8, height: 8)
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
-                            .background(Color.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .strokeBorder(Color(red: 255/255, green: 218/255, blue: 206/255), lineWidth: 4) // #FFDACE
-                            )
-                            .padding(.horizontal, AppSpacing.lg)
-                            .padding(.top, 4)
 
-                            // 3. Photo Carousel Card (Swipeable Stops)
-                            TabView(selection: $currentSiteIndex) {
-                                ForEach(Array(sites.enumerated()), id: \.element.id) { index, site in
-                                    SitePhotoCard(site: site)
-                                        .tag(index)
-                                        .padding(.horizontal, AppSpacing.lg)
-                                }
-                            }
-                            .tabViewStyle(.page(indexDisplayMode: .never))
-                            .frame(height: 370)
+                            Text("\(nearbyCount) sites detected near you!")
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
+                        }
 
-                            // 4. Site Name & District
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(activeSite?.name ?? "Cultural Site")
-                                    .font(.custom(AppTextStyle.customFontPostScriptName, size: 28))
-                                    .foregroundStyle(AppColor.Brand.primary)
-                                    .lineLimit(2)
+                        Spacer()
 
-                                Text(currentRegionalLocationString(activeSite: activeSite))
-                                    .font(.system(size: 16, weight: .regular))
-                                    .foregroundStyle(AppColor.Text.secondary)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, AppSpacing.lg)
+                        Button {
+                            env.selectedTab = .map
+                            onOpenMap?()
+                            dismiss()
+                        } label: {
+                            Text("Open Map")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(Color(red: 255/255, green: 102/255, blue: 52/255))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Open Map")
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .strokeBorder(Color(red: 255/255, green: 218/255, blue: 206/255), lineWidth: 4) // #FFDACE
+                    )
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.top, 14) // Increased gap as requested
 
-                            // 5. Tactile Audio Scrubber Component
-                            AudioScrubber(
-                                progress: Binding(
-                                    get: { effectiveProgress },
-                                    set: { newProgress in
-                                        env.audio.seek(toProgress: newProgress)
-                                    }
-                                ),
-                                durationSeconds: duration,
-                                isInteractive: true,
-                                onSeek: { seconds in
-                                    env.audio.seek(toProgress: seconds / duration)
-                                }
-                            )
-                            .padding(.horizontal, AppSpacing.lg)
+                    Spacer(minLength: 4)
 
-                            // 6. Audio Control Toolbar with AppIcon
-                            HStack(spacing: 24) {
-                                // A. Playback Speed Button (Opens Half Sheet)
-                                Button {
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        isShowingSpeedSheet = true
-                                    }
-                                } label: {
-                                    AppIcon(AppIconType.forSpeed(env.settings.defaultPlaybackSpeed), size: 40)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Playback speed")
-
-                                // B. Rewind 10 Seconds
-                                Button {
-                                    let newProgress = max(0, effectiveProgress - (10.0 / duration))
-                                    env.audio.seek(toProgress: newProgress)
-                                } label: {
-                                    AppIcon(.rewind10, size: 36)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Rewind 10 seconds")
-
-                                // C. Primary Chunky Play / Pause Button (60x60)
-                                Button {
-                                    if isPlaying {
-                                        env.audio.pause()
-                                    } else {
-                                        if let activeStory {
-                                            env.audio.play(story: activeStory)
-                                        } else {
-                                            env.audio.resume()
-                                        }
-                                    }
-                                } label: {
-                                    AppIcon(isPlaying ? .pause : .play, size: 60)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(isPlaying ? "Pause" : "Play")
-
-                                // D. Forward 10 Seconds
-                                Button {
-                                    let newProgress = min(1.0, effectiveProgress + (10.0 / duration))
-                                    env.audio.seek(toProgress: newProgress)
-                                } label: {
-                                    AppIcon(.forward10, size: 36)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Forward 10 seconds")
-
-                                // E. Queue List Button (Opens Half Sheet)
-                                Button {
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        isShowingQueueSheet = true
-                                    }
-                                } label: {
-                                    AppIcon(.queue, size: 36)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Story Queue")
-                            }
-                            .padding(.top, 2)
-
-                            // 7. Transcription Bottom Drawer Card
-                            Button {
-                                isShowingFullTranscript = true
-                            } label: {
-                                TranscriptionPreviewCard(
-                                    siteName: activeSite?.name ?? "Transcription",
-                                    transcript: activeStory?.transcript ?? "No transcription available."
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.horizontal, AppSpacing.lg)
-                            .padding(.top, 10)
-                            .padding(.bottom, 32)
+                    // 3. Photo Carousel Card (Swipeable Stops)
+                    TabView(selection: $currentSiteIndex) {
+                        ForEach(Array(sites.enumerated()), id: \.element.id) { index, site in
+                            SitePhotoCard(site: site)
+                                .tag(index)
+                                .padding(.horizontal, AppSpacing.lg)
                         }
                     }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .frame(height: 275)
+
+                    Spacer(minLength: 4)
+
+                    // 4. Site Name & District
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(activeSite?.name ?? "Cultural Site")
+                            .font(.custom(AppTextStyle.customFontPostScriptName, size: 26))
+                            .foregroundStyle(AppColor.Brand.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text(currentRegionalLocationString(activeSite: activeSite))
+                            .font(.system(size: 15, weight: .regular))
+                            .foregroundStyle(AppColor.Text.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, AppSpacing.lg)
+
+                    Spacer(minLength: 4)
+
+                    // 5. Tactile Audio Scrubber Component
+                    AudioScrubber(
+                        progress: Binding(
+                            get: { effectiveProgress },
+                            set: { newProgress in
+                                env.audio.seek(toProgress: newProgress)
+                            }
+                        ),
+                        durationSeconds: duration,
+                        isInteractive: true,
+                        onSeek: { seconds in
+                            env.audio.seek(toProgress: seconds / duration)
+                        }
+                    )
+                    .padding(.horizontal, AppSpacing.lg)
+
+                    Spacer(minLength: 4)
+
+                    // 6. Audio Control Toolbar with AppIcon
+                    HStack(spacing: 24) {
+                        // A. Playback Speed Button (Opens Half Sheet)
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isShowingSpeedSheet = true
+                            }
+                        } label: {
+                            AppIcon(AppIconType.forSpeed(env.settings.defaultPlaybackSpeed), size: 40)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Playback speed")
+
+                        // B. Rewind 10 Seconds
+                        Button {
+                            let newProgress = max(0, effectiveProgress - (10.0 / duration))
+                            env.audio.seek(toProgress: newProgress)
+                        } label: {
+                            AppIcon(.rewind10, size: 36)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Rewind 10 seconds")
+
+                        // C. Primary Chunky Play / Pause Button (60x60)
+                        Button {
+                            if isPlaying {
+                                env.audio.pause()
+                            } else {
+                                if let activeStory {
+                                    env.audio.play(story: activeStory)
+                                } else {
+                                    env.audio.resume()
+                                }
+                            }
+                        } label: {
+                            AppIcon(isPlaying ? .pause : .play, size: 60)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(isPlaying ? "Pause" : "Play")
+
+                        // D. Forward 10 Seconds
+                        Button {
+                            let newProgress = min(1.0, effectiveProgress + (10.0 / duration))
+                            env.audio.seek(toProgress: newProgress)
+                        } label: {
+                            AppIcon(.forward10, size: 36)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Forward 10 seconds")
+
+                        // E. Queue List Button (Opens Half Sheet)
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isShowingQueueSheet = true
+                            }
+                        } label: {
+                            AppIcon(.queue, size: 36)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Story Queue")
+                    }
+                    .padding(.top, 2)
+
+                    Spacer(minLength: 6)
+
+                    // 7. Transcription Bottom Drawer Card
+                    Button {
+                        isShowingFullTranscript = true
+                    } label: {
+                        TranscriptionPreviewCard(
+                            siteName: activeSite?.name ?? "Cultural Site"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.bottom, 10)
                 }
 
                 // 8. Pause Tour Modal Overlay (Figma Node 209:3795)
@@ -351,9 +356,9 @@ public struct SitesPlayerView: View {
             .defaultTiledBackground(scale: 0.20)
             .sheet(isPresented: $isShowingFullTranscript) {
                 FullTranscriptSheet(
-                    siteName: activeSite?.name ?? "Site",
-                    storyTitle: activeStory?.title ?? "Story",
-                    transcript: activeStory?.transcript ?? ""
+                    site: activeSite,
+                    story: activeStory,
+                    district: currentRegionalLocationString(activeSite: activeSite)
                 )
                 .presentationDetents([.large])
             }
@@ -396,11 +401,11 @@ private struct SitePhotoCard: View {
     let site: Site
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             Text("Slide left or right for previous or next stops")
                 .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(AppColor.Text.secondary)
-                .padding(.top, 4)
+                .padding(.top, 2)
 
             // Main Site Image Display
             ZStack {
@@ -411,31 +416,32 @@ private struct SitePhotoCard: View {
                 } else {
                     ZStack {
                         AppColor.Brand.tint
-                        VStack(spacing: 8) {
-                            AppIcon(.placeVisited, size: 48)
+                        VStack(spacing: 6) {
+                            AppIcon(.placeVisited, size: 40)
                             Text(site.name)
-                                .font(.custom(AppTextStyle.customFontPostScriptName, size: 20))
+                                .font(.custom(AppTextStyle.customFontPostScriptName, size: 18))
                                 .foregroundStyle(AppColor.Brand.primary)
                         }
                     }
                 }
             }
-            .frame(height: 275)
+            .frame(height: 205)
+            .clipShape(RoundedRectangle(cornerRadius: 2))
             .clipped()
 
             HStack {
                 Text("Source: ADA.com")
-                    .font(.system(size: 12, weight: .regular))
+                    .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(AppColor.Text.secondary)
                 Spacer()
             }
             .padding(.horizontal, 4)
-            .padding(.bottom, 4)
+            .padding(.bottom, 2)
         }
         .padding(8)
         .background(AppColor.Background.pure)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.standard))
-        .shadow(color: Color.black.opacity(0.18), radius: 8, x: 0, y: 4)
+        .shadow(color: Color.black.opacity(0.18), radius: 6, x: 0, y: 3)
     }
 
     private func loadSiteImage(name: String?) -> UIImage? {
@@ -452,94 +458,210 @@ private struct SitePhotoCard: View {
     }
 }
 
-// MARK: - Transcription Preview Card
+// MARK: - Transcription Preview Drawer Card (Figma Node 209:3233)
 
 private struct TranscriptionPreviewCard: View {
     let siteName: String
-    let transcript: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // Header Row (Title + Chevron Up)
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Transcription")
-                        .font(.custom(AppTextStyle.customFontPostScriptName, size: 18))
-                        .foregroundStyle(Color.white)
+        HStack {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Transcription")
+                    .font(.custom(AppTextStyle.customFontPostScriptName, size: 18))
+                    .foregroundStyle(Color.white)
 
-                    Text(siteName)
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(Color.white.opacity(0.85))
-                }
-
-                Spacer()
-
-                AppIcon(.chevronUp, size: 24)
+                Text(siteName)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.white.opacity(0.95))
+                    .lineLimit(1)
             }
 
-            // Transcript Highlighted Snippet
-            VStack(alignment: .leading, spacing: 10) {
-                Text(transcript)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color(red: 255/255, green: 218/255, blue: 206/255))
-                    .lineLimit(4)
-                    .multilineTextAlignment(.leading)
+            Spacer()
 
-                HStack {
-                    Text("Sources from ADA.com")
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(Color.white.opacity(0.8))
-                    Spacer()
-                }
-            }
+            Image(systemName: "chevron.up")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(Color.white)
         }
-        .padding(20)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
         .background(Color(red: 255/255, green: 102/255, blue: 52/255)) // #FF6634 Coral
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
     }
 }
 
-// MARK: - Full Transcript Sheet
+// MARK: - Full Transcript Sheet (Figma Node 210:1123)
 
 private struct FullTranscriptSheet: View {
     @Environment(\.dismiss) private var dismiss
-    let siteName: String
-    let storyTitle: String
-    let transcript: String
+    @Environment(AppEnvironment.self) private var env
+    let site: Site?
+    let story: Story?
+    let district: String
+
+    @State private var isScrubbing: Bool = false
+    @State private var scrubProgress: Double = 0.0
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(siteName)
-                            .font(.custom(AppTextStyle.customFontPostScriptName, size: 24))
-                            .foregroundStyle(AppColor.Brand.primary)
+        ObservingAudio(audio: env.audio) { isPlaying, isLoading, currentStory, progress in
+            let effectiveStory = story ?? currentStory
+            let duration = max(1.0, effectiveStory?.durationSeconds ?? 180.0)
+            let effectiveProgress = isScrubbing ? scrubProgress : progress
+            let transcriptText = effectiveStory?.transcript ?? "No transcription available."
+            let lines = parseTranscriptLines(transcriptText)
+            let activeLineIndex = min(Int(effectiveProgress * Double(max(1, lines.count))), max(0, lines.count - 1))
 
-                        Text(storyTitle)
-                            .appFont(.heading3, color: AppColor.Text.primary)
+            ZStack {
+                Color(red: 255/255, green: 102/255, blue: 52/255) // #FF6634 Coral
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    // 1. Top Header Row (Site Title + District + Dismiss Chevron Down)
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(site?.name ?? "Cultural Site")
+                                .font(.custom(AppTextStyle.customFontPostScriptName, size: 24))
+                                .foregroundStyle(Color.white)
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            Text(district)
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundStyle(Color.white.opacity(0.9))
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Button {
+                            dismiss()
+                        } label: {
+                            AppIcon(.chevronDown, size: 28)
+                                .foregroundStyle(Color.white)
+                                .frame(width: 36, height: 36)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Dismiss transcript")
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 24)
+                    .padding(.bottom, 12)
+
+                    // 2. Karaoke Highlighted Transcript Reader
+                    ScrollViewReader { proxy in
+                        ScrollView(showsIndicators: false) {
+                            VStack(alignment: .leading, spacing: 20) {
+                                ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
+                                    if index == activeLineIndex {
+                                        // Active highlighted pill
+                                        Text(line)
+                                            .font(.system(size: 22, weight: .bold))
+                                            .foregroundStyle(Color(red: 255/255, green: 102/255, blue: 52/255))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 6)
+                                            .background(Color.white)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            .id(index)
+                                    } else {
+                                        // Surrounding inactive lines
+                                        Text(line)
+                                            .font(.system(size: 22, weight: .regular))
+                                            .foregroundStyle(Color(red: 255/255, green: 218/255, blue: 206/255)) // #FFDACE
+                                            .id(index)
+                                    }
+                                }
+
+                                // Attribution Link
+                                HStack {
+                                    Text("Sources from ")
+                                        .font(.system(size: 16, weight: .regular))
+                                        .foregroundStyle(Color.white) +
+                                    Text("here!")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .underline()
+                                        .foregroundStyle(Color.white)
+                                    Spacer()
+                                }
+                                .padding(.top, 12)
+                                .padding(.bottom, 24)
+                            }
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 16)
+                        }
+                        .onChange(of: activeLineIndex) { _, newIndex in
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                proxy.scrollTo(newIndex, anchor: .center)
+                            }
+                        }
                     }
 
-                    Divider()
+                    // 3. Tactile Audio Scrubber Component (Orange Theme)
+                    AudioScrubber(
+                        progress: Binding(
+                            get: { effectiveProgress },
+                            set: { newProgress in
+                                env.audio.seek(toProgress: newProgress)
+                            }
+                        ),
+                        durationSeconds: duration,
+                        theme: .orange,
+                        isInteractive: true,
+                        onSeek: { seconds in
+                            env.audio.seek(toProgress: seconds / duration)
+                        }
+                    )
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
 
-                    Text(transcript)
-                        .font(.system(size: 18, weight: .regular))
-                        .lineSpacing(6)
-                        .foregroundStyle(AppColor.Text.primary)
-                }
-                .padding(AppSpacing.lg)
-            }
-            .navigationTitle("Full Transcript")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+                    // 4. Audio Control Toolbar (SVG AppIcons in Coral Theme)
+                    HStack(spacing: 36) {
+                        // Rewind 10s
+                        Button {
+                            let newProgress = max(0, effectiveProgress - (10.0 / duration))
+                            env.audio.seek(toProgress: newProgress)
+                        } label: {
+                            AppIcon(.rewind10, size: 36)
+                                .foregroundStyle(Color.white)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Rewind 10 seconds")
+
+                        // Primary Chunky Play/Pause Button (60x60 Orange Theme)
+                        Button {
+                            if isPlaying {
+                                env.audio.pause()
+                            } else {
+                                if let effectiveStory {
+                                    env.audio.play(story: effectiveStory)
+                                } else {
+                                    env.audio.resume()
+                                }
+                            }
+                        } label: {
+                            AppIcon(isPlaying ? .pauseOrange : .playOrange, size: 60)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(isPlaying ? "Pause" : "Play")
+
+                        // Forward 10s
+                        Button {
+                            let newProgress = min(1.0, effectiveProgress + (10.0 / duration))
+                            env.audio.seek(toProgress: newProgress)
+                        } label: {
+                            AppIcon(.forward10, size: 36)
+                                .foregroundStyle(Color.white)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Forward 10 seconds")
                     }
+                    .padding(.bottom, 28)
                 }
             }
         }
+    }
+
+    private func parseTranscriptLines(_ text: String) -> [String] {
+        let raw = text.components(separatedBy: CharacterSet(charactersIn: ".\n"))
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return raw.isEmpty ? [text] : raw
     }
 }
 
