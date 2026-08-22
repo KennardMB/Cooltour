@@ -281,6 +281,19 @@ SitePolaroidCollage(sites: [
 ])
 ```
 
+### 16. `SitesPlayerView` & `PauseTourOverlay` (Figma Nodes 209:3233, 209:3795)
+- **Sites Player**: Regional location indicator ("You are now in <Subdistrict, Region, Province>"), red pause button, POI detection banner with "Open Map" link, photo carousel card, tactile `AudioScrubber`, and audio controls toolbar powered by `AppIcon`.
+- **Pause Tour Overlay**: 96% opacity backdrop (`#E2E1DE`) displaying "done wandering? all the places will be saved once you ended it." with tactile blue "resume" and red "end tour" buttons.
+
+### 17. `PlaybackSpeedSheet` & `StoryQueueSheet` (Figma Nodes 210:1033, 210:1078)
+- **Playback Speed Half-Sheet (`210:1033`)**: 356pt white card with 4pt `#E7E7E7` border, `Baru Lagi` header, close button, and horizontal `PlaybackSpeedPicker` (0.5x, 0.75x, 1x, 1.25x, 1.5x) sliding over a 90% opacity `#E2E1DE` backdrop.
+- **Queue Half-Sheet (`210:1078`)**: 356pt white card displaying "Now Playing" with active site title in `Baru Lagi` 20pt blue, remaining time, mini 40x40 play/pause button, and "Next stops:" section with dynamic queued sites from `env.storyQueue` and reorder handles (`IconSlideHandle`).
+
+```swift
+SitesPlayerView()
+    .environment(env)
+```
+
 ---
 
 ## 6. Accessibility & Concurrency Guidelines

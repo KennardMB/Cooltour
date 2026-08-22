@@ -17,4 +17,5 @@ protocol AudioPlayerService {
   func resume()
   func stop()
   func setRate(_ rate: Float)
+  func seek(toProgress progress: Double)
 }

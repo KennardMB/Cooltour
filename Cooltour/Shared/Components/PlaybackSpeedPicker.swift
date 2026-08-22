@@ -127,7 +127,7 @@ public struct PlaybackSpeedPicker: View {
     }
 }
 
-// MARK: - Playback Speed Sheet Component
+// MARK: - Playback Speed Sheet Component (Figma Node 210:1033)
 
 public struct PlaybackSpeedSheet: View {
     @Binding public var selectedSpeed: Double
@@ -145,31 +145,38 @@ public struct PlaybackSpeedSheet: View {
     }
 
     public var body: some View {
-        VStack(spacing: AppSpacing.lg) {
-            // Drag handle / header
+        VStack(spacing: AppSpacing.md) {
+            // Header Row (Title + Close Button)
             HStack {
                 Text("Playback Speed")
-                    .appFont(.heading3, color: AppColor.Text.primary)
+                    .font(.custom(AppTextStyle.customFontPostScriptName, size: 22))
+                    .foregroundStyle(Color(red: 57/255, green: 57/255, blue: 57/255))
 
                 Spacer()
 
                 if let onClose {
                     Button(action: onClose) {
-                        AppIcon(.close, size: 28)
+                        AppIcon(.close, size: 24)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Close speed picker")
                 }
             }
-            .padding(.horizontal, AppSpacing.lg)
-            .padding(.top, AppSpacing.lg)
+            .padding(.horizontal, AppSpacing.xs)
 
-            // Horizontal Slider
+            // Horizontal Speed Slider
             PlaybackSpeedPicker(selectedSpeed: $selectedSpeed, onSelect: onSelect)
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.bottom, AppSpacing.xl)
+                .padding(.top, 4)
         }
-        .background(AppColor.Background.canvas)
+        .padding(20)
+        .frame(width: 356)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .strokeBorder(Color(red: 231/255, green: 231/255, blue: 231/255), lineWidth: 4) // #E7E7E7
+        )
+        .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
     }
 }
 

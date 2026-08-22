@@ -3,6 +3,7 @@ import SwiftUI
 
 struct NowView: View {
   @Environment(AppEnvironment.self) private var env
+  @State private var isShowingSitesPlayer: Bool = false
 
   var body: some View {
     @Bindable var settings = env.settings
@@ -65,6 +66,9 @@ struct NowView: View {
                   env.audio.setRate(Float(speed))
                 }
               )
+              .onTapGesture {
+                isShowingSitesPlayer = true
+              }
             }
 
             // Temporary Slice 11 debug — allow while playing so you can test the interrupt prompt.
@@ -85,11 +89,13 @@ struct NowView: View {
                 HStack(spacing: 12) {
                   Button("Play now") {
                     env.narration.accept(promptID: prompt.id)
+                    isShowingSitesPlayer = true
                   }
                   .buttonStyle(.borderedProminent)
 
                   Button("Add to queue") {
                     env.narration.queue(promptID: prompt.id)
+                    isShowingSitesPlayer = true
                   }
                   .buttonStyle(.bordered)
 
@@ -144,6 +150,9 @@ struct NowView: View {
       }
       .padding()
       .navigationTitle("Now")
+      .fullScreenCover(isPresented: $isShowingSitesPlayer) {
+        SitesPlayerView()
+      }
     }
   }
 

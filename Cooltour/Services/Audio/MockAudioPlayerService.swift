@@ -40,4 +40,8 @@ final class MockAudioPlayerService: AudioPlayerService {
   func setRate(_ newRate: Float) {
     rate = newRate
   }
+
+  func seek(toProgress newProgress: Double) {
+    progress = max(0, min(1, newProgress))
+  }
 }
