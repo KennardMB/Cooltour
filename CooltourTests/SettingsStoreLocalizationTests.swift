@@ -1,12 +1,15 @@
 import Foundation
 import Testing
 
+@testable import Cooltour
+
 @Suite("SettingsStore localization")
 @MainActor
 struct SettingsStoreLocalizationTests {
   @Test func appLanguagePersistsAcrossRelaunch() {
-    let defaults = UserDefaults(suiteName: "test.cooltour.appLanguage.\(UUID().uuidString)")!
-    defer { defaults.removePersistentDomain(forName: defaults.suiteName!) }
+    let suite = "test.cooltour.appLanguage.\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: suite)!
+    defer { defaults.removePersistentDomain(forName: suite) }
 
     let first = SettingsStore(defaults: defaults)
     first.appLanguage = .indonesian
@@ -17,8 +20,9 @@ struct SettingsStoreLocalizationTests {
   }
 
   @Test func audioLanguagePersistsAndDefaultsToEnglish() {
-    let defaults = UserDefaults(suiteName: "test.cooltour.audioLanguage.\(UUID().uuidString)")!
-    defer { defaults.removePersistentDomain(forName: defaults.suiteName!) }
+    let suite = "test.cooltour.audioLanguage.\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: suite)!
+    defer { defaults.removePersistentDomain(forName: suite) }
 
     let fresh = SettingsStore(defaults: defaults)
     #expect(fresh.audioLanguage == .english)
@@ -29,8 +33,9 @@ struct SettingsStoreLocalizationTests {
   }
 
   @Test func systemAppLanguageResolvesFromDeviceLocale() {
-    let defaults = UserDefaults(suiteName: "test.cooltour.systemLang.\(UUID().uuidString)")!
-    defer { defaults.removePersistentDomain(forName: defaults.suiteName!) }
+    let suite = "test.cooltour.systemLang.\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: suite)!
+    defer { defaults.removePersistentDomain(forName: suite) }
 
     let store = SettingsStore(defaults: defaults)
     store.appLanguage = .system
@@ -39,8 +44,9 @@ struct SettingsStoreLocalizationTests {
   }
 
   @Test func indonesianAppLanguageResolvesToID() {
-    let defaults = UserDefaults(suiteName: "test.cooltour.idLang.\(UUID().uuidString)")!
-    defer { defaults.removePersistentDomain(forName: defaults.suiteName!) }
+    let suite = "test.cooltour.idLang.\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: suite)!
+    defer { defaults.removePersistentDomain(forName: suite) }
 
     let store = SettingsStore(defaults: defaults)
     store.appLanguage = .indonesian
