@@ -36,11 +36,11 @@ public enum TiledBackgroundStyle: Sendable, Equatable {
             return Color.white
         case .theme(let theme):
             switch theme {
-            case .blue:   return Color.white
-            case .pink:   return Color(red: 1.0, green: 0.88, blue: 0.94)
-            case .green:  return Color(red: 0.88, green: 0.98, blue: 0.92)
-            case .yellow: return Color(red: 1.0, green: 0.97, blue: 0.86)
-            case .orange: return Color(red: 1.0, green: 0.91, blue: 0.87)
+            case .blue:   return Color(red: 232/255, green: 238/255, blue: 251/255) // #E8EEFB
+            case .pink:   return Color(red: 1.0, green: 0.88, blue: 0.94) // #FFE0F0
+            case .green:  return Color(red: 0.88, green: 0.98, blue: 0.92) // #E0FAE9
+            case .yellow: return Color(red: 1.0, green: 0.97, blue: 0.86) // #FFF7DC
+            case .orange: return Color(red: 1.0, green: 0.91, blue: 0.87) // #FFE8DE
             }
         }
     }
