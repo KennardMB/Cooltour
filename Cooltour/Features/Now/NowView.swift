@@ -63,10 +63,10 @@ struct NowView: View {
                   }
                 },
                 onSkipBack: {
-                  env.audio.seek(bySeconds: -NowCard.skipIntervalSeconds)
+                  env.audio.seek(bySeconds: -AppConfig.skipIntervalSeconds)
                 },
                 onSkipForward: {
-                  env.audio.seek(bySeconds: NowCard.skipIntervalSeconds)
+                  env.audio.seek(bySeconds: AppConfig.skipIntervalSeconds)
                 },
                 onSelectSpeed: { speed in
                   env.settings.defaultPlaybackSpeed = speed

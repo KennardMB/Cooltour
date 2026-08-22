@@ -51,6 +51,24 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   /// none of that reaches us: audio just keeps playing silently into an empty ear.
   private func configureRemoteCommands() {
     let commandCenter = MPRemoteCommandCenter.shared()
+    let skipIntervalNSNumber = [NSNumber(value: AppConfig.skipIntervalSeconds)]
+
+    commandCenter.skipBackwardCommand.preferredIntervals = skipIntervalNSNumber
+    commandCenter.skipForwardCommand.preferredIntervals = skipIntervalNSNumber
+
+    commandCenter.skipBackwardCommand.addTarget { [weak self] event in
+      guard let self, self.currentStory != nil, self.player != nil else { return .commandFailed }
+      let interval = (event as? MPSkipIntervalCommandEvent)?.interval ?? AppConfig.skipIntervalSeconds
+      self.seek(bySeconds: -interval)
+      return .success
+    }
+
+    commandCenter.skipForwardCommand.addTarget { [weak self] event in
+      guard let self, self.currentStory != nil, self.player != nil else { return .commandFailed }
+      let interval = (event as? MPSkipIntervalCommandEvent)?.interval ?? AppConfig.skipIntervalSeconds
+      self.seek(bySeconds: interval)
+      return .success
+    }
 
     commandCenter.pauseCommand.addTarget { [weak self] _ in
       guard let self, self.isPlaying else { return .commandFailed }
@@ -76,7 +94,7 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       return .success
     }
 
-    // Not supported — leaving these enabled would show dead skip buttons on the lock screen.
+    // Spoken-word seeks within the story — next/previous would jump tracks and stay dead.
     commandCenter.nextTrackCommand.isEnabled = false
     commandCenter.previousTrackCommand.isEnabled = false
   }

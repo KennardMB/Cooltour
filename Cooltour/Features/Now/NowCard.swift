@@ -18,9 +18,6 @@ struct NowCard: View {
   let onSkipForward: () -> Void
   let onSelectSpeed: (Double) -> Void
 
-  /// Fixed 10s jump — matches spoken-word baseline without a Settings knob (YAGNI for MVP).
-  static let skipIntervalSeconds: TimeInterval = 10
-
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       VStack(alignment: .leading, spacing: 2) {
