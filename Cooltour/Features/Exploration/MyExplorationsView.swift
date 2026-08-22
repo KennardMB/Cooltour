@@ -8,8 +8,6 @@ struct MyExplorationsView: View {
   @Environment(AppEnvironment.self) private var env
   @Query(sort: \Walk.startedAt, order: .reverse) private var walks: [Walk]
   
-  @State private var selectedWalk: Walk?
-  
   init() {}
   
   var body: some View {
@@ -68,8 +66,8 @@ struct MyExplorationsView: View {
                 let dateText = walk.startedAt.formatted(date: .numeric, time: .omitted)
                 let theme = BinderCardTheme.forIndex(index)
                 
-                Button {
-                  selectedWalk = walk
+                NavigationLink {
+                  MyExplorationDetailsView(walk: walk)
                 } label: {
                   ExplorationBinderCard(
                     title: title,
@@ -88,9 +86,6 @@ struct MyExplorationsView: View {
         }
       }
       .defaultTiledBackground(scale: 0.20)
-      .sheet(item: $selectedWalk) { walk in
-        ExplorationDetailSheet(walk: walk)
-      }
     }
   }
   

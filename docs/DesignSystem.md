@@ -268,6 +268,19 @@ ExplorationBinderCard(
 )
 ```
 
+### 15. `SitePolaroidCard` & `SitePolaroidCollage` (Figma Node 204:2091)
+- **Visuals**: Tactile Polaroid photo frame with handwritten-style site caption in `Baru Lagi` display font.
+- **Collage Layout**: Dynamic staggered 3D collage with playful rotation angles (`-8°`, `+7°`, `-1°`).
+- **Asset Resolution**: Resolves image files dynamically from `Resources/SitePictures/<slug>.jpg` or `Assets.xcassets`.
+
+```swift
+SitePolaroidCollage(sites: [
+    (name: "Pasar Kumbasari", imageAssetName: "pasar-kumbasari.jpg"),
+    (name: "Pasar Badung", imageAssetName: "pasar-badung.jpg"),
+    (name: "Nadhi Heritage", imageAssetName: "nadhi-heritage.jpg")
+])
+```
+
 ---
 
 ## 6. Accessibility & Concurrency Guidelines
@@ -275,6 +288,23 @@ ExplorationBinderCard(
 1. **VoiceOver Support**: Every button and card must declare `.accessibilityLabel`, `.accessibilityHint`, and `.accessibilityAddTraits`.
 2. **Dynamic Type Scaling**: Use `@ScaledMetric` on custom layout dimensions so touch targets expand proportionally.
 3. **Strict Concurrency (`@MainActor`)**: All views and modifiers run on `@MainActor` with zero data races per `AGENTS.md`.
+
+---
+
+## 7. Content Pack & Site Pictures Reference
+
+- **Location**: `Cooltour/Resources/SitePictures/`
+- **Schema (`denpasar.json`)**:
+  ```json
+  {
+    "slug": "pura-maospahit",
+    "name": "Pura Maospahit",
+    "imageFile": "pura-maospahit.jpg",
+    "stories": [...]
+  }
+  ```
+- **Site Model**: `Site.thumbnailAssetName` maps to the site's `imageFile` string, loaded automatically by `ContentStore`.
+
 
 
 
