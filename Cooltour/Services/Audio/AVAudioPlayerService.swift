@@ -57,17 +57,10 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     commandCenter.skipForwardCommand.preferredIntervals = skipIntervalNSNumber
 
     commandCenter.skipBackwardCommand.addTarget { [weak self] event in
-      guard let self, self.currentStory != nil, self.player != nil else { return .commandFailed }
-      let interval = (event as? MPSkipIntervalCommandEvent)?.interval ?? AppConfig.skipIntervalSeconds
-      self.seek(bySeconds: -interval)
-      return .success
+      self?.handleSkipCommand(event, sign: -1) ?? .commandFailed
     }
-
     commandCenter.skipForwardCommand.addTarget { [weak self] event in
-      guard let self, self.currentStory != nil, self.player != nil else { return .commandFailed }
-      let interval = (event as? MPSkipIntervalCommandEvent)?.interval ?? AppConfig.skipIntervalSeconds
-      self.seek(bySeconds: interval)
-      return .success
+      self?.handleSkipCommand(event, sign: 1) ?? .commandFailed
     }
 
     commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
@@ -105,6 +98,13 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     // Spoken-word seeks within the story — next/previous would jump tracks and stay dead.
     commandCenter.nextTrackCommand.isEnabled = false
     commandCenter.previousTrackCommand.isEnabled = false
+  }
+
+  private func handleSkipCommand(_ event: MPRemoteCommandEvent, sign: Double) -> MPRemoteCommandHandlerStatus {
+    guard currentStory != nil, player != nil else { return .commandFailed }
+    let interval = (event as? MPSkipIntervalCommandEvent)?.interval ?? AppConfig.skipIntervalSeconds
+    seek(bySeconds: sign * interval)
+    return .success
   }
 
   // MARK: - Playback controls

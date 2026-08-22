@@ -11,6 +11,9 @@ final class MockAudioPlayerService: AudioPlayerService {
 
   var onPlaybackFinished: (() -> Void)?
 
+  /// Mock has no real duration — treat progress as a 100s track so tests can assert clamps.
+  private let fakeDurationSeconds = 100.0
+
   /// Test affordance: simulate a story reaching its end, driving whatever the coordinator wired.
   func simulatePlaybackFinished() {
     stop()
@@ -45,14 +48,11 @@ final class MockAudioPlayerService: AudioPlayerService {
 
   func seek(bySeconds deltaSeconds: TimeInterval) {
     guard currentStory != nil else { return }
-    // Mock has no real duration — treat progress as a 100s track so tests can assert clamps.
-    let fakeDurationSeconds = 100.0
     seek(toSeconds: progress * fakeDurationSeconds + deltaSeconds)
   }
 
   func seek(toSeconds seconds: TimeInterval) {
     guard currentStory != nil else { return }
-    let fakeDurationSeconds = 100.0
     let newSeconds = min(max(0, seconds), fakeDurationSeconds)
     progress = newSeconds / fakeDurationSeconds
   }

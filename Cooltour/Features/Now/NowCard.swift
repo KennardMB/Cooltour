@@ -59,7 +59,6 @@ struct NowCard: View {
             }
           }
         )
-        .id(storyID)
         .disabled(isLoading)
         .accessibilityLabel("Playback position")
 
@@ -117,22 +116,17 @@ struct NowCard: View {
     .padding()
     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
     .onAppear {
-      displayProgress = Self.clampedProgress(progress)
+      displayProgress = min(max(0, progress.isFinite ? progress : 0), 1)
     }
     .onChange(of: progress) { _, newValue in
       // Follow live playback (and ±10s seeks) unless the user is dragging the thumb.
       guard !isScrubbing else { return }
-      displayProgress = Self.clampedProgress(newValue)
+      displayProgress = min(max(0, newValue.isFinite ? newValue : 0), 1)
     }
     .onChange(of: storyID) { _, _ in
       isScrubbing = false
       displayProgress = 0
     }
-  }
-
-  private static func clampedProgress(_ value: Double) -> Double {
-    guard value.isFinite else { return 0 }
-    return min(max(0, value), 1)
   }
 
   private static func distanceText(_ meters: Double) -> String {
