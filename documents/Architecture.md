@@ -514,7 +514,12 @@ Same “who starts / who stops” question for the rest of the core loop.
 | **UIKit** | Proximity engine, Settings “Open System Settings” | `UIApplication` state / settings URL |
 | **Foundation** | Everywhere | Tasks, UserDefaults, dates |
 
-**Not used in the running app (yet):** PHASE (`AppConfig.usePHASE = false`), Core Motion heading, WeatherKit, WatchConnectivity, any network SDK.
+**Not used in the running app (yet):** PHASE (`AppConfig.usePHASE = false`), Core Motion heading
+for *trigger* gating, WeatherKit, any network SDK.
+
+**Watch (Slices 17–21):** `WCWatchSessionBridge` on the phone + `WatchSessionClient` on
+`Cooltour Watch`. Audio and proximity stay on iPhone; the wrist gets haptics, consent taps,
+walking-mode toggle, and a post-play direction arrow.
 
 ---
 

@@ -5,7 +5,8 @@
 the product spec. This one is the build plan.
 **Companion to:** [`InitialCooltour.md`](InitialCooltour.md) §N5 (placeholder, superseded here);
 consent / queue / walking mode in [`MilaSlices.md`](MilaSlices.md) (Slices 11, 11.5, 13, 14).
-**Status:** ready to build. Do not start until Slice 11 + 11.5 are on the branch you cut from —
+**Status:** Slices 17–21 implemented on `feature/slice-apple-watch` (draft for human revise).
+Do not start until Slice 11 + 11.5 are on the branch you cut from —
 Watch answers the same `promptID` the phone already owns.
 **Team:** assign owners before cutting branches; slices are sized so two people can run 17→18 and
 19 in parallel after the day-1 payload PR merges.
