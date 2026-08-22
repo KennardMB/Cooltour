@@ -555,3 +555,5 @@ ProximityEvaluator  ──silence if inaccurate──► (nothing)
 | [`AudioArchitectureAnalysis.md`](AudioArchitectureAnalysis.md) | Why audio is bundled, not streamed. |
 | [`FEATURE_now_screen_audio_player.md`](FEATURE_now_screen_audio_player.md) | Now-card player notes. |
 | [`MilaSlices.md`](MilaSlices.md) | Slice ownership notes. |
+| [`PRD-AppleWatchCompanion.md`](PRD-AppleWatchCompanion.md) | Watch product requirements. |
+| [`WatchSlices.md`](WatchSlices.md) | Watch build plan (Slices 17–21). Not built yet. |
