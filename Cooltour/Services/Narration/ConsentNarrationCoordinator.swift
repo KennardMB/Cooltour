@@ -20,6 +20,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   // `var` only because callbacks are assigned below; references are never reassigned for ownership.
   private var audio: any AudioPlayerService
   private var promptVoice: any PromptVoice
+  private let approachChime: any ApproachChimePlayer
   private let remoteControl: any ConsentRemoteControl
   private let storyQueue: any StoryQueue
   private let notifications: (any NotificationService)?
@@ -35,6 +36,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   init(
     audio: any AudioPlayerService,
     promptVoice: any PromptVoice,
+    approachChime: any ApproachChimePlayer = MockApproachChimePlayer(),
     remoteControl: any ConsentRemoteControl,
     storyQueue: any StoryQueue,
     notifications: (any NotificationService)? = nil,
@@ -43,6 +45,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   ) {
     self.audio = audio
     self.promptVoice = promptVoice
+    self.approachChime = approachChime
     self.remoteControl = remoteControl
     self.storyQueue = storyQueue
     self.notifications = notifications
@@ -154,8 +157,10 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
         self?.accept(promptID: id)
       }
     }
-    promptVoice.speak(spoken, languageCode: languageCode)
     notifications?.postPrompt(prompt)
+    approachChime.play { [weak self] in
+      self?.promptVoice.speak(spoken, languageCode: languageCode)
+    }
     // Resume + dismiss countdown start in `spokenPromptDidFinish`.
   }
 
@@ -266,6 +271,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     if let id = pendingPrompt?.id {
       notifications?.withdrawPrompt(id: id)
     }
+    approachChime.stop()
     promptVoice.stop()
     remoteControl.disarm()
     timeoutTask?.cancel()

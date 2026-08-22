@@ -26,6 +26,7 @@ struct CooltourApp: App {
     let narration = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: SystemPromptVoice(),
+      approachChime: BundleApproachChimePlayer(),
       remoteControl: SystemConsentRemoteControl(),
       storyQueue: storyQueue,
       notifications: notifications,

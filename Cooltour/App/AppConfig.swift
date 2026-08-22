@@ -33,4 +33,8 @@ enum AppConfig {
 
   static let usePHASE = false
   static let headingRefinement = false
+
+  /// Bundled earcon that plays once when a consent prompt opens, before the spoken line.
+  static let useApproachChime = true
+  static let approachChimeAssetName = "approach_chime.caf"
 }

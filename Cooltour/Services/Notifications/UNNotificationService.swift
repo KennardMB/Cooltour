@@ -63,7 +63,7 @@ final class UNNotificationService: NSObject, NotificationService {
     } else {
       content.body = prompt.storyTitle
     }
-    content.sound = .default
+    content.sound = nil
     content.categoryIdentifier = Self.categoryIdentifier
     content.userInfo = [
       "promptID": prompt.id.uuidString,
