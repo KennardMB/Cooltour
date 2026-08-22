@@ -37,4 +37,7 @@ enum AppConfig {
   /// Bundled earcon that plays once when a consent prompt opens, before the spoken line.
   static let useApproachChime = true
   static let approachChimeAssetName = "approach_chime.caf"
+
+  /// Fixed in-app and lock-screen skip jump for story playback. No Settings knob in MVP.
+  static let skipIntervalSeconds: TimeInterval = 10
 }

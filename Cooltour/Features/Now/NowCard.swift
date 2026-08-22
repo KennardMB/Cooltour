@@ -13,8 +13,19 @@ struct NowCard: View {
   let progress: Double
   let durationSeconds: Double
   let speed: Double
+  /// Identity for the loaded story — resets scrub state when a new site takes over.
+  let storyID: String
   let onTogglePlayback: () -> Void
+  let onSkipBack: () -> Void
+  let onSkipForward: () -> Void
+  /// Progress fraction 0…1 — the card stays free of duration math beyond the time label.
+  let onSeek: (Double) -> Void
   let onSelectSpeed: (Double) -> Void
+
+  /// Local thumb position. Slider always binds here; we mirror `progress` only while not dragging
+  /// so the system Slider can't latch onto a stale value after scrub (asymmetric Binding gotcha).
+  @State private var isScrubbing = false
+  @State private var displayProgress: Double = 0
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
@@ -37,29 +48,61 @@ struct NowCard: View {
           .lineLimit(2)
       }
 
-      HStack(spacing: 20) {
-        Button(action: onTogglePlayback) {
-          Group {
-            if isLoading {
-              ProgressView()
-            } else {
-              Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                .resizable()
+      VStack(spacing: 8) {
+        Slider(
+          value: $displayProgress,
+          in: 0...1,
+          onEditingChanged: { editing in
+            isScrubbing = editing
+            if !editing {
+              onSeek(displayProgress)
             }
           }
-          .frame(width: 64, height: 64)
-        }
-        .buttonStyle(.plain)
+        )
         .disabled(isLoading)
-        .accessibilityLabel(isPlaying ? "Pause" : "Play")
+        .accessibilityLabel("Playback position")
 
-        VStack(alignment: .leading, spacing: 4) {
-          ProgressView(value: progress)
-          Text(Self.timeText(progress: progress, durationSeconds: durationSeconds))
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .monospacedDigit()
+        Text(Self.timeText(progress: displayProgress, durationSeconds: durationSeconds))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .monospacedDigit()
+          .frame(maxWidth: .infinity, alignment: .leading)
+
+        HStack(spacing: 28) {
+          Button(action: onSkipBack) {
+            Image(systemName: "gobackward.10")
+              .font(.title2)
+              .frame(width: 44, height: 44)
+          }
+          .buttonStyle(.plain)
+          .disabled(isLoading)
+          .accessibilityLabel("Skip back 10 seconds")
+
+          Button(action: onTogglePlayback) {
+            Group {
+              if isLoading {
+                ProgressView()
+              } else {
+                Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                  .resizable()
+              }
+            }
+            .frame(width: 64, height: 64)
+          }
+          .buttonStyle(.plain)
+          .disabled(isLoading)
+          .accessibilityLabel(isPlaying ? "Pause" : "Play")
+
+          Button(action: onSkipForward) {
+            Image(systemName: "goforward.10")
+              .font(.title2)
+              .frame(width: 44, height: 44)
+          }
+          .buttonStyle(.plain)
+          .disabled(isLoading)
+          .accessibilityLabel("Skip forward 10 seconds")
         }
+        .frame(maxWidth: .infinity)
       }
 
       SpeedChips(
@@ -72,6 +115,18 @@ struct NowCard: View {
     }
     .padding()
     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+    .onAppear {
+      displayProgress = min(max(0, progress.isFinite ? progress : 0), 1)
+    }
+    .onChange(of: progress) { _, newValue in
+      // Follow live playback (and ±10s seeks) unless the user is dragging the thumb.
+      guard !isScrubbing else { return }
+      displayProgress = min(max(0, newValue.isFinite ? newValue : 0), 1)
+    }
+    .onChange(of: storyID) { _, _ in
+      isScrubbing = false
+      displayProgress = 0
+    }
   }
 
   private static func distanceText(_ meters: Double) -> String {
@@ -103,7 +158,11 @@ struct NowCard: View {
     progress: 0.4,
     durationSeconds: 95,
     speed: 1.0,
+    storyID: "pura-maospahit",
     onTogglePlayback: {},
+    onSkipBack: {},
+    onSkipForward: {},
+    onSeek: { _ in },
     onSelectSpeed: { _ in }
   )
   .padding()

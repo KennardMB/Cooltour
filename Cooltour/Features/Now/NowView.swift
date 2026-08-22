@@ -55,12 +55,25 @@ struct NowView: View {
                   for: env.settings.audioLanguage
                 ),
                 speed: env.settings.defaultPlaybackSpeed,
+                storyID: currentStory.slug,
                 onTogglePlayback: {
                   if env.audio.isPlaying {
                     env.audio.pause()
                   } else {
                     env.audio.resume()
                   }
+                },
+                onSkipBack: {
+                  env.audio.seek(bySeconds: -AppConfig.skipIntervalSeconds)
+                },
+                onSkipForward: {
+                  env.audio.seek(bySeconds: AppConfig.skipIntervalSeconds)
+                },
+                onSeek: { fraction in
+                  let duration = currentStory.durationSeconds(
+                    for: env.settings.audioLanguage
+                  )
+                  env.audio.seek(toSeconds: fraction * duration)
                 },
                 onSelectSpeed: { speed in
                   env.settings.defaultPlaybackSpeed = speed

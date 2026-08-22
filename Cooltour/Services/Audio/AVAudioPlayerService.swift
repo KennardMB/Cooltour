@@ -51,6 +51,25 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   /// none of that reaches us: audio just keeps playing silently into an empty ear.
   private func configureRemoteCommands() {
     let commandCenter = MPRemoteCommandCenter.shared()
+    let skipIntervalNSNumber = [NSNumber(value: AppConfig.skipIntervalSeconds)]
+
+    commandCenter.skipBackwardCommand.preferredIntervals = skipIntervalNSNumber
+    commandCenter.skipForwardCommand.preferredIntervals = skipIntervalNSNumber
+
+    commandCenter.skipBackwardCommand.addTarget { [weak self] event in
+      self?.handleSkipCommand(event, sign: -1) ?? .commandFailed
+    }
+    commandCenter.skipForwardCommand.addTarget { [weak self] event in
+      self?.handleSkipCommand(event, sign: 1) ?? .commandFailed
+    }
+
+    commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+      guard let self, self.currentStory != nil, self.player != nil,
+        let positionEvent = event as? MPChangePlaybackPositionCommandEvent
+      else { return .commandFailed }
+      self.seek(toSeconds: positionEvent.positionTime)
+      return .success
+    }
 
     commandCenter.pauseCommand.addTarget { [weak self] _ in
       guard let self, self.isPlaying else { return .commandFailed }
@@ -76,9 +95,16 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       return .success
     }
 
-    // Not supported — leaving these enabled would show dead skip buttons on the lock screen.
+    // Spoken-word seeks within the story — next/previous would jump tracks and stay dead.
     commandCenter.nextTrackCommand.isEnabled = false
     commandCenter.previousTrackCommand.isEnabled = false
+  }
+
+  private func handleSkipCommand(_ event: MPRemoteCommandEvent, sign: Double) -> MPRemoteCommandHandlerStatus {
+    guard currentStory != nil, player != nil else { return .commandFailed }
+    let interval = (event as? MPSkipIntervalCommandEvent)?.interval ?? AppConfig.skipIntervalSeconds
+    seek(bySeconds: sign * interval)
+    return .success
   }
 
   // MARK: - Playback controls
@@ -107,6 +133,8 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
     self.currentStory = story
     self.isLoading = true
+    // Don't leave the previous story's playhead visible while the next file loads.
+    self.progress = 0.0
 
     // A standard Task inherits the @MainActor context of this class
     Task {
@@ -164,6 +192,19 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   func setRate(_ newRate: Float) {
     rate = newRate
     player?.rate = newRate
+    updateNowPlayingInfo()
+  }
+
+  func seek(bySeconds deltaSeconds: TimeInterval) {
+    guard let player else { return }
+    seek(toSeconds: player.currentTime + deltaSeconds)
+  }
+
+  func seek(toSeconds seconds: TimeInterval) {
+    guard let player, player.duration > 0 else { return }
+    let newTime = min(max(0, seconds), player.duration)
+    player.currentTime = newTime
+    progress = newTime / player.duration
     updateNowPlayingInfo()
   }
 
