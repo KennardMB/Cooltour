@@ -255,9 +255,10 @@ ExplorationDoneView()
 ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7)
 ```
 
-### 14. `ExplorationBinderCard` (Figma Node 202:1287)
+### 14. `ExplorationBinderCard` & `MyExplorationsView` (Figma Nodes 202:1287 & 223:1498)
 - **Visuals**: 3-hole notebook binder punch ticket card (`356×120pt`) with dynamic cultural theme palette (Pink, Orange, Blue, Green, Yellow).
 - **Features**: Displays exploration title in `Baru Lagi` 16pt with start time and date stamps in `SF Pro` 12pt.
+- **Empty State (`223:1498`)**: Features a centered hand-drawn binder notebook illustration (`EmptyStateExplorations` 300×300pt) with headline `"No exploration yet,\nexplore now!"` in `Baru Lagi` 20pt `#111111`.
 
 ```swift
 ExplorationBinderCard(

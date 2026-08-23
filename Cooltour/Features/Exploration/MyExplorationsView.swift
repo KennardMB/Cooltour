@@ -43,21 +43,25 @@ struct MyExplorationsView: View {
         ScrollView {
           VStack(spacing: 20) {
             if walks.isEmpty {
-              // Authentic Empty State
-              VStack(spacing: AppSpacing.md) {
-                Image(systemName: "figure.walk.circle")
-                  .font(.system(size: 56, weight: .light))
-                  .foregroundStyle(AppColor.Text.secondary)
-                
-                Text("No explorations yet")
-                  .appFont(.heading3, color: AppColor.Text.primary)
-                
-                Text("Your triggered cultural sites and walking stories will appear here as you explore.")
-                  .appFont(.captionL, color: AppColor.Text.secondary)
+              // Empty State (Figma Node 223:1498)
+              VStack(spacing: 20) {
+                Spacer(minLength: 20)
+
+                Image("EmptyStateExplorations")
+                  .resizable()
+                  .scaledToFit()
+                  .frame(width: 300, height: 300)
+
+                Text("No exploration yet,\nexplore now!")
+                  .font(.custom("Baru Lagi", size: 20))
+                  .foregroundStyle(Color(red: 17/255, green: 17/255, blue: 17/255))
                   .multilineTextAlignment(.center)
-                  .padding(.horizontal, 32)
+                  .lineSpacing(4)
+
+                Spacer(minLength: 40)
               }
-              .padding(.top, 80)
+              .frame(maxWidth: .infinity)
+              .padding(.top, 20)
             } else {
               ForEach(Array(walks.enumerated()), id: \.element.id) { index, walk in
                 let events = walk.triggerEvents.sorted { $0.firedAt > $1.firedAt }
