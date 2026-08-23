@@ -302,20 +302,28 @@ SitesPlayerView()
     .environment(env)
 ```
 
-### 19. `NowView` (Figma Nodes 223:1335 & 223:1414)
-- **Visuals**: Full grid canvas (`TiledBackgroundView()`) with responsive transitions between two states:
+### 19. `NowView` (Figma Nodes 223:1335, 223:1414 & 223:1448)
+- **Visuals**: Full grid canvas (`TiledBackgroundView()`) with responsive transitions across 3 main states:
   1. **Idle State (`223:1335`)**:
      - Live Location indicator with coral arrow (`#FF6634`), title in SF Pro 16pt Bold, and dynamic 3-term reverse-geocoded subtitle (with fallback copywriting when permission is denied/undetermined).
      - Profile Avatar (`BrushProfile` 40×40 box) displaying user's initial in `Baru Lagi` 20pt blue (`#1D52D8`), linked to `ProfileView`.
      - Hero doodle illustration (`NowHeroIllustrationView`).
      - Personalized greeting in `Baru Lagi` 32pt (`"hi, [Name]!"` with coral name accent).
-     - Chunky `BrushButtonPlayActive` (354×60pt) button that activates walking mode and transitions to the wandering state.
+     - Chunky `BrushButtonPlayActive` (354×60pt) button that activates walking mode and transitions to wandering.
   2. **Exploring / Wandering State (`223:1414`)**:
      - Top Bar: `"You are now in"` header with blue location indicator, plus a red destructive `"pause"` button (100×40pt) that opens `PauseTourOverlay`.
-     - Status Indicator: Animated pulsing blue location dot with dynamic headline (`"[N] sites detected around you!"` or `"No site yet, keep wandering!"`).
+     - Status Indicator: Animated pulsing blue location dot with dynamic headline (`"[N] sites detected around you!"` or `"No Site yet, Keep Wandering!"`).
      - Center hero doodle illustration.
      - Caption (`"keep wandering until you passed by one!"`) and `"open map"` button routing to `MapView`.
-     - Automatically launches `SitesPlayerView` upon approaching any nearby cultural site story trigger.
+  3. **Discovered Site Prompt State (`223:1448`)**:
+     - Triggered when entering a site radius (`narration.state == .prompting`).
+     - Detection Strip: `"[N] sites detected near you!"` with direct `"Open Map"` button.
+     - Photo Card: 16:9 polaroid style photo card (`loadSiteImage`) with shadow and source attribution.
+     - Title & Prompt: Site name in `Baru Lagi` 28pt blue (`#1D52D8`) and radar prompt text.
+     - Actions:
+       - `"add to queue"`: Active in coral (`#FF6634`) when multiple sites are in radius; disabled (`BrushButtonDefaultDisabled`) when only 1 site is in range. Triggers animated "Added to queue" toast with "Open" button.
+       - `"play now"`: In blue (`#1D52D8`), immediately opens `SitesPlayerView`.
+       - `"dismiss....(10s)"`: Secondary outlined button with live countdown timer to return to wandering state.
 
 ```swift
 NowView()

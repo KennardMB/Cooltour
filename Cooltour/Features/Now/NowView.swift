@@ -2,7 +2,7 @@ import CoreLocation
 import MapKit
 import SwiftUI
 
-// MARK: - Now View (Figma Nodes 223:1335 & 223:1414)
+// MARK: - Now View (Figma Nodes 223:1335, 223:1414 & 223:1448)
 
 struct NowView: View {
     @Environment(AppEnvironment.self) private var env
@@ -11,6 +11,7 @@ struct NowView: View {
     @State private var isShowingSitesPlayer: Bool = false
     @State private var isShowingProfile: Bool = false
     @State private var isShowingPauseOverlay: Bool = false
+    @State private var showQueueToast: Bool = false
     @State private var locationTitle: String = "Live Location"
     @State private var locationSubtitle: String = "Denpasar, Bali, Indonesia"
     @State private var lastGeocodedCoord: CLLocationCoordinate2D?
@@ -39,36 +40,49 @@ struct NowView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // 1. Grid Background Texture (Figma Tile Background #F8F7F4)
-                TiledBackgroundView()
-                    .ignoresSafeArea()
+            // Opens Observation scopes
+            ObservingNarration(coordinator: env.narration) { narrationState, prompt, countdown in
+                ZStack {
+                    // 1. Grid Background Texture (Figma Tile Background #F8F7F4)
+                    TiledBackgroundView()
+                        .ignoresSafeArea()
 
-                // 2. Main Content Canvas
-                if env.settings.walkingMode {
-                    wanderingContentView
-                } else {
-                    idleContentView
-                }
+                    // 2. Main Content State Machine
+                    if !env.settings.walkingMode {
+                        // State A: Idle Home Screen (Figma Node 223:1335)
+                        idleContentView
+                    } else if narrationState == .prompting, let prompt {
+                        // State C: Discovered Site Prompt (Figma Node 223:1448)
+                        discoveredSitePromptView(prompt: prompt, countdown: countdown)
+                    } else {
+                        // State B: Wandering / Exploring Screen (Figma Node 223:1414)
+                        wanderingContentView
+                    }
 
-                // 3. Pause Tour Overlay (Figma Node 209:3795)
-                if isShowingPauseOverlay {
-                    PauseTourOverlay(
-                        onResume: {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                isShowingPauseOverlay = false
+                    // 3. Queue Toast / Snackbar Notification
+                    if showQueueToast {
+                        queueToastView
+                    }
+
+                    // 4. Pause Tour Overlay (Figma Node 209:3795)
+                    if isShowingPauseOverlay {
+                        PauseTourOverlay(
+                            onResume: {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    isShowingPauseOverlay = false
+                                }
+                            },
+                            onEndTour: {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    isShowingPauseOverlay = false
+                                    env.settings.walkingMode = false
+                                    env.proximity.stop()
+                                    env.audio.stop()
+                                }
                             }
-                        },
-                        onEndTour: {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                isShowingPauseOverlay = false
-                                env.settings.walkingMode = false
-                                env.proximity.stop()
-                                env.audio.stop()
-                            }
-                        }
-                    )
-                    .zIndex(10)
+                        )
+                        .zIndex(10)
+                    }
                 }
             }
             .navigationBarHidden(true)
@@ -89,20 +103,10 @@ struct NowView: View {
             .onChange(of: env.proximity.lastFix?.latitude) { _, _ in
                 updateLocationDisplay()
             }
-            .onChange(of: env.narration.state) { _, state in
-                if state == .prompting {
-                    isShowingSitesPlayer = true
-                }
-            }
-            .onChange(of: env.audio.isPlaying) { _, isPlaying in
-                if isPlaying && !isShowingSitesPlayer {
-                    isShowingSitesPlayer = true
-                }
-            }
         }
     }
 
-    // MARK: - Idle State View (Figma Node 223:1335)
+    // MARK: - State A: Idle Home Screen (Figma Node 223:1335)
 
     private var idleContentView: some View {
         VStack(spacing: 0) {
@@ -204,7 +208,7 @@ struct NowView: View {
         }
     }
 
-    // MARK: - Wandering / Exploring State View (Figma Node 223:1414)
+    // MARK: - State B: Wandering / Exploring Screen (Figma Node 223:1414)
 
     private var wanderingContentView: some View {
         VStack(spacing: 0) {
@@ -277,7 +281,7 @@ struct NowView: View {
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
                 } else {
-                    Text("No site yet,\nkeep wandering!")
+                    Text("No Site yet,\nKeep Wandering!")
                         .font(.custom("Baru Lagi", size: 20))
                         .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
                         .multilineTextAlignment(.center)
@@ -330,7 +334,295 @@ struct NowView: View {
         }
     }
 
-    // MARK: - Actions & Logic
+    // MARK: - State C: Discovered Site Prompt (Figma Node 223:1448)
+
+    private func discoveredSitePromptView(prompt: PendingPrompt, countdown: Int?) -> some View {
+        let site = env.content.allSites().first { $0.name == prompt.siteName || $0.slug == prompt.siteSlug }
+        let hasMultipleSitesInRange = nearbySitesCount > 1
+
+        return ScrollView(showsIndicators: false) {
+            VStack(spacing: 16) {
+                // 1. Top Bar: "You are now in" + Red "pause" Button
+                HStack(alignment: .center, spacing: 8) {
+                    Button {
+                        handleLocationTap()
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "location.fill")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                                .frame(width: 32, height: 32)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("You are now in")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(Color(red: 57/255, green: 57/255, blue: 57/255))
+
+                                Text(locationSubtitle)
+                                    .font(.system(size: 12, weight: .regular))
+                                    .foregroundStyle(Color(red: 57/255, green: 57/255, blue: 57/255))
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            isShowingPauseOverlay = true
+                        }
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color(red: 216/255, green: 29/255, blue: 29/255)) // #D81D1D
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .strokeBorder(Color(red: 130/255, green: 17/255, blue: 17/255), lineWidth: 4) // #821111
+                                )
+                                .frame(width: 100, height: 40)
+
+                            Text("pause")
+                                .font(.custom("Baru Lagi", size: 16))
+                                .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
+                        }
+                        .frame(width: 100, height: 40)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Pause tour")
+                }
+
+                // 2. Detection Strip Card (Figma Node 223:1466)
+                HStack {
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(Color(red: 29/255, green: 82/255, blue: 216/255))
+                            .frame(width: 12, height: 12)
+
+                        Text("\(max(1, nearbySitesCount)) sites detected near you!")
+                            .font(.system(size: 14, weight: .regular))
+                            .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+                    }
+
+                    Spacer()
+
+                    Button {
+                        env.selectedTab = .map
+                    } label: {
+                        Text("Open Map")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(Color(red: 254/255, green: 254/255, blue: 254/255))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .strokeBorder(Color(red: 232/255, green: 238/255, blue: 251/255), lineWidth: 4) // #E8EEFB
+                )
+
+                // 3. Photo Polaroid Card (Figma Node 223:1450)
+                VStack(alignment: .leading, spacing: 8) {
+                    ZStack {
+                        if let siteImage = loadSiteImage(name: site?.thumbnailAssetName) {
+                            Image(uiImage: siteImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(height: 240)
+                                .frame(maxWidth: .infinity)
+                                .clipped()
+                        } else {
+                            Rectangle()
+                                .fill(Color(red: 232/255, green: 238/255, blue: 251/255))
+                                .frame(height: 240)
+                                .overlay(
+                                    Image(systemName: "photo.on.rectangle.angled")
+                                        .font(.system(size: 44))
+                                        .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255).opacity(0.6))
+                                )
+                        }
+                    }
+                    .frame(height: 240)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+
+                    Text("Source: ADA.com")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
+                        .padding(.leading, 4)
+                }
+                .padding(8)
+                .background(Color(red: 254/255, green: 254/255, blue: 254/255))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .shadow(color: Color.black.opacity(0.18), radius: 6, x: 2, y: 3)
+
+                // 4. Site Name & Headline (Figma Node 223:1460)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(prompt.siteName)
+                        .font(.custom("Baru Lagi", size: 28))
+                        .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text("\(prompt.siteName) is in your radar! Would you like to learn more about it?")
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundStyle(Color(red: 10/255, green: 10/255, blue: 10/255))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.horizontal, 4)
+
+                // 5. Action Buttons (Row 1: Add to queue + Play now)
+                HStack(spacing: 12) {
+                    // "add to queue" button
+                    if hasMultipleSitesInRange {
+                        Button {
+                            env.narration.queue(promptID: prompt.id)
+                            triggerQueueToast()
+                        } label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color(red: 255/255, green: 102/255, blue: 52/255)) // #FF6634
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .strokeBorder(Color(red: 196/255, green: 75/255, blue: 37/255), lineWidth: 4) // #C44B25
+                                    )
+                                    .frame(height: 60)
+
+                                Text("add to queue")
+                                    .font(.custom("Baru Lagi", size: 16))
+                                    .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Add \(prompt.siteName) to queue")
+                    } else {
+                        // Disabled State
+                        ZStack {
+                            Image("BrushButtonDefaultDisabled")
+                                .resizable()
+                                .frame(height: 60)
+
+                            Text("add to queue")
+                                .font(.custom("Baru Lagi", size: 16))
+                                .foregroundStyle(Color(red: 158/255, green: 158/255, blue: 158/255))
+                        }
+                        .frame(height: 60)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Add to queue disabled, only one site in range")
+                    }
+
+                    // "play now" button
+                    Button {
+                        env.narration.accept(promptID: prompt.id)
+                        isShowingSitesPlayer = true
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .strokeBorder(Color(red: 17/255, green: 49/255, blue: 130/255), lineWidth: 4) // #113182
+                                )
+                                .frame(height: 60)
+
+                            Text("play now")
+                                .font(.custom("Baru Lagi", size: 16))
+                                .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Play \(prompt.siteName) now")
+                }
+
+                // 6. Dismiss Button (Row 2: dismiss....(10s))
+                Button {
+                    env.narration.dismiss(promptID: prompt.id)
+                } label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color(red: 254/255, green: 254/255, blue: 254/255).opacity(0.85))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .strokeBorder(Color(red: 226/255, green: 225/255, blue: 222/255), lineWidth: 4) // #E2E1DE
+                            )
+                            .frame(height: 56)
+
+                        Text("dismiss....(\(countdown ?? 10)s)")
+                            .font(.custom("Baru Lagi", size: 16))
+                            .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Dismiss story prompt")
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 16)
+            .padding(.bottom, 28)
+        }
+    }
+
+    // MARK: - Queue Toast / Snackbar View
+
+    private var queueToastView: some View {
+        VStack {
+            Spacer()
+
+            HStack(spacing: 12) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(Color(red: 1/255, green: 181/255, blue: 82/255)) // #01B552
+
+                Text("Added to queue")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.white)
+
+                Spacer()
+
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        showQueueToast = false
+                    }
+                    isShowingSitesPlayer = true
+                } label: {
+                    Text("Open")
+                        .font(.custom("Baru Lagi", size: 16))
+                        .foregroundStyle(Color(red: 255/255, green: 102/255, blue: 52/255)) // #FF6634
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open queue")
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(red: 27/255, green: 27/255, blue: 27/255))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: Color.black.opacity(0.24), radius: 10, x: 0, y: 5)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+        .zIndex(20)
+    }
+
+    // MARK: - Actions & Helpers
+
+    private func triggerQueueToast() {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+            showQueueToast = true
+        }
+        Task {
+            try? await Task.sleep(nanoseconds: 3_500_000_000)
+            withAnimation(.easeInOut(duration: 0.25)) {
+                showQueueToast = false
+            }
+        }
+    }
 
     private func startExploration() {
         withAnimation(.easeInOut(duration: 0.3)) {
@@ -422,6 +714,19 @@ struct NowView: View {
             return "\(parts[0]), Bali, Indonesia"
         }
         return "Denpasar, Bali, Indonesia"
+    }
+
+    private func loadSiteImage(name: String?) -> UIImage? {
+        guard let name, !name.isEmpty else { return nil }
+        if let img = UIImage(named: name) { return img }
+        if let path = Bundle.main.path(forResource: name, ofType: nil, inDirectory: "SitePictures"),
+           let img = UIImage(contentsOfFile: path) { return img }
+        let base = (name as NSString).deletingPathExtension
+        let ext = (name as NSString).pathExtension.isEmpty ? "jpg" : (name as NSString).pathExtension
+        if let url = Bundle.main.url(forResource: base, withExtension: ext),
+           let data = try? Data(contentsOf: url),
+           let img = UIImage(data: data) { return img }
+        return nil
     }
 }
 
