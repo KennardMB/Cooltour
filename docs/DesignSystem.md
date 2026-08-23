@@ -302,6 +302,26 @@ SitesPlayerView()
     .environment(env)
 ```
 
+### 19. `NowView` (Figma Nodes 223:1335 & 223:1414)
+- **Visuals**: Full grid canvas (`TiledBackgroundView()`) with responsive transitions between two states:
+  1. **Idle State (`223:1335`)**:
+     - Live Location indicator with coral arrow (`#FF6634`), title in SF Pro 16pt Bold, and dynamic 3-term reverse-geocoded subtitle (with fallback copywriting when permission is denied/undetermined).
+     - Profile Avatar (`BrushProfile` 40×40 box) displaying user's initial in `Baru Lagi` 20pt blue (`#1D52D8`), linked to `ProfileView`.
+     - Hero doodle illustration (`NowHeroIllustrationView`).
+     - Personalized greeting in `Baru Lagi` 32pt (`"hi, [Name]!"` with coral name accent).
+     - Chunky `BrushButtonPlayActive` (354×60pt) button that activates walking mode and transitions to the wandering state.
+  2. **Exploring / Wandering State (`223:1414`)**:
+     - Top Bar: `"You are now in"` header with blue location indicator, plus a red destructive `"pause"` button (100×40pt) that opens `PauseTourOverlay`.
+     - Status Indicator: Animated pulsing blue location dot with dynamic headline (`"[N] sites detected around you!"` or `"No site yet, keep wandering!"`).
+     - Center hero doodle illustration.
+     - Caption (`"keep wandering until you passed by one!"`) and `"open map"` button routing to `MapView`.
+     - Automatically launches `SitesPlayerView` upon approaching any nearby cultural site story trigger.
+
+```swift
+NowView()
+    .environment(env)
+```
+
 ---
 
 ## 6. Accessibility & Concurrency Guidelines

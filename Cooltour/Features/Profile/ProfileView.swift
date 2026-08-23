@@ -6,11 +6,15 @@ public struct ProfileView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(AppEnvironment.self) private var env
   
-  @State private var userName: String = "Anton B."
-  @State private var userInitial: String = "A"
+  @AppStorage("user_profile_name") private var userName: String = "Anton B."
+  private var userInitial: String {
+    let trimmed = userName.trimmingCharacters(in: .whitespaces)
+    return String(trimmed.prefix(1)).uppercased()
+  }
   @State private var placesVisitedCount: Int = 11
   @State private var distanceKm: Double = 7.7
   @State private var isEditingName: Bool = false
+  @State private var tempName: String = ""
   @State private var showSettings: Bool = false
   @State private var showExplorations: Bool = false
   
@@ -129,11 +133,7 @@ public struct ProfileView: View {
       }
       .alert("Edit Profile Name", isPresented: $isEditingName) {
         TextField("Enter your name", text: $userName)
-        Button("Save") {
-          if let first = userName.first {
-            userInitial = String(first).uppercased()
-          }
-        }
+        Button("Save") {}
         Button("Cancel", role: .cancel) {}
       }
     }
