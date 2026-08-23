@@ -12,12 +12,16 @@ struct RootView: View {
       MapView()
         .tag(AppTab.map)
         .tabItem { Label("Map", systemImage: "map") }
-      MyExplorationsView()
-        .tag(AppTab.exploration)
-        .tabItem { Label("Exploration", systemImage: "clock") }
-      SettingsView()
-        .tag(AppTab.settings)
-        .tabItem { Label("Settings", systemImage: "gearshape") }
+      NavigationStack {
+        MyExplorationsView()
+      }
+      .tag(AppTab.exploration)
+      .tabItem { Label("Exploration", systemImage: "clock") }
+      NavigationStack {
+        SettingsView()
+      }
+      .tag(AppTab.settings)
+      .tabItem { Label("Settings", systemImage: "gearshape") }
     }
     // Walking mode, not the app appearing, is what starts listening now (Slice 11). A walk that
     // was on when the app was last quit resumes on launch; otherwise the app stays silent until

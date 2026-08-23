@@ -7,8 +7,7 @@ struct SettingsView: View {
   var body: some View {
     @Bindable var settings = env.settings
 
-    NavigationStack {
-      List {
+    List {
         Section {
           // No manual restart here: `RootView` observes `walkingMode` and starts or stops the
           // engine, which is where the background session and geofences are decided.
@@ -71,7 +70,6 @@ struct SettingsView: View {
       .task {
         await env.notifications.refreshAuthorization()
       }
-    }
   }
 
   /// Says what walking mode will actually do, including when it can't — "Always" is a big ask and
@@ -97,5 +95,7 @@ struct SettingsView: View {
 }
 
 #Preview {
-  SettingsView().environment(AppEnvironment())
+  NavigationStack {
+    SettingsView().environment(AppEnvironment())
+  }
 }

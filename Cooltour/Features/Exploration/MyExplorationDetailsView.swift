@@ -121,6 +121,8 @@ struct MyExplorationDetailsView: View {
           }
         }
         .culturalTiledBackground(theme: selectedTheme, scale: 0.60)
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         
         // 3. Custom Edit Exploration Modal (Figma Node 204:2356)
         if isEditingTitle {
@@ -244,6 +246,8 @@ private struct TimelineStoryRow: View {
 #Preview("My Exploration Details Screen") {
   let env = AppEnvironment()
   let walk = Walk(startedAt: .now)
-  MyExplorationDetailsView(walk: walk)
-    .environment(env)
+  NavigationStack {
+    MyExplorationDetailsView(walk: walk)
+      .environment(env)
+  }
 }

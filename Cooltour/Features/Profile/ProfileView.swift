@@ -125,6 +125,8 @@ public struct ProfileView: View {
         }
       }
       .defaultTiledBackground(scale: 0.20)
+      .navigationBarBackButtonHidden(true)
+      .toolbar(.hidden, for: .navigationBar)
       .navigationDestination(isPresented: $showExplorations) {
         MyExplorationsView()
       }

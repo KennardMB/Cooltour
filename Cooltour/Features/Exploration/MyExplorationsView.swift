@@ -11,86 +11,86 @@ struct MyExplorationsView: View {
   init() {}
   
   var body: some View {
-    NavigationStack {
-      VStack(alignment: .leading, spacing: 0) {
-        // Top Navigation Bar
-        HStack {
-          Button {
-            dismiss()
-          } label: {
-            AppIcon(.chevronLeft, size: 24)
-              .padding(AppSpacing.sm)
-              .contentShape(Rectangle())
-          }
-          .buttonStyle(.plain)
-          .accessibilityLabel("Back")
-          
-          Spacer()
-          
-          Text("My explorations")
-            .appFont(.heading3, color: AppColor.Text.primary)
-          
-          Spacer()
-          
-          // Balance spacing
-          Color.clear
-            .frame(width: 32, height: 32)
+    VStack(alignment: .leading, spacing: 0) {
+      // Top Navigation Bar
+      HStack {
+        Button {
+          dismiss()
+        } label: {
+          AppIcon(.chevronLeft, size: 24)
+            .padding(AppSpacing.sm)
+            .contentShape(Rectangle())
         }
-        .padding(.horizontal, AppSpacing.lg)
-        .padding(.top, AppSpacing.sm)
+        .buttonStyle(.plain)
+        .accessibilityLabel("Back")
         
-        // Exploration Walk Cards List
-        ScrollView {
-          VStack(spacing: 20) {
-            if walks.isEmpty {
-              // Empty State (Figma Node 223:1498)
-              VStack(spacing: 20) {
-                Spacer(minLength: 20)
+        Spacer()
+        
+        Text("My explorations")
+          .appFont(.heading3, color: AppColor.Text.primary)
+        
+        Spacer()
+        
+        // Balance spacing
+        Color.clear
+          .frame(width: 32, height: 32)
+      }
+      .padding(.horizontal, AppSpacing.lg)
+      .padding(.top, AppSpacing.sm)
+      
+      // Exploration Walk Cards List
+      ScrollView {
+        VStack(spacing: 20) {
+          if walks.isEmpty {
+            // Empty State (Figma Node 223:1498)
+            VStack(spacing: 20) {
+              Spacer(minLength: 20)
 
-                Image("EmptyStateExplorations")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(width: 300, height: 300)
+              Image("EmptyStateExplorations")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 300, height: 300)
 
-                Text("No exploration yet,\nexplore now!")
-                  .font(.custom("Baru Lagi", size: 20))
-                  .foregroundStyle(Color(red: 17/255, green: 17/255, blue: 17/255))
-                  .multilineTextAlignment(.center)
-                  .lineSpacing(4)
+              Text("No exploration yet,\nexplore now!")
+                .font(.custom("Baru Lagi", size: 20))
+                .foregroundStyle(Color(red: 17/255, green: 17/255, blue: 17/255))
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
 
-                Spacer(minLength: 40)
+              Spacer(minLength: 40)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 20)
+          } else {
+            ForEach(Array(walks.enumerated()), id: \.element.id) { index, walk in
+              let events = walk.triggerEvents.sorted { $0.firedAt > $1.firedAt }
+              let title = walkTitle(for: walk, events: events)
+              let timeText = walk.startedAt.formatted(date: .omitted, time: .shortened)
+              let dateText = walk.startedAt.formatted(date: .numeric, time: .omitted)
+              let theme = BinderCardTheme.forIndex(index)
+              
+              NavigationLink {
+                MyExplorationDetailsView(walk: walk)
+              } label: {
+                ExplorationBinderCard(
+                  title: title,
+                  timeText: timeText,
+                  dateText: dateText,
+                  theme: theme
+                )
               }
-              .frame(maxWidth: .infinity)
-              .padding(.top, 20)
-            } else {
-              ForEach(Array(walks.enumerated()), id: \.element.id) { index, walk in
-                let events = walk.triggerEvents.sorted { $0.firedAt > $1.firedAt }
-                let title = walkTitle(for: walk, events: events)
-                let timeText = walk.startedAt.formatted(date: .omitted, time: .shortened)
-                let dateText = walk.startedAt.formatted(date: .numeric, time: .omitted)
-                let theme = BinderCardTheme.forIndex(index)
-                
-                NavigationLink {
-                  MyExplorationDetailsView(walk: walk)
-                } label: {
-                  ExplorationBinderCard(
-                    title: title,
-                    timeText: timeText,
-                    dateText: dateText,
-                    theme: theme
-                  )
-                }
-                .buttonStyle(.plain)
-              }
+              .buttonStyle(.plain)
             }
           }
-          .padding(.horizontal, AppSpacing.lg)
-          .padding(.top, AppSpacing.lg)
-          .padding(.bottom, 40)
         }
+        .padding(.horizontal, AppSpacing.lg)
+        .padding(.top, AppSpacing.lg)
+        .padding(.bottom, 40)
       }
-      .defaultTiledBackground(scale: 0.20)
     }
+    .defaultTiledBackground(scale: 0.20)
+    .navigationBarBackButtonHidden(true)
+    .toolbar(.hidden, for: .navigationBar)
   }
   
   private func walkTitle(for walk: Walk, events: [TriggerEvent]) -> String {
@@ -179,6 +179,8 @@ struct ExplorationDetailSheet: View {
 // MARK: - Previews
 
 #Preview("My Explorations Screen") {
-  MyExplorationsView()
-    .environment(AppEnvironment())
+  NavigationStack {
+    MyExplorationsView()
+      .environment(AppEnvironment())
+  }
 }
