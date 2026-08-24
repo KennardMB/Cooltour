@@ -262,9 +262,15 @@ ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7, layout: .compac
 ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7, layout: .tall)
 ```
 
-### 14. `ExplorationBinderCard` & `MyExplorationsView` (Figma Nodes 202:1287 & 223:1498)
-- **Visuals**: 3-hole notebook binder punch ticket card (`356×120pt`) with dynamic cultural theme palette (Pink, Orange, Blue, Green, Yellow).
-- **Features**: Displays exploration title in `Baru Lagi` 16pt with start time and date stamps in `SF Pro` 12pt.
+### 14. `ExplorationBinderCard` & `MyExplorationsView` (Figma Nodes 202:1287, 223:1498 & 239:1523)
+- **Visuals**: Authentic SVG binder card with 3-hole punch cutouts, top notch, and drop shadow (`356×100pt`).
+- **Theme Asset Catalogs**:
+  - `BrushExplorationPink` (`#FD87BB`)
+  - `BrushExplorationOrange` (`#FF6634`)
+  - `BrushExplorationGreen` (`#01B552`)
+  - `BrushExplorationBlue` (`#1D52D8`)
+  - `BrushExplorationYellow` (`#F9CF00`)
+- **Features**: Displays exploration title in `Baru Lagi` 16pt with start time and date stamps in `SF Pro` 12pt (`#FEFEFE`).
 - **Empty State (`223:1498`)**: Features a centered hand-drawn binder notebook illustration (`EmptyStateExplorations` 300×300pt) with headline `"No exploration yet,\nexplore now!"` in `Baru Lagi` 20pt `#111111`.
 
 ```swift
