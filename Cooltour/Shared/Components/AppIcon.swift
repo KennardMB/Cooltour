@@ -28,6 +28,12 @@ public enum AppIconType: String, CaseIterable, Sendable {
     case distance = "IconDistance"
     case playRed = "IconPlayRed"
     case pauseRed = "IconPauseRed"
+    case locationActive = "IconLocationActive"
+    case locationInactive = "IconLocationInactive"
+    case buttonResume = "BrushButtonResume"
+    case buttonEndTour = "BrushButtonEndTour"
+    case buttonPause = "BrushButtonPause"
+    case buttonOpenMap = "BrushButtonOpenMap"
 
     public var assetName: String {
         rawValue

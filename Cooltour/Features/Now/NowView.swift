@@ -30,12 +30,8 @@ struct NowView: View {
     }
 
     private var nearbySitesCount: Int {
-        let count = env.proximity.nearbySites.filter { $0.distanceMeters <= 1000 }.count
-        if count > 0 { return count }
-        if env.proximity.isListening {
-            return env.proximity.nearbySites.count
-        }
-        return 0
+        guard env.proximity.isListening else { return 0 }
+        return env.proximity.nearbySites.filter { $0.distanceMeters <= 1000 }.count
     }
 
     var body: some View {
@@ -117,13 +113,9 @@ struct NowView: View {
                     handleLocationTap()
                 } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: isLocationAuthorized ? "location.north.fill" : "location.slash.fill")
-                            .font(.system(size: 22, weight: .bold))
-                            .foregroundStyle(
-                                isLocationAuthorized
-                                    ? Color(red: 255/255, green: 102/255, blue: 52/255) // #FF6634 Coral
-                                    : AppColor.Text.secondary
-                            )
+                        Image(isLocationAuthorized ? "IconLocationActive" : "IconLocationInactive")
+                            .resizable()
+                            .scaledToFit()
                             .frame(width: 32, height: 32)
 
                         VStack(alignment: .leading, spacing: 2) {
@@ -214,14 +206,14 @@ struct NowView: View {
         VStack(spacing: 0) {
             // Top Bar: "You are now in" + Red "pause" Button
             HStack(alignment: .center, spacing: 8) {
-                // Location Info Column (Blue Icon)
+                // Location Info Column (SVG Location Icon)
                 Button {
                     handleLocationTap()
                 } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "location.fill")
-                            .font(.system(size: 22, weight: .bold))
-                            .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                        Image(isLocationAuthorized ? "IconLocationActive" : "IconLocationInactive")
+                            .resizable()
+                            .scaledToFit()
                             .frame(width: 32, height: 32)
 
                         VStack(alignment: .leading, spacing: 2) {
@@ -241,26 +233,16 @@ struct NowView: View {
 
                 Spacer()
 
-                // Red Destructive Pause Button (100x40pt)
+                // Red Brush Pause Button (112x40pt, Figma Node 241:1593)
                 Button {
                     withAnimation(.easeInOut(duration: 0.25)) {
                         isShowingPauseOverlay = true
                     }
                 } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(red: 216/255, green: 29/255, blue: 29/255)) // #D81D1D
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .strokeBorder(Color(red: 130/255, green: 17/255, blue: 17/255), lineWidth: 4) // #821111
-                            )
-                            .frame(width: 100, height: 40)
-
-                        Text("pause")
-                            .font(.custom("Baru Lagi", size: 16))
-                            .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
-                    }
-                    .frame(width: 100, height: 40)
+                    Image("BrushButtonPause")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 112, height: 40)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Pause tour")
@@ -306,24 +288,15 @@ struct NowView: View {
                     .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
                     .multilineTextAlignment(.center)
 
-                // Open Map Button (Figma Node 223:1426)
+                // Open Map Button (Figma Node 241:1618)
                 Button {
                     env.selectedTab = .map
                 } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .strokeBorder(Color(red: 17/255, green: 49/255, blue: 130/255), lineWidth: 4) // #113182
-                            )
-                            .frame(height: 50)
-
-                        Text("open map")
-                            .font(.custom("Baru Lagi", size: 18))
-                            .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
-                    }
-                    .frame(maxWidth: .infinity)
+                    Image("BrushButtonOpenMap")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 50)
+                        .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Open map")
@@ -348,9 +321,9 @@ struct NowView: View {
                         handleLocationTap()
                     } label: {
                         HStack(spacing: 8) {
-                            Image(systemName: "location.fill")
-                                .font(.system(size: 22, weight: .bold))
-                                .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                            Image(isLocationAuthorized ? "IconLocationActive" : "IconLocationInactive")
+                                .resizable()
+                                .scaledToFit()
                                 .frame(width: 32, height: 32)
 
                             VStack(alignment: .leading, spacing: 2) {
@@ -374,20 +347,10 @@ struct NowView: View {
                             isShowingPauseOverlay = true
                         }
                     } label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(red: 216/255, green: 29/255, blue: 29/255)) // #D81D1D
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .strokeBorder(Color(red: 130/255, green: 17/255, blue: 17/255), lineWidth: 4) // #821111
-                                )
-                                .frame(width: 100, height: 40)
-
-                            Text("pause")
-                                .font(.custom("Baru Lagi", size: 16))
-                                .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
-                        }
-                        .frame(width: 100, height: 40)
+                        Image("BrushButtonPause")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 112, height: 40)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Pause tour")

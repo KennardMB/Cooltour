@@ -379,6 +379,16 @@ EditProfileModal(
 )
 ```
 
+### 22. Control Buttons & Location Icons (Figma Node 241:1625)
+- **Location Icons**:
+  - `IconLocationActive`: Blue (`#1D52D8`) active location vector icon (32×32pt).
+  - `IconLocationInactive`: Red (`#D81D1D`) slashed location vector icon (32×32pt).
+- **Tour & Exploration Control Buttons**:
+  - `BrushButtonResume`: Blue (`#1D52D8`) button with `#113182` border and `"resume"` label in `Baru Lagi` 20pt (171×60pt).
+  - `BrushButtonEndTour`: Red (`#D81D1D`) button with `#821111` border and `"end tour"` label in `Baru Lagi` 20pt (171×60pt).
+  - `BrushButtonPause`: Red (`#D81D1D`) compact button with `#821111` border and `"Pause"` label in `Baru Lagi` 16pt (112×40pt).
+  - `BrushButtonOpenMap`: Blue (`#1D52D8`) full-width button with `#113182` border and `"Open Map"` label in `Baru Lagi` 16pt (314×48pt).
+
 ---
 
 ## 6. Accessibility & Concurrency Guidelines
