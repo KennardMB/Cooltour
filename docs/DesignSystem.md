@@ -248,11 +248,18 @@ ExplorationDoneView()
     .culturalTiledBackground(theme: selectedTheme, scale: 0.60)
 ```
 
-### 13. `PostageStatBadge` & `ExplorationSummaryStats` (Figma Node 196:233)
-- **Visuals**: Scalloped postage ticket cards (`BrushPostageOrange`, `BrushPostagePink`) with custom icons (`IconPlaceVisited`, `IconDistance`) and `Baru Lagi` headline metrics.
+### 13. `PostageStatBadge` & `ExplorationSummaryStats` (Figma Nodes 196:233 & 202:1329)
+- **Visuals**: Scalloped postage ticket cards with custom icons (`IconPlaceVisited`, `IconDistance`) and `Baru Lagi` headline metrics.
+- **Layouts**:
+  - `.compact` (Used in Explorations and Details): Horizontal aspect ratio `178/86`, icon on the left with text on the right (`BrushPostageOrange`, `BrushPostagePink`).
+  - `.tall` (Used exclusively in Profile screen): Aspect ratio `171/156`, large top icon above text, metric value and label at bottom (`BrushPostageTallOrange`, `BrushPostageTallPink`).
 
 ```swift
-ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7)
+// Compact layout
+ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7, layout: .compact)
+
+// Tall layout (Profile Screen)
+ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7, layout: .tall)
 ```
 
 ### 14. `ExplorationBinderCard` & `MyExplorationsView` (Figma Nodes 202:1287 & 223:1498)
@@ -346,6 +353,24 @@ NowView()
 ```swift
 SettingsView()
     .environment(env)
+```
+
+### 21. `EditProfileModal` (Figma-styled Dialog)
+- **Visuals**: Dimmed backdrop with pure white modal card, 1.5pt `#E2E1DE` border, `AppRadius.standard`, and soft shadow.
+- **Fields**:
+  - Profile Name: Custom typography in `Baru Lagi` 20pt with 20 characters limit and character counter (`draftName.count/20`).
+  - Profile Status: Custom typography in `Baru Lagi` 18pt with `"i have..."` placeholder, 50 characters limit and character counter (`draftStatus.count/50`).
+- **Actions**:
+  - `"cancel"` button: Coral (`#FF6634`) button with `Baru Lagi` 18pt font.
+  - `"save"` button: Blue (`#1D52D8`) button with `Baru Lagi` 18pt font.
+
+```swift
+EditProfileModal(
+    isPresented: $isEditingProfile,
+    name: $userName,
+    status: $profileStatus,
+    onSave: { newName, newStatus in }
+)
 ```
 
 ---
