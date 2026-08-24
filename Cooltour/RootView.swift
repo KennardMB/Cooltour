@@ -47,6 +47,10 @@ struct RootView: View {
         environment.history.stopWalk()
       }
     }
+    .environment(\.locale, environment.settings.effectiveLocale)
+    .onChange(of: environment.settings.appLanguage) { _, _ in
+      environment.notifications.syncLocalizedContent()
+    }
   }
 }
 

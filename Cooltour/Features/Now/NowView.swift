@@ -301,6 +301,13 @@ struct NowView: View {
 
             // Bottom Content: Caption + "open map" Button
             VStack(spacing: 16) {
+                // Temporary debug — fires the consent prompt as if you walked up to a Pura.
+                Button("Simulate pura approach") {
+                    simulateRandomPuraApproach()
+                }
+                .buttonStyle(.bordered)
+                .accessibilityHint("Picks a random Pura site and fires the consent prompt as if you walked up to it.")
+
                 Text(nearbySitesCount > 0 ? "keep wandering until you passed by one!" : "keep wandering to discover cultural stories!")
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
@@ -339,6 +346,9 @@ struct NowView: View {
     private func discoveredSitePromptView(prompt: PendingPrompt, countdown: Int?) -> some View {
         let site = env.content.allSites().first { $0.name == prompt.siteName || $0.slug == prompt.siteSlug }
         let hasMultipleSitesInRange = nearbySitesCount > 1
+        let languageCode = env.settings.resolvedLanguageCode
+        let queueAction = ConsentStrings.addToQueueAction(languageCode: languageCode)
+        let playAction = ConsentStrings.playNowAction(languageCode: languageCode)
 
         return ScrollView(showsIndicators: false) {
             VStack(spacing: 16) {
@@ -490,13 +500,13 @@ struct NowView: View {
                                     )
                                     .frame(height: 60)
 
-                                Text("add to queue")
+                                Text(queueAction)
                                     .font(.custom("Baru Lagi", size: 16))
                                     .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
                             }
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Add \(prompt.siteName) to queue")
+                        .accessibilityLabel("\(queueAction) \(prompt.siteName)")
                     } else {
                         // Disabled State
                         ZStack {
@@ -504,13 +514,13 @@ struct NowView: View {
                                 .resizable()
                                 .frame(height: 60)
 
-                            Text("add to queue")
+                            Text(queueAction)
                                 .font(.custom("Baru Lagi", size: 16))
                                 .foregroundStyle(Color(red: 158/255, green: 158/255, blue: 158/255))
                         }
                         .frame(height: 60)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("Add to queue disabled, only one site in range")
+                        .accessibilityLabel("\(queueAction) disabled, only one site in range")
                     }
 
                     // "play now" button
@@ -527,13 +537,13 @@ struct NowView: View {
                                 )
                                 .frame(height: 60)
 
-                            Text("play now")
+                            Text(playAction)
                                 .font(.custom("Baru Lagi", size: 16))
                                 .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
                         }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Play \(prompt.siteName) now")
+                    .accessibilityLabel("\(playAction) \(prompt.siteName)")
                 }
 
                 // 6. Dismiss Button (Row 2: dismiss....(10s))
@@ -549,18 +559,32 @@ struct NowView: View {
                             )
                             .frame(height: 56)
 
-                        Text("dismiss....(\(countdown ?? 10)s)")
+                        Text(
+                            ConsentStrings.dismissWithCountdown(
+                                countdown ?? 10,
+                                languageCode: languageCode
+                            )
+                        )
                             .font(.custom("Baru Lagi", size: 16))
                             .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
                     }
                     .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Dismiss story prompt")
+                .accessibilityLabel(
+                    ConsentStrings.dismissAction(languageCode: languageCode)
+                )
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
             .padding(.bottom, 28)
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(
+                ConsentStrings.storyPromptAccessibility(
+                    siteName: prompt.siteName,
+                    languageCode: languageCode
+                )
+            )
         }
     }
 
@@ -611,6 +635,12 @@ struct NowView: View {
     }
 
     // MARK: - Actions & Helpers
+
+    private func simulateRandomPuraApproach() {
+        let puras = env.content.allSites().filter { $0.slug.hasPrefix("pura-") }
+        guard let site = puras.randomElement() else { return }
+        env.proximity.simulateTrigger(site: site)
+    }
 
     private func triggerQueueToast() {
         withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {

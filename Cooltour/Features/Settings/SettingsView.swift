@@ -95,7 +95,89 @@ struct SettingsView: View {
                             .padding(.top, 2)
                     }
 
-                    // Section 2: Playback
+                    // Section 2: Language (from main — EN/ID app + story audio)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Language")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
+                            .padding(.leading, 4)
+
+                        VStack(spacing: 0) {
+                            HStack {
+                                Text("App language")
+                                    .font(.system(size: 16, weight: .regular))
+                                    .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
+
+                                Spacer()
+
+                                Menu {
+                                    ForEach(AppLanguagePreference.allCases) { preference in
+                                        Button {
+                                            settings.appLanguage = preference
+                                        } label: {
+                                            HStack {
+                                                Text(preference.displayName)
+                                                if settings.appLanguage == preference {
+                                                    Image(systemName: "checkmark")
+                                                }
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    settingsValueLabel(settings.appLanguage.displayName)
+                                }
+                            }
+                            .padding(.horizontal, 14)
+                            .frame(height: 46)
+
+                            Divider()
+                                .background(Color(red: 226/255, green: 225/255, blue: 222/255))
+
+                            HStack {
+                                Text("Story audio")
+                                    .font(.system(size: 16, weight: .regular))
+                                    .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
+
+                                Spacer()
+
+                                Menu {
+                                    ForEach(AudioLanguagePreference.allCases) { preference in
+                                        Button {
+                                            settings.audioLanguage = preference
+                                        } label: {
+                                            HStack {
+                                                Text(preference.displayName)
+                                                if settings.audioLanguage == preference {
+                                                    Image(systemName: "checkmark")
+                                                }
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    settingsValueLabel(settings.audioLanguage.displayName)
+                                }
+                            }
+                            .padding(.horizontal, 14)
+                            .frame(height: 46)
+                        }
+                        .background(
+                            Image("BrushCard")
+                                .resizable()
+                        )
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(String(localized: "language.app.footer"))
+                            if settings.audioLanguage == .indonesian {
+                                Text(String(localized: "language.audio.indonesian_footer"))
+                            }
+                        }
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
+                        .padding(.horizontal, 4)
+                        .padding(.top, 2)
+                    }
+
+                    // Section 3: Playback
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Playback")
                             .font(.system(size: 16, weight: .regular))
@@ -144,15 +226,7 @@ struct SettingsView: View {
                                         }
                                     }
                                 } label: {
-                                    HStack(spacing: 4) {
-                                        Text("\(settings.defaultPlaybackSpeed.formatted())x")
-                                            .font(.system(size: 14, weight: .regular))
-                                            .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
-
-                                        Image(systemName: "chevron.up.chevron.down")
-                                            .font(.system(size: 12, weight: .semibold))
-                                            .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
-                                    }
+                                    settingsValueLabel("\(settings.defaultPlaybackSpeed.formatted())x")
                                 }
                             }
                             .padding(.horizontal, 14)
@@ -357,24 +431,41 @@ struct SettingsView: View {
         }
     }
 
+    private func settingsValueLabel(_ text: String) -> some View {
+        HStack(spacing: 4) {
+            Text(text)
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
+
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
+        }
+    }
+
     /// Says what walking mode will actually do, including when it can't — "Always" is a big ask and
     /// the honest answer to a refusal is that the app still works, just not with the screen off.
     /// Turning walking mode off stops all use of location, but iOS still shows the granted level in
     /// Settings until the user changes it there; it can't be revoked from code.
     private var walkingModeFooter: String {
         guard env.settings.walkingMode else {
-            return
-                "Turn on walking mode to listen for nearby stories. \(AppConfig.appName) asks before playing each one."
+            return String(
+                format: String(localized: "walking_mode.footer.off"),
+                AppConfig.appName
+            )
         }
         return switch env.proximity.authorizationStatus {
         case .authorizedAlways:
-            "Listening with the app in your pocket or the screen locked. Triggers are listed under Debug ▸ Proximity."
+            String(localized: "walking_mode.footer.always")
         case .authorizedWhenInUse:
-            "Needs “Always” to keep listening with the screen locked or after the app closes — grant it in iOS Settings ▸ Privacy ▸ Location Services. Until then it listens only while open."
+            String(localized: "walking_mode.footer.when_in_use")
         case .denied, .restricted:
-            "Location is off for \(AppConfig.appName), so nothing can trigger. Turn it on in iOS Settings."
+            String(
+                format: String(localized: "walking_mode.footer.denied"),
+                AppConfig.appName
+            )
         default:
-            "Grant location access to start listening."
+            String(localized: "walking_mode.footer.default")
         }
     }
 }
