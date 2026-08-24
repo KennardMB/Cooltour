@@ -31,44 +31,26 @@ public struct PauseTourOverlay: View {
                 .frame(width: 354, alignment: .leading)
 
                 HStack(spacing: 12) {
-                    // Resume Button (Blue)
+                    // Resume Button (Blue Brush)
                     Button {
                         onResume()
                     } label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(AppColor.Brand.primary) // #1D52D8
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .strokeBorder(Color(red: 17/255, green: 49/255, blue: 130/255), lineWidth: 4) // #113182
-                                )
-                                .frame(height: 60)
-
-                            Text("resume")
-                                .font(.custom(AppTextStyle.customFontPostScriptName, size: 20))
-                                .foregroundStyle(Color.white)
-                        }
+                        Image("BrushButtonResume")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 60)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Resume tour")
 
-                    // End Tour Button (Red)
+                    // End Tour Button (Red Brush)
                     Button {
                         onEndTour()
                     } label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(red: 216/255, green: 29/255, blue: 29/255)) // #D81D1D
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .strokeBorder(Color(red: 130/255, green: 17/255, blue: 17/255), lineWidth: 4) // #821111
-                                )
-                                .frame(height: 60)
-
-                            Text("end tour")
-                                .font(.custom(AppTextStyle.customFontPostScriptName, size: 20))
-                                .foregroundStyle(Color.white)
-                        }
+                        Image("BrushButtonEndTour")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 60)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("End tour")

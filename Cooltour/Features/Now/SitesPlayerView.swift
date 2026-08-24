@@ -37,9 +37,10 @@ public struct SitesPlayerView: View {
                     HStack(spacing: 12) {
                         // Regional Location Indicator
                         HStack(spacing: 8) {
-                            Image(systemName: "location.fill")
-                                .font(.system(size: 22, weight: .bold))
-                                .foregroundStyle(Color(red: 255/255, green: 102/255, blue: 52/255)) // #FF6634 Coral
+                            Image(env.proximity.authorizationStatus == .authorizedWhenInUse || env.proximity.authorizationStatus == .authorizedAlways ? "IconLocationActive" : "IconLocationInactive")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("You are now in")
@@ -54,26 +55,17 @@ public struct SitesPlayerView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                        // Pause Walk Button
+                        // Pause Walk Button (Figma Node 241:1593)
                         Button {
                             env.audio.pause()
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 isShowingPauseOverlay = true
                             }
                         } label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(red: 216/255, green: 29/255, blue: 29/255)) // #D81D1D
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .strokeBorder(Color(red: 130/255, green: 17/255, blue: 17/255), lineWidth: 4)
-                                    )
-                                    .frame(width: 112, height: 40)
-
-                                Text("pause")
-                                    .font(.custom(AppTextStyle.customFontPostScriptName, size: 18))
-                                    .foregroundStyle(Color.white)
-                            }
+                            Image("BrushButtonPause")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 112, height: 40)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Pause walk")
@@ -83,48 +75,50 @@ public struct SitesPlayerView: View {
 
                     // 2. Nearby POI Detection Banner ("X sites detected near you! Open Map")
                     let nearbyCount = countNearbyPOIs()
-                    HStack {
-                        HStack(spacing: 8) {
-                            // Pulsating glowing orange dot
-                            ZStack {
-                                Circle()
-                                    .fill(Color(red: 255/255, green: 102/255, blue: 52/255).opacity(0.3))
-                                    .frame(width: 16, height: 16)
+                    if nearbyCount > 0 {
+                        HStack {
+                            HStack(spacing: 8) {
+                                // Pulsating glowing orange dot
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(red: 255/255, green: 102/255, blue: 52/255).opacity(0.3))
+                                        .frame(width: 16, height: 16)
 
-                                Circle()
-                                    .fill(Color(red: 255/255, green: 102/255, blue: 52/255))
-                                    .frame(width: 8, height: 8)
+                                    Circle()
+                                        .fill(Color(red: 255/255, green: 102/255, blue: 52/255))
+                                        .frame(width: 8, height: 8)
+                                }
+
+                                Text("\(nearbyCount) site\(nearbyCount > 1 ? "s" : "") detected near you!")
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
                             }
 
-                            Text("\(nearbyCount) sites detected near you!")
-                                .font(.system(size: 14, weight: .regular))
-                                .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
-                        }
+                            Spacer()
 
-                        Spacer()
-
-                        Button {
-                            env.selectedTab = .map
-                            onOpenMap?()
-                            dismiss()
-                        } label: {
-                            Text("Open Map")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(Color(red: 255/255, green: 102/255, blue: 52/255))
+                            Button {
+                                env.selectedTab = .map
+                                onOpenMap?()
+                                dismiss()
+                            } label: {
+                                Text("Open Map")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(Color(red: 255/255, green: 102/255, blue: 52/255))
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Open Map")
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Open Map")
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .strokeBorder(Color(red: 255/255, green: 218/255, blue: 206/255), lineWidth: 4) // #FFDACE
+                        )
+                        .padding(.horizontal, AppSpacing.lg)
+                        .padding(.top, 14)
                     }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 4)
-                            .strokeBorder(Color(red: 255/255, green: 218/255, blue: 206/255), lineWidth: 4) // #FFDACE
-                    )
-                    .padding(.horizontal, AppSpacing.lg)
-                    .padding(.top, 14) // Increased gap as requested
 
                     Spacer(minLength: 4)
 
@@ -373,9 +367,7 @@ public struct SitesPlayerView: View {
     }
 
     private func countNearbyPOIs() -> Int {
-        let count = env.proximity.nearbySites.filter { $0.distanceMeters <= 1000 }.count
-        if count > 0 { return count }
-        return max(1, min(10, env.content.siteCount))
+        env.proximity.nearbySites.filter { $0.distanceMeters <= 1000 }.count
     }
 
     /// Strictly formats the regional location indicator to 3 comma-separated terms.

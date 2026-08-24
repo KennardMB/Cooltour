@@ -248,16 +248,29 @@ ExplorationDoneView()
     .culturalTiledBackground(theme: selectedTheme, scale: 0.60)
 ```
 
-### 13. `PostageStatBadge` & `ExplorationSummaryStats` (Figma Node 196:233)
-- **Visuals**: Scalloped postage ticket cards (`BrushPostageOrange`, `BrushPostagePink`) with custom icons (`IconPlaceVisited`, `IconDistance`) and `Baru Lagi` headline metrics.
+### 13. `PostageStatBadge` & `ExplorationSummaryStats` (Figma Nodes 196:233 & 202:1329)
+- **Visuals**: Scalloped postage ticket cards with custom icons (`IconPlaceVisited`, `IconDistance`) and `Baru Lagi` headline metrics.
+- **Layouts**:
+  - `.compact` (Used in Explorations and Details): Horizontal aspect ratio `178/86`, icon on the left with text on the right (`BrushPostageOrange`, `BrushPostagePink`).
+  - `.tall` (Used exclusively in Profile screen): Aspect ratio `171/156`, large top icon above text, metric value and label at bottom (`BrushPostageTallOrange`, `BrushPostageTallPink`).
 
 ```swift
-ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7)
+// Compact layout
+ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7, layout: .compact)
+
+// Tall layout (Profile Screen)
+ExplorationSummaryStats(placesVisitedCount: 11, distanceKm: 7.7, layout: .tall)
 ```
 
-### 14. `ExplorationBinderCard` & `MyExplorationsView` (Figma Nodes 202:1287 & 223:1498)
-- **Visuals**: 3-hole notebook binder punch ticket card (`356×120pt`) with dynamic cultural theme palette (Pink, Orange, Blue, Green, Yellow).
-- **Features**: Displays exploration title in `Baru Lagi` 16pt with start time and date stamps in `SF Pro` 12pt.
+### 14. `ExplorationBinderCard` & `MyExplorationsView` (Figma Nodes 202:1287, 223:1498 & 239:1523)
+- **Visuals**: Authentic SVG binder card with 3-hole punch cutouts, top notch, and drop shadow (`356×100pt`).
+- **Theme Asset Catalogs**:
+  - `BrushExplorationPink` (`#FD87BB`)
+  - `BrushExplorationOrange` (`#FF6634`)
+  - `BrushExplorationGreen` (`#01B552`)
+  - `BrushExplorationBlue` (`#1D52D8`)
+  - `BrushExplorationYellow` (`#F9CF00`)
+- **Features**: Displays exploration title in `Baru Lagi` 16pt with start time and date stamps in `SF Pro` 12pt (`#FEFEFE`).
 - **Empty State (`223:1498`)**: Features a centered hand-drawn binder notebook illustration (`EmptyStateExplorations` 300×300pt) with headline `"No exploration yet,\nexplore now!"` in `Baru Lagi` 20pt `#111111`.
 
 ```swift
@@ -347,6 +360,34 @@ NowView()
 SettingsView()
     .environment(env)
 ```
+
+### 21. `EditProfileModal` (Figma-styled Dialog)
+- **Visuals**: Dimmed backdrop with pure white modal card, 1.5pt `#E2E1DE` border, `AppRadius.standard`, and soft shadow.
+- **Fields**:
+  - Profile Name: Custom typography in `Baru Lagi` 20pt with 20 characters limit and character counter (`draftName.count/20`).
+  - Profile Status: Custom typography in `Baru Lagi` 18pt with `"i have..."` placeholder, 50 characters limit and character counter (`draftStatus.count/50`).
+- **Actions**:
+  - `"cancel"` button: Coral (`#FF6634`) button with `Baru Lagi` 18pt font.
+  - `"save"` button: Blue (`#1D52D8`) button with `Baru Lagi` 18pt font.
+
+```swift
+EditProfileModal(
+    isPresented: $isEditingProfile,
+    name: $userName,
+    status: $profileStatus,
+    onSave: { newName, newStatus in }
+)
+```
+
+### 22. Control Buttons & Location Icons (Figma Node 241:1625)
+- **Location Icons**:
+  - `IconLocationActive`: Blue (`#1D52D8`) active location vector icon (32×32pt).
+  - `IconLocationInactive`: Red (`#D81D1D`) slashed location vector icon (32×32pt).
+- **Tour & Exploration Control Buttons**:
+  - `BrushButtonResume`: Blue (`#1D52D8`) button with `#113182` border and `"resume"` label in `Baru Lagi` 20pt (171×60pt).
+  - `BrushButtonEndTour`: Red (`#D81D1D`) button with `#821111` border and `"end tour"` label in `Baru Lagi` 20pt (171×60pt).
+  - `BrushButtonPause`: Red (`#D81D1D`) compact button with `#821111` border and `"Pause"` label in `Baru Lagi` 16pt (112×40pt).
+  - `BrushButtonOpenMap`: Blue (`#1D52D8`) full-width button with `#113182` border and `"Open Map"` label in `Baru Lagi` 16pt (314×48pt).
 
 ---
 
