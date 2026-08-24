@@ -27,4 +27,6 @@ protocol AudioPlayerService {
   /// Seeks to an absolute position within the current story, clamped to `[0, duration]`.
   /// No-op when nothing is loaded.
   func seek(toSeconds seconds: TimeInterval)
+  /// Seeks to a normalized position in the current story (`0.0`–`1.0`).
+  func seek(toProgress progress: Double)
 }

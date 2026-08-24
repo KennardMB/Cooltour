@@ -208,6 +208,11 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     updateNowPlayingInfo()
   }
 
+  func seek(toProgress newProgress: Double) {
+    guard let player, player.duration > 0 else { return }
+    seek(toSeconds: max(0, min(1, newProgress)) * player.duration)
+  }
+
   // MARK: - Teardown
 
   /// The one terminal path: releases the player and hands the session back to whatever we

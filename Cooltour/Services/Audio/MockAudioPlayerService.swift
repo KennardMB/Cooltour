@@ -56,4 +56,9 @@ final class MockAudioPlayerService: AudioPlayerService {
     let newSeconds = min(max(0, seconds), fakeDurationSeconds)
     progress = newSeconds / fakeDurationSeconds
   }
+
+  func seek(toProgress newProgress: Double) {
+    guard currentStory != nil else { return }
+    progress = max(0, min(1, newProgress))
+  }
 }
