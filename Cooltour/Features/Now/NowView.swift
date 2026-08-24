@@ -47,18 +47,33 @@ struct NowView: View {
                 distanceMeters: distance(for: currentStory),
                 storyTitle: currentStory.title,
                 snippet: snippet(for: currentStory),
-                transcript: currentStory.transcript,
+                transcript: currentStory.transcript(for: env.settings.audioLanguage),
                 isPlaying: isPlaying,
                 isLoading: isLoading,
                 progress: progress,
-                durationSeconds: currentStory.durationSeconds,
+                durationSeconds: currentStory.durationSeconds(
+                  for: env.settings.audioLanguage
+                ),
                 speed: env.settings.defaultPlaybackSpeed,
+                storyID: currentStory.slug,
                 onTogglePlayback: {
                   if env.audio.isPlaying {
                     env.audio.pause()
                   } else {
                     env.audio.resume()
                   }
+                },
+                onSkipBack: {
+                  env.audio.seek(bySeconds: -AppConfig.skipIntervalSeconds)
+                },
+                onSkipForward: {
+                  env.audio.seek(bySeconds: AppConfig.skipIntervalSeconds)
+                },
+                onSeek: { fraction in
+                  let duration = currentStory.durationSeconds(
+                    for: env.settings.audioLanguage
+                  )
+                  env.audio.seek(toSeconds: fraction * duration)
                 },
                 onSelectSpeed: { speed in
                   env.settings.defaultPlaybackSpeed = speed
@@ -83,12 +98,12 @@ struct NowView: View {
                   .foregroundStyle(.primary)
 
                 HStack(spacing: 12) {
-                  Button("Play now") {
+                  Button(ConsentStrings.playNowAction(languageCode: env.settings.resolvedLanguageCode)) {
                     env.narration.accept(promptID: prompt.id)
                   }
                   .buttonStyle(.borderedProminent)
 
-                  Button("Add to queue") {
+                  Button(ConsentStrings.addToQueueAction(languageCode: env.settings.resolvedLanguageCode)) {
                     env.narration.queue(promptID: prompt.id)
                   }
                   .buttonStyle(.bordered)
@@ -104,7 +119,12 @@ struct NowView: View {
               .background(Color.secondary.opacity(0.12))
               .clipShape(RoundedRectangle(cornerRadius: 12))
               .accessibilityElement(children: .contain)
-              .accessibilityLabel("Story prompt for \(prompt.siteName)")
+              .accessibilityLabel(
+                ConsentStrings.storyPromptAccessibility(
+                  siteName: prompt.siteName,
+                  languageCode: env.settings.resolvedLanguageCode
+                )
+              )
             }
 
             if !queueItems.isEmpty {
@@ -155,8 +175,9 @@ struct NowView: View {
 
   /// First line or so of the transcript for the card's preview text.
   private func snippet(for story: Story, limit: Int = 140) -> String {
-    guard story.transcript.count > limit else { return story.transcript }
-    return String(story.transcript.prefix(limit)) + "…"
+    let text = story.transcript(for: env.settings.audioLanguage)
+    guard text.count > limit else { return text }
+    return String(text.prefix(limit)) + "…"
   }
 
   /// Best-effort live distance for the card header — nil when the site isn't in range readings.
@@ -166,26 +187,35 @@ struct NowView: View {
   }
 
   private func dismissTitle(countdown: Int?) -> String {
+    let languageCode = env.settings.resolvedLanguageCode
     if let countdown {
-      return "Dismiss (\(countdown))"
+      return ConsentStrings.dismissWithCountdown(countdown, languageCode: languageCode)
     }
-    return "Dismiss"
+    return ConsentStrings.dismissAction(languageCode: languageCode)
   }
 
   private func statusLine(state: NarrationState, prompt: PendingPrompt?) -> String {
+    let languageCode = env.settings.resolvedLanguageCode
     switch state {
     case .prompting:
-      return prompt.map { "Approaching \($0.siteName)" }
-        ?? "Story nearby — play, queue, or dismiss?"
+      return prompt.map {
+        ConsentStrings.statusApproaching(siteName: $0.siteName, languageCode: languageCode)
+      }
+        ?? ConsentStrings.statusPrompting(languageCode: languageCode)
     case .playing:
-      return env.audio.currentStory.map { "Playing \($0.title)" } ?? "Playing…"
+      if let title = env.audio.currentStory?.title {
+        return ConsentStrings.statusPlaying(title: title, languageCode: languageCode)
+      }
+      return ConsentStrings.statusPlayingUnknown(languageCode: languageCode)
     case .idle:
       break
     }
-    guard env.settings.walkingMode else { return "Walking mode is off" }
+    guard env.settings.walkingMode else {
+      return ConsentStrings.statusWalkingOff(languageCode: languageCode)
+    }
     return env.proximity.isListening
-      ? "Listening for nearby stories"
-      : "Starting up…"
+      ? ConsentStrings.statusListening(languageCode: languageCode)
+      : ConsentStrings.statusStarting(languageCode: languageCode)
   }
 
   private var permissionNote: String {

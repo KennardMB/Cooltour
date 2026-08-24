@@ -18,12 +18,65 @@ struct ContentPack: Decodable {
     let stories: [StoryData]
   }
 
+  /// English + optional Indonesian string. Older packs may ship a plain string
+  /// (treated as English only).
+  struct LocalizedString: Decodable {
+    let en: String
+    let id: String?
+
+    init(en: String, id: String? = nil) {
+      self.en = en
+      self.id = id
+    }
+
+    init(from decoder: Decoder) throws {
+      if let single = try? decoder.singleValueContainer().decode(String.self) {
+        self.en = single
+        self.id = nil
+        return
+      }
+      let object = try decoder.container(keyedBy: CodingKeys.self)
+      self.en = try object.decode(String.self, forKey: .en)
+      self.id = try object.decodeIfPresent(String.self, forKey: .id)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+      case en, id
+    }
+  }
+
+  /// Per-language spoken length. Older packs may ship a single number (English).
+  struct LocalizedDuration: Decodable {
+    let en: Double
+    let id: Double?
+
+    init(en: Double, id: Double? = nil) {
+      self.en = en
+      self.id = id
+    }
+
+    init(from decoder: Decoder) throws {
+      if let single = try? decoder.singleValueContainer().decode(Double.self) {
+        self.en = single
+        self.id = nil
+        return
+      }
+      let object = try decoder.container(keyedBy: CodingKeys.self)
+      self.en = try object.decode(Double.self, forKey: .en)
+      self.id = try object.decodeIfPresent(Double.self, forKey: .id)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+      case en, id
+    }
+  }
+
   struct StoryData: Decodable {
     let slug: String
     let title: String
-    let audioFile: String
-    let transcript: String
-    let durationSeconds: Double
+    let audioFile: LocalizedString
+    let transcript: LocalizedString
+    let durationSeconds: LocalizedDuration
     let narratorNote: String?
     let timeOfDayTag: String?
   }

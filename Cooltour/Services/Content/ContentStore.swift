@@ -67,9 +67,12 @@ final class LocalContentStore: ContentStore {
         let story = Story(
           slug: storyData.slug,
           title: storyData.title,
-          audioAssetName: storyData.audioFile,
-          transcript: storyData.transcript,
-          durationSeconds: storyData.durationSeconds,
+          audioAssetName: storyData.audioFile.en,
+          audioAssetNameIndonesian: storyData.audioFile.id,
+          transcript: storyData.transcript.en,
+          transcriptIndonesian: storyData.transcript.id,
+          durationSeconds: storyData.durationSeconds.en,
+          durationSecondsIndonesian: storyData.durationSeconds.id,
           narratorNote: storyData.narratorNote,
           timeOfDayTag: storyData.timeOfDayTag
         )

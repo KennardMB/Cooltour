@@ -1,0 +1,238 @@
+{
+  "contentPackVersion": "1.0.0",
+  "region": "Renon",
+  "sites": [
+    {
+      "slug": "monumen-perjuangan-rakyat-bali",
+      "name": "Monumen Perjuangan Rakyat Bali (Bajra Sandhi)",
+      "district": "Renon, Denpasar Selatan",
+      "lat": -8.6717,
+      "lng": 115.2339,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "monumen-perjuangan-rakyat-bali-01",
+          "title": "Lonceng Pendeta dari Batu",
+          "audioFile": {
+            "en": "monumen-perjuangan-rakyat-bali-01-en.m4a",
+            "id": "monumen-perjuangan-rakyat-bali-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look up at the stone tower in the middle of the park. It is shaped like a bajra, the hand bell a Balinese priest uses in ceremony. The design came from Ida Bagus Gede Yadnya, then a student at Udayana, who won the contest in nineteen eighty-one.\n\nWalk the perimeter and you can count the markers of independence day. Seventeen gates. Eight pillars on the middle deck. A tower forty-five meters high. Seventeen August, nineteen forty-five.\n\nGovernor Ida Bagus Mantra began the project in nineteen eighty to mark Balinese resistance to colonial rule. Construction finished in two thousand one. President Megawati opened it in two thousand three. Inside the gallery, thirty-three dioramas cover Bali from early settlement through the independence years.",
+            "id": "Lihat menara batu di tengah taman itu. Bentuknya seperti bajra, lonceng genggam yang dipakai pendeta Bali dalam upacara. Desainnya karya Ida Bagus Gede Yadnya, saat itu mahasiswa Udayana, pemenang lomba tahun sembilan belas delapan puluh satu.\n\nJalan mengelilingi tapak bangunan, lalu hitung penanda hari kemerdekaan. Tujuh belas pintu gerbang. Delapan pilar di lantai tengah. Menara setinggi empat puluh lima meter. Tujuh belas Agustus sembilan belas empat puluh lima.\n\nGubernur Ida Bagus Mantra memulai proyek ini tahun sembilan belas delapan puluh untuk menandai perlawanan Bali terhadap penjajahan. Pembangunan selesai tahun dua ribu satu. Presiden Megawati meresmikannya tahun dua ribu tiga. Di dalam galeri, tiga puluh tiga diorama menelusuri Bali dari masa awal hingga tahun-tahun kemerdekaan."
+          },
+          "durationSeconds": {
+            "en": 55.8,
+            "id": 52.6
+          },
+          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "lapangan-niti-mandala-renon",
+      "name": "Lapangan Niti Mandala Renon",
+      "district": "Renon, Denpasar Selatan",
+      "lat": -8.6705,
+      "lng": 115.2315,
+      "triggerRadiusMeters": 50,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "lapangan-niti-mandala-renon-01",
+          "title": "Dari Sawah ke Ruang Kota",
+          "audioFile": {
+            "en": "lapangan-niti-mandala-renon-01-en.m4a",
+            "id": "lapangan-niti-mandala-renon-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look across the open grass. Before the nineteen eighties this was farmland, rice paddies fed by subak irrigation canals that ran through Renon.\n\nGovernor Ida Bagus Mantra reserved the land as Denpasar's civic center when provincial offices moved into this quarter. The square was also named Lapangan Puputan Margarana, for Lieutenant Colonel I Gusti Ngurah Rai and the ninety-six fighters who died against Dutch forces in November nineteen forty-six.\n\nToday it is a public park of about fourteen hectares. People run the outer track in the morning. Food carts set up along the edge. State ceremonies use the lawn, and government buildings sit around it. The field is ordinary city green now, with that history still in the name.",
+            "id": "Lihat hamparan rumput terbuka di depan. Sebelum tahun sembilan belas delapan puluhan, tanah ini masih sawah, diairi saluran subak yang membelah Renon.\n\nGubernur Ida Bagus Mantra menyiapkan lahan ini sebagai pusat pemerintahan Denpasar ketika kantor-kantor provinsi pindah ke kawasan ini. Lapangan itu juga diberi nama Lapangan Puputan Margarana, untuk Letnan Kolonel I Gusti Ngurah Rai dan sembilan puluh enam pejuang yang gugur melawan Belanda pada November sembilan belas empat puluh enam.\n\nSekarang ini taman publik sekitar empat belas hektare. Pagi hari orang berlari di jalur luar. Gerobak makanan berjajar di pinggir. Upacara resmi memakai lapangan ini, dan gedung pemerintahan mengelilinginya. Rumput kota yang biasa, dengan sejarah itu tetap hidup di namanya."
+          },
+          "durationSeconds": {
+            "en": 54.9,
+            "id": 51.2
+          },
+          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "kantor-gubernur-bali",
+      "name": "Kantor Gubernur Bali",
+      "district": "Renon, Denpasar Selatan",
+      "lat": -8.6689,
+      "lng": 115.2335,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "kantor-gubernur-bali-01",
+          "title": "Kantor yang Dibangun seperti Puri",
+          "audioFile": {
+            "en": "kantor-gubernur-bali-01-en.m4a",
+            "id": "kantor-gubernur-bali-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look at the red brick walls and carved sandstone gates ahead. This is the Bali Governor's office complex.\n\nIn the late nineteen seventies Governor Ida Bagus Mantra required new civic buildings to follow Balinese spatial rules. The compound uses a Sanga Mandala layout, nine zones oriented between the mountain and the sea, with courtyards in the middle much like a puri.\n\nWalk along the pavement and you will see stacked terracotta roofs, red brick, and Paras stone carving. Undagi builders set proportions with body measures such as palm width and arm span. The offices run modern government work inside a traditional compound plan.",
+            "id": "Lihat dinding bata merah dan gapura batu paras yang diukir di depan. Ini kompleks Kantor Gubernur Bali.\n\nPada akhir tahun sembilan belas tujuh puluhan, Gubernur Ida Bagus Mantra mewajibkan bangunan sipil baru mengikuti aturan ruang Bali. Kompleks ini memakai tata Sanga Mandala, sembilan zona yang mengarah antara gunung dan laut, dengan halaman di tengah seperti puri.\n\nDi trotoar luar terlihat atap genteng bertingkat, bata merah, dan ukiran batu Paras. Undagi mengatur ukuran dengan ukuran tubuh, seperti lebar telapak tangan dan rentang lengan. Kerja pemerintahan modern berjalan di dalam denah kompleks tradisional. Dari sini Gubernur mengelola urusan sehari-hari Provinsi Bali."
+          },
+          "durationSeconds": {
+            "en": 47.5,
+            "id": 45.7
+          },
+          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "gedung-dprd-provinsi-bali",
+      "name": "Gedung DPRD Provinsi Bali",
+      "district": "Renon, Denpasar Selatan",
+      "lat": -8.6698,
+      "lng": 115.2352,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "gedung-dprd-provinsi-bali-01",
+          "title": "Wantilan untuk Dewan",
+          "audioFile": {
+            "en": "gedung-dprd-provinsi-bali-01-en.m4a",
+            "id": "gedung-dprd-provinsi-bali-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Notice the high wooden roof and the timber posts across the driveway. This building is the Bali Provincial Legislative Assembly.\n\nThe main chamber follows a wantilan, the open pavilion villages use for meetings, dance, and public gatherings. Designers kept the sides open on purpose, so air moves through the hall the way it does in a banjar.\n\nLook along the lower brick base. Sandstone reliefs show scenes from the Mahabharata, and the posts sit on stone pedestals. Carved timber carries the roof above. The form is familiar village architecture, adapted here for provincial lawmaking.",
+            "id": "Perhatikan atap kayu yang tinggi dan tiang-tiang kayu di seberang jalan masuk. Gedung ini adalah DPRD Provinsi Bali.\n\nRuang sidang utamanya mengikuti bentuk wantilan, bale terbuka yang biasa dipakai desa untuk rapat, tari, dan pertemuan warga. Sisi-sisinya sengaja dibiarkan terbuka, supaya udara bergerak seperti di bale banjar.\n\nLihat bagian bawah dinding bata. Relief batu paras menampilkan adegan Mahabharata, dan tiangnya berdiri di atas umpak batu. Kayu ukir menopang atap di atasnya. Bentuk arsitektur desa yang dikenali orang, disesuaikan di sini untuk kerja legislatif provinsi. Di tempat inilah perwakilan rakyat bertemu dan membahas peraturan daerah."
+          },
+          "durationSeconds": {
+            "en": 43.4,
+            "id": 43.4
+          },
+          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "kawasan-diplomatik-renon",
+      "name": "Kawasan Diplomatik Renon",
+      "district": "Renon, Denpasar Selatan",
+      "lat": -8.6742,
+      "lng": 115.2318,
+      "triggerRadiusMeters": 45,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "kawasan-diplomatik-renon-01",
+          "title": "Jalan Tenang, Bendera Negara Lain",
+          "audioFile": {
+            "en": "kawasan-diplomatik-renon-01-en.m4a",
+            "id": "kawasan-diplomatik-renon-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look down this quieter street at the walls, flagpoles, and gated entries. Consulates line Tantular Street, Raya Puputan Street, and Hayam Wuruk Street.\n\nMissions from Australia, Japan, India, Timor-Leste, and the United States set up here to sit near the Governor's office and Bali Regional Police. Renon offered low-density compounds and short access to provincial decision-makers, away from tourist corridors like Kuta and Seminyak.\n\nThe buildings stay low behind security gates. You are walking through Denpasar's diplomatic working zone, placed beside local government so foreign offices and provincial offices can reach each other quickly.",
+            "id": "Lihat ke jalan yang lebih tenang ini: tembok tinggi, tiang bendera, dan pintu masuk berpagar. Konsulat berjejer di Jalan Tantular, Jalan Raya Puputan, dan Jalan Hayam Wuruk.\n\nPerwakilan Australia, Jepang, India, Timor Leste, dan Amerika Serikat menempatkan diri di sini agar dekat Kantor Gubernur dan Polda Bali. Renon menawarkan kompleks rendah dan akses singkat ke pengambil keputusan provinsi, jauh dari kawasan wisata seperti Kuta dan Seminyak.\n\nBangunannya tetap rendah di balik gerbang keamanan. Anda sedang berjalan di zona kerja diplomatik Denpasar, diletakkan di samping pemerintahan daerah supaya kantor luar negeri dan kantor provinsi mudah saling menjangkau."
+          },
+          "durationSeconds": {
+            "en": 43.4,
+            "id": 44.3
+          },
+          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "museum-sidik-jari",
+      "name": "Museum Sidik Jari",
+      "district": "Renon, Denpasar Selatan",
+      "lat": -8.6621,
+      "lng": 115.2398,
+      "triggerRadiusMeters": 35,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "museum-sidik-jari-01",
+          "title": "Lukisan dari Ujung Jari",
+          "audioFile": {
+            "en": "museum-sidik-jari-01-en.m4a",
+            "id": "museum-sidik-jari-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Step toward the doorway on Hayam Wuruk Street. This museum holds the work of I Gusti Ngurah Gede Pemecutan, a Badung royal artist who painted with his fingertips.\n\nOn April ninth, nineteen sixty-seven, while working on a Tari Baris dancer, he was unhappy with one detail. He pushed paint across the canvas with his hands. The fingerprints left a dotted texture he decided to keep.\n\nHe stopped using brushes after that. Lean closer to the frames and you can see the small colored marks that build the figures. The museum opened to the public in nineteen ninety-five and now holds more than six hundred works.",
+            "id": "Mendekati pintu di Jalan Hayam Wuruk. Museum ini menyimpan karya I Gusti Ngurah Gede Pemecutan, seniman dari garis kerajaan Badung yang melukis dengan ujung jarinya.\n\nPada sembilan April sembilan belas enam puluh tujuh, saat mengerjakan lukisan penari Baris, ia tidak puas pada satu detail. Ia menggeser cat ke kanvas dengan tangan. Jejak sidik jari meninggalkan tekstur bertitik yang lalu ia pertahankan.\n\nSejak itu ia berhenti memakai kuas. Dekatkan pandangan ke bingkai. Terlihat titik-titik warna kecil yang menyusun tokoh-tokohnya. Museum dibuka untuk umum tahun sembilan belas sembilan puluh lima, dan kini menyimpan lebih dari enam ratus karya."
+          },
+          "durationSeconds": {
+            "en": 48.5,
+            "id": 44.3
+          },
+          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "pura-dalem-renon",
+      "name": "Pura Dalem Renon dan Akar Desa Adat",
+      "district": "Renon, Denpasar Selatan",
+      "lat": -8.6765,
+      "lng": 115.2282,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pura-dalem-renon-01",
+          "title": "Desa di Bawah Renon",
+          "audioFile": {
+            "en": "pura-dalem-renon-01-en.m4a",
+            "id": "pura-dalem-renon-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Pause at the stone gateway of Pura Dalem Lumajang. Before Renon became an administrative district, this area was a farming village called Desa Lumajang.\n\nA visiting Hindu priest renamed it Desa Rena, meaning joyful. Over time the name became Renon. The pura dalem remains the spiritual center for the desa adat here.\n\nDuring temple festivals you may see Tari Baris Cina, dancers in Chinese silk with swords. The dance points to older contact between Balinese villagers and Chinese merchants. Offices and avenues grew around this customary ground, but the temple still serves the village.",
+            "id": "Berhenti sejenak di gapura batu Pura Dalem Lumajang. Sebelum Renon menjadi kawasan administrasi, wilayah ini adalah desa pertanian bernama Desa Lumajang.\n\nSeorang pendeta Hindu yang berkunjung mengganti namanya menjadi Desa Rena, yang berarti gembira. Lama-kelamaan nama itu menjadi Renon. Pura dalem ini tetap menjadi pusat spiritual desa adat di sini.\n\nPada hari raya pura, bisa terlihat Tari Baris Cina, penari berpakaian sutra Cina dengan pedang. Tarian itu menunjuk pada hubungan lama antara warga Bali dan pedagang Cina. Kantor dan jalan besar tumbuh di sekitar tanah adat ini, tapi pura tetap melayani desanya."
+          },
+          "durationSeconds": {
+            "en": 43.4,
+            "id": 42.5
+          },
+          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "pusat-kuliner-tukad-yeh-aya",
+      "name": "Pusat Kuliner Jl. Tukad Yeh Aya",
+      "district": "Renon, Denpasar Selatan",
+      "lat": -8.6782,
+      "lng": 115.235,
+      "triggerRadiusMeters": 50,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pusat-kuliner-tukad-yeh-aya-01",
+          "title": "Tempat Pegawai dan Mahasiswa Makan",
+          "audioFile": {
+            "en": "pusat-kuliner-tukad-yeh-aya-01-en.m4a",
+            "id": "pusat-kuliner-tukad-yeh-aya-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Listen for cooking along Tukad Yeh Aya Street. When provincial offices concentrated in Renon, civil servants and students needed affordable meals within walking distance. Food stalls filled this southern corridor.\n\nA common order here is Tipat Blayag: rice cakes in palm leaf, spiced coconut sauce, crushed peanuts. You will also smell shallots, lemongrass, and coffee from the small shops mixed in with the warungs.\n\nAt midday the crowd is mostly office workers. Later in the day students take more of the seats. The street grew as a side effect of the civic quarter, and it still feeds that daily rhythm.",
+            "id": "Dengarkan bunyi masak di sepanjang Jalan Tukad Yeh Aya. Ketika kantor-kantor provinsi berkumpul di Renon, pegawai dan mahasiswa butuh makan siang yang terjangkau dalam jarak jalan kaki. Warung dan gerobak memenuhi koridor selatan ini.\n\nPesanan yang sering muncul adalah tipat blayag: lontong dalam daun palem, kuah santan berbumbu, kacang tanah yang dihaluskan. Tercium juga bau bawang goreng, serai, dan kopi dari kedai kecil di antara warung.\n\nSiang hari kerumunannya lebih banyak pekerja kantor. Menjelang sore, mahasiswa mengisi lebih banyak kursi. Jalan ini tumbuh sebagai dampak samping kawasan sipil, dan masih menghidupi ritme harian itu."
+          },
+          "durationSeconds": {
+            "en": 46.2,
+            "id": 43.4
+          },
+          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
+          "timeOfDayTag": null
+        }
+      ]
+    }
+  ]
+}

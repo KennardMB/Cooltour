@@ -15,7 +15,7 @@ final class MockPromptVoice: PromptVoice {
   var autoFinish = true
   private var speaking = false
 
-  func speak(_ text: String) {
+  func speak(_ text: String, languageCode: String) {
     speaking = true
     spokenTexts.append(text)
     if autoFinish {

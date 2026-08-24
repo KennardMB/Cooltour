@@ -12,9 +12,19 @@ protocol AudioPlayerService {
   /// Slice 11 — a finished story simply released the session.
   var onPlaybackFinished: (() -> Void)? { get set }
 
-  func play(story: Story)
+  /// Starts playback for the story in the user's chosen audio language.
+  /// - Returns: `false` when the asset is missing (e.g. Indonesian not recorded yet) — callers
+  ///   must silence / dismiss rather than falling back to another language.
+  @discardableResult
+  func play(story: Story) -> Bool
   func pause()
   func resume()
   func stop()
   func setRate(_ rate: Float)
+  /// Jumps by `deltaSeconds` within the current story, clamped to `[0, duration]`.
+  /// Negative values rewind; positive values skip forward. No-op when nothing is loaded.
+  func seek(bySeconds deltaSeconds: TimeInterval)
+  /// Seeks to an absolute position within the current story, clamped to `[0, duration]`.
+  /// No-op when nothing is loaded.
+  func seek(toSeconds seconds: TimeInterval)
 }

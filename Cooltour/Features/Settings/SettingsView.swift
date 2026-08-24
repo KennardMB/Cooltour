@@ -23,6 +23,28 @@ struct SettingsView: View {
           Text(walkingModeFooter)
         }
 
+        Section {
+          Picker("App language", selection: $settings.appLanguage) {
+            ForEach(AppLanguagePreference.allCases) { preference in
+              Text(preference.displayName).tag(preference)
+            }
+          }
+          Picker("Story audio", selection: $settings.audioLanguage) {
+            ForEach(AudioLanguagePreference.allCases) { preference in
+              Text(preference.displayName).tag(preference)
+            }
+          }
+        } header: {
+          Text("Language")
+        } footer: {
+          VStack(alignment: .leading, spacing: 8) {
+            Text(String(localized: "language.app.footer"))
+            if settings.audioLanguage == .indonesian {
+              Text(String(localized: "language.audio.indonesian_footer"))
+            }
+          }
+        }
+
         Section("Playback") {
           Picker("Default Speed", selection: $settings.defaultPlaybackSpeed) {
             ForEach(SettingsStore.availablePlaybackSpeeds, id: \.self) { speed in
@@ -37,7 +59,9 @@ struct SettingsView: View {
         Section("Permissions") {
           LabeledContent(
             "Notifications",
-            value: env.notifications.isAuthorized ? "Allowed" : "Not allowed"
+            value: env.notifications.isAuthorized
+              ? String(localized: "Allowed")
+              : String(localized: "Not allowed")
           )
           if !env.notifications.isAuthorized {
             Button("Request Permission") {
@@ -54,7 +78,7 @@ struct SettingsView: View {
         }
 
         Section("Content") {
-          LabeledContent("Downloaded status", value: "Offline ready")
+          LabeledContent("Downloaded status", value: String(localized: "Offline ready"))
           LabeledContent("Sites loaded", value: "\(env.content.siteCount)")
         }
 
@@ -80,18 +104,23 @@ struct SettingsView: View {
   /// Settings until the user changes it there; it can't be revoked from code.
   private var walkingModeFooter: String {
     guard env.settings.walkingMode else {
-      return
-        "Turn on walking mode to listen for nearby stories. \(AppConfig.appName) asks before playing each one."
+      return String(
+        format: String(localized: "walking_mode.footer.off"),
+        AppConfig.appName
+      )
     }
     return switch env.proximity.authorizationStatus {
     case .authorizedAlways:
-      "Listening with the app in your pocket or the screen locked. Triggers are listed under Debug ▸ Proximity."
+      String(localized: "walking_mode.footer.always")
     case .authorizedWhenInUse:
-      "Needs “Always” to keep listening with the screen locked or after the app closes — grant it in iOS Settings ▸ Privacy ▸ Location Services. Until then it listens only while open."
+      String(localized: "walking_mode.footer.when_in_use")
     case .denied, .restricted:
-      "Location is off for \(AppConfig.appName), so nothing can trigger. Turn it on in iOS Settings."
+      String(
+        format: String(localized: "walking_mode.footer.denied"),
+        AppConfig.appName
+      )
     default:
-      "Grant location access to start listening."
+      String(localized: "walking_mode.footer.default")
     }
   }
 }

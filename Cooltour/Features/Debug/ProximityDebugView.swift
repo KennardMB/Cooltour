@@ -56,21 +56,30 @@ struct ProximityDebugView: View {
         Text(prompt.spokenText)
           .font(.subheadline)
         HStack {
-          Button("Play now") {
+          Button(
+            ConsentStrings.playNowAction(languageCode: env.settings.resolvedLanguageCode)
+          ) {
             env.narration.accept(promptID: prompt.id)
           }
-          Button("Add to queue") {
+          Button(
+            ConsentStrings.addToQueueAction(languageCode: env.settings.resolvedLanguageCode)
+          ) {
             env.narration.queue(promptID: prompt.id)
           }
-          Button(
-            env.narration.dismissCountdownSeconds.map { "Dismiss (\($0))" } ?? "Dismiss",
-            role: .destructive
-          ) {
+          Button(dismissTitle, role: .destructive) {
             env.narration.dismiss(promptID: prompt.id)
           }
         }
       }
     }
+  }
+
+  private var dismissTitle: String {
+    let languageCode = env.settings.resolvedLanguageCode
+    if let countdown = env.narration.dismissCountdownSeconds {
+      return ConsentStrings.dismissWithCountdown(countdown, languageCode: languageCode)
+    }
+    return ConsentStrings.dismissAction(languageCode: languageCode)
   }
 
   private var narrationStateLabel: String {
