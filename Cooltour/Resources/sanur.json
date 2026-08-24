@@ -1,0 +1,238 @@
+{
+  "contentPackVersion": "1.0.0",
+  "region": "Sanur",
+  "sites": [
+    {
+      "slug": "prasasti-blanjong",
+      "name": "Prasasti Blanjong",
+      "district": "Sanur, South Denpasar",
+      "lat": -8.6961,
+      "lng": 115.2572,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "prasasti-blanjong-01",
+          "title": "Stone of Victory: King Warmadewa's 914 AD Decree",
+          "audioFile": {
+            "en": "prasasti-blanjong-01-en.m4a",
+            "id": "prasasti-blanjong-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look down at the old stone pillar inside this glass-walled pavilion. This is the Blanjong Pillar, the oldest dated writing on the island of Bali. It was carved in the year nine hundred fourteen, under King Sri Kesari Warmadewa.\n\nLook around its rounded surface. Two languages meet on a single block of grey andesite stone. One side is in Old Balinese, the other in Sanskrit, each in its own ancient script.\n\nThe pillar also carries the name Walidwipa, an early name for Bali, written down here for the very first time, marking a king's victory.\n\nLook closely at the faint grooves where carvers once cut each letter by hand. This stone has stood here for eleven centuries.",
+            "id": "Lihat ke bawah, ke pilar batu tua di dalam bale berdinding kaca ini. Ini Prasasti Blanjong, tulisan bertanggal tertua di Bali, yang dipahat pada tahun sembilan ratus empat belas, di masa Raja Sri Kesari Warmadewa.\n\nLihat ke sekeliling permukaan prasasti ini. Ada dua bahasa dan dua aksara yang menyatu pada satu balok batu andesit abu-abu. Satu sisi dengan bahasa Bali Kuno, sisi lainnya bahasa Sanskerta, masing-masing dengan aksara kunonya sendiri.\n\nDi batu ini juga terdapat nama Walidwipa, nama awal untuk Bali, yang pertama kali dituliskan di sini, menandai sebuah kemenangan raja.\n\nPerhatikan guratan samar tempat para pemahat dahulu menorehkan huruf ke batu. Batu ini sudah berdiri selama sebelas abad."
+          },
+          "durationSeconds": {
+            "en": 46.8,
+            "id": 47.4
+          },
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "museum-le-mayeur",
+      "name": "Museum Le Mayeur",
+      "district": "Sanur, South Denpasar",
+      "lat": -8.6748,
+      "lng": 115.2635,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "museum-le-mayeur-01",
+          "title": "Canvas on Burlap: The Studio of Le Mayeur and Ni Pollok",
+          "audioFile": {
+            "en": "museum-le-mayeur-01-en.m4a",
+            "id": "museum-le-mayeur-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Step inside the gallery of the Le Mayeur Museum. This seaside house was built in nineteen thirty-two by the Belgian painter Adrien-Jean Le Mayeur, who lived here with his wife, Ni Pollok, a dancer of the Balinese Legong.\n\nLook at the teak posts, the red floor tiles, and the woven bamboo panels. When canvas ran short during the Second World War, Le Mayeur painted some of his works straight onto rough burlap sacks. A few of them still hang in this room.\n\nNotice how the light slips through the carved wooden shutters, lighting the quiet portraits on the woven walls. Ni Pollok cared for the house after Le Mayeur died, and today it is a small museum.",
+            "id": "Masuk ke dalam galeri Museum Le Mayeur. Rumah tepi pantai ini dibangun pada tahun sembilan belas tiga puluh dua oleh pelukis Belgia, Adrien-Jean Le Mayeur, yang tinggal di sini bersama istrinya, Ni Pollok, seorang penari Legong.\n\nLihat tiang-tiang jati, lantai ubin merah, dan panel bambu anyaman itu. Karena kanvas langka selama Perang Dunia Kedua, Le Mayeur melukis sebagian karyanya langsung di atas kain karung goni yang kasar. Beberapa di antaranya masih tergantung di ruangan ini.\n\nPerhatikan bagaimana cahaya menyusup lewat daun jendela kayu berukir, menerangi potret-potret tenang di dinding anyaman. Ni Pollok merawat rumah ini setelah Le Mayeur meninggal, dan kini rumah ini menjadi museum kecil."
+          },
+          "durationSeconds": {
+            "en": 46.8,
+            "id": 46.1
+          },
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "pantai-matahari-terbit",
+      "name": "Pantai Matahari Terbit & 1906 Dutch Landing Site",
+      "district": "Sanur, South Denpasar",
+      "lat": -8.6705,
+      "lng": 115.2642,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pantai-matahari-terbit-01",
+          "title": "From Naval Invasion Shore to Morning Harbor",
+          "audioFile": {
+            "en": "pantai-matahari-terbit-01-en.m4a",
+            "id": "pantai-matahari-terbit-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look at the ferry boats getting ready along this beach. This busy shore was once a landing point for troops. On the fourteenth of September, nineteen oh six, sixteen Dutch warships anchored off the reef and put armed soldiers ashore here.\n\nThe Dutch seized power from the local kingdom that ruled here, then pushed inland. The resistance ended in the Puputan Badung, when the royal family of Badung chose to fight to the death rather than surrender.\n\nThe beach that once met an invasion is now a crossing point. From here, ferries leave for Nusa Penida and Nusa Lembongan, two islands popular with travelers. On a clear morning, Mount Agung rises in the distance.",
+            "id": "Lihat perahu feri yang bersiap di sepanjang pantai ini. Tempat yang sekarang ramai ini dulu adalah titik pendaratan pasukan. Pada empat belas September sembilan belas nol enam, enam belas kapal perang Belanda berlabuh di lepas karang dan menurunkan pasukan bersenjata di sini.\n\nBelanda merebut kekuasaan kerajaan yang memerintah di sini saat itu, lalu bergerak masuk ke pedalaman. Perlawanan berakhir dalam Puputan Badung, ketika keluarga kerajaan Badung memilih gugur daripada menyerah.\n\nPantai yang dahulu menerima penyerbuan itu kini menjadi dermaga penyeberangan. Dari sini, perahu-perahu feri berangkat menuju Nusa Penida dan Nusa Lembongan, dua pulau yang ramai dikunjungi wisatawan. Di pagi yang cerah, Gunung Agung tampak menjulang di kejauhan."
+          },
+          "durationSeconds": {
+            "en": 45.6,
+            "id": 46.5
+          },
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": "morning"
+        }
+      ]
+    },
+    {
+      "slug": "pura-segara-sanur",
+      "name": "Pura Segara Sanur",
+      "district": "Sanur, South Denpasar",
+      "lat": -8.6756,
+      "lng": 115.2638,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pura-segara-sanur-01",
+          "title": "Walls of White Coral: Sanctuary of Dewa Baruna",
+          "audioFile": {
+            "en": "pura-segara-sanur-01-en.m4a",
+            "id": "pura-segara-sanur-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Walk up to the entrance of this seaside temple and look closely at its white outer walls. Most temples in Bali are built from dark volcanic stone. This one is different: the villagers built it from rough white coral, cut straight from the reef just offshore.\n\nReach out and touch the wall. It feels rough and full of holes, unmistakably coral. Decades of salt air have bleached it to a pale silver. Even so, you can still make out carvings of sea dragons along the gateway.\n\nThis temple is dedicated to Baruna, the Hindu god of the sea. For the people here, the sea they honor is also the sea that shelters them, and the temple makes that bond physical: the same reef that gave up its coral for these walls still breaks the ocean's waves, about two hundred meters offshore.",
+            "id": "Berjalanlah menuju pintu masuk pura dan amati baik-baik dinding luarnya yang putih. Tidak seperti kebanyakan pura di Bali yang dibangun dari batu vulkanik yang gelap, warga membangun pura ini dari batu karang laut putih yang kasar, diambil langsung dari terumbu di lepas pantai.\n\nUlurkan tanganmu dan sentuh dindingnya. Terasa kasar dan penuh lubang, khas batu karang. Puluhan tahun terpapar udara asin telah membuatnya berwarna perak pucat. Namun kamu masih bisa mengenali ukiran naga laut di sepanjang gapura.\n\nMasyarakat membangun pura ini untuk Baruna, dewa laut. Bagi mereka, laut yang dipuja adalah laut yang juga melindungi. Terumbu yang memberi batu karang untuk pura ini adalah terumbu yang sama yang memecah ombak, sekitar dua ratus meter dari sini."
+          },
+          "durationSeconds": {
+            "en": 56.4,
+            "id": 50.4
+          },
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "grand-inna-bali-beach",
+      "name": "Grand Inna Bali Beach",
+      "district": "Sanur, South Denpasar",
+      "lat": -8.6667,
+      "lng": 115.2631,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "grand-inna-bali-beach-01",
+          "title": "The War Reparations Tower and the Coconut Tree Limit",
+          "audioFile": {
+            "en": "grand-inna-bali-beach-01-en.m4a",
+            "id": "grand-inna-bali-beach-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look up at this ten-story concrete tower rising above the palm trees. The hotel was the idea of President Sukarno, Indonesia's first president. It was built with Japanese war reparations and opened in nineteen sixty-six as Bali's first modern luxury hotel. Sukarno chose Sanur himself, but he never got to enjoy it: by the time it opened, he was under house arrest in Jakarta.\n\nA tower this tall was foreign to Bali's low landscape. A few years later, a rule was passed forbidding any building taller than a coconut palm, to protect the face of the island. This hotel was built before that rule, so it remains the only high-rise ever allowed to stand.\n\nIn nineteen ninety-three, a great fire destroyed almost the entire hotel. Strangely, one room on the third floor, room three twenty-seven, was left completely untouched by the flames. The room is linked to Sukarno, and to this day it is kept as a special room, with daily offerings and a place to pray.",
+            "id": "Lihat menara beton sepuluh lantai di atas pepohonan kelapa ini. Hotel ini merupakan ide dari Presiden Sukarno, dibangun dengan dana pampasan perang Jepang dan dibuka pada tahun sembilan belas enam puluh enam sebagai hotel mewah modern pertama di Bali. Sukarno sendiri yang memilih Sanur, tapi ia tak sempat menikmatinya karena saat hotel dibuka, ia sudah menjadi tahanan rumah di Jakarta.\n\nMenara setinggi ini asing bagi lanskap Bali yang rendah. Beberapa tahun kemudian lahir aturan yang melarang bangunan lebih tinggi dari pohon kelapa, demi menjaga wajah pulau ini. Hotel ini dibangun sebelum aturan itu lahir, jadi ia menjadi satu-satunya gedung tinggi yang pernah diizinkan berdiri.\n\nPada tahun sembilan belas sembilan puluh tiga, kebakaran hebat melahap hampir seluruh hotel. Anehnya, satu kamar di lantai tiga, kamar nomor tiga dua tujuh, sama sekali tidak tersentuh api. Kamar itu dikaitkan dengan Sukarno, dan sampai kini dirawat sebagai kamar khusus, lengkap dengan sesajen dan tempat orang berdoa."
+          },
+          "durationSeconds": {
+            "en": 66.8,
+            "id": 66.1
+          },
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "pantai-karang",
+      "name": "Pantai Karang & Twin Reef Gazebos",
+      "district": "Sanur, South Denpasar",
+      "lat": -8.6883,
+      "lng": 115.2647,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pantai-karang-01",
+          "title": "Guardians of the Coral Lagoon",
+          "audioFile": {
+            "en": "pantai-karang-01-en.m4a",
+            "id": "pantai-karang-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look out at the two thatched gazebos sitting on the coral rocks offshore. They mark the edge of a wide reef that runs along this coast.\n\nThe reef takes the force of the open sea, so the water inside stays flat and calm.\n\nAt low tide, the sea pulls back and leaves rock pools full of small fish and anemones. Fishermen wade out to check their nets in the shallow water.\n\nSit on the stone sea wall for a while. The waves break out on the reef, not here at your feet.",
+            "id": "Pandanglah ke laut dangkal yang tenang di depanmu, ke arah bale beratap yang berdiri di atas gugusan karang di tengah air. Pantai ini bernama Pantai Karang, diambil dari karang yang membentang di lepas pantainya. Gugusan karang itulah yang menahan gelombang laut lepas, sehingga air di sisi dalam tetap tenang, aman untuk berenang dan bermain.\n\nDi pasir, berjajar perahu-perahu jukung. Inilah perahu nelayan khas Sanur, dipahat dari satu batang pohon utuh, dengan dua cadik bambu sebagai penyeimbang di kiri dan kanan. Lambungnya dicat warna-warna cerah, dan banyak yang berhias kepala ikan di haluan. Sampai hari ini, kelompok nelayan setempat masih melaut dari pantai ini, mengail dan menjaring tak jauh dari garis pantai.\n\nSaat air surut, karang perlahan muncul ke permukaan, menyingkap ikan-ikan kecil di antara genangan yang jernih. Kini pantai ini menjadi bagian dari jalur santai tepi laut Sanur, tempat orang berjalan pagi, bersepeda, atau sekadar duduk memandang laut. Ombaknya pecah jauh di karang sana, bukan di kakimu."
+          },
+          "durationSeconds": {
+            "en": 36.8,
+            "id": 68.3
+          },
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": "morning"
+        }
+      ]
+    },
+    {
+      "slug": "warung-mak-beng",
+      "name": "Warung Mak Beng",
+      "district": "Sanur, South Denpasar",
+      "lat": -8.6725,
+      "lng": 115.2631,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "warung-mak-beng-01",
+          "title": "Eight Decades of Single-Menu Coastal Culinary Heritage",
+          "audioFile": {
+            "en": "warung-mak-beng-01-en.m4a",
+            "id": "warung-mak-beng-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Follow the smell of fried fish and garlic drifting from this doorway. Warung Mak Beng, this little eating house, has been here since nineteen forty-one. It was opened by a woman named Ni Ketut Tjuki, known to everyone as Mak Beng. Her grandchildren run it now, and for more than eighty years the menu has never changed. There is only one.\n\nRice, fried fish, and a bowl of fish-head soup. The fish changes with each day's catch from Sanur's fishermen. The broth is sour and fresh from belimbing wuluh, a small green starfruit, and cucumber, balanced by a chili paste famous for its heat.\n\nLong before the big hotels lined the beach, this was a rest stop for bemo drivers, the men who drove Bali's little public minibuses. The taste has stayed the same ever since. Take a plate, and taste something that hasn't changed since Mak Beng first cooked it.",
+            "id": "Rasakan aroma ikan goreng dan bawang putih yang keluar dari pintu rumah makan ini. Warung Mak Beng berdiri sejak tahun sembilan belas empat puluh satu, dibuka oleh seorang perempuan bernama Ni Ketut Tjuki, yang akrab dipanggil Mak Beng. Kini warung ini dikelola oleh cucunya, dan selama lebih dari delapan dekade menunya tetap satu, tidak pernah berganti.\n\nNasi, ikan goreng, dan semangkuk sup kepala ikan. Ikannya berbeda setiap hari, mengikuti hasil tangkapan nelayan Sanur. Kuah supnya terasa asam segar dari belimbing wuluh dan mentimun, lalu diseimbangkan sambal terasi yang terkenal pedas.\n\nJauh sebelum hotel-hotel besar berdiri di tepi pantai, warung ini hanya tempat para sopir bemo beristirahat. Rasanya bertahan sama sampai hari ini. Ambil satu porsi, dan cicipi rasa yang tak berubah sejak Mak Beng pertama memasaknya."
+          },
+          "durationSeconds": {
+            "en": 60.4,
+            "id": 54.8
+          },
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    },
+    {
+      "slug": "pura-mertasari-mangrove",
+      "name": "Pura Mertasari & Hutan Mangrove Pesisir",
+      "district": "Sanur, South Denpasar",
+      "lat": -8.7072,
+      "lng": 115.2515,
+      "triggerRadiusMeters": 40,
+      "headingRequired": false,
+      "stories": [
+        {
+          "slug": "pura-mertasari-mangrove-01",
+          "title": "Sacred Winds: Dragon Kites and Mangrove Estuaries",
+          "audioFile": {
+            "en": "pura-mertasari-mangrove-01-en.m4a",
+            "id": "pura-mertasari-mangrove-01-id.m4a"
+          },
+          "transcript": {
+            "en": "Look out at the open field. With the mangroves along the shore beyond it, this flat ground is where Sanur flies its sacred kites.\n\nIn the dry season, the wind comes in steady off the water. It lifts the janggan, a dragon kite with a carved wooden head and a cloth tail that can run more than a hundred meters. The big kites are flown as offerings to Bayu, the wind god, to ask for a good harvest.\n\nThe mangroves behind the field shelter young fish, and they send the same steady breeze that carries the kites.",
+            "id": "Lihat lapangan hijau terbuka dengan mangrove di sepanjang pesisir di baliknya. Dataran pesisir yang lapang ini menjadi tanah bagi tradisi layang-layang suci Bali. Pada bulan-bulan kemarau, angin yang berembus melintasi muara mangrove mengangkat layang-layang naga raksasa bernama Janggan tinggi ke langit. Layang-layang besar ini memiliki kepala kayu berukir dan ekor kain yang menjuntai lebih dari seratus meter, diterbangkan sebagai persembahan kepada Rare Angon, dewa pelindung layang-layang dan sawah, untuk memohon panen yang berlimpah.\n\nTradisi ini juga sebuah perayaan bersama. Setiap tahun, banjar-banjar, kelompok warga desa adat, mengirim tim terbaiknya ke festival layang-layang di Sanur, diiringi tabuhan gamelan. Ratusan layang-layang dari berbagai desa memenuhi langit sekaligus.\n\nDi bawah semua keramaian itu, hutan mangrove di balik lapangan menjadi tempat berlindung ikan-ikan muda."
+          },
+          "durationSeconds": {
+            "en": 38.8,
+            "id": 52.2
+          },
+          "narratorNote": "placeholder narration - pending Kultara guide recording",
+          "timeOfDayTag": null
+        }
+      ]
+    }
+  ]
+}

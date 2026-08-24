@@ -104,6 +104,14 @@ struct NowView: View {
 
     // MARK: - State A: Idle Home Screen (Figma Node 223:1335)
 
+    /// Loaded sites grouped by district for the Simulate-approach menu, keeping each
+    /// region's sites together (e.g. all Renon sites in one section) instead of one flat list.
+    private var simulatableSitesByDistrict: [(district: String, sites: [Site])] {
+        Dictionary(grouping: env.content.allSites(), by: \.districtName)
+            .map { (district: $0.key, sites: $0.value.sorted { $0.name < $1.name }) }
+            .sorted { $0.district < $1.district }
+    }
+
     private var idleContentView: some View {
         VStack(spacing: 0) {
             // Top Bar (Live Location Indicator + Profile Avatar)
@@ -283,12 +291,20 @@ struct NowView: View {
 
             // Bottom Content: Caption + "open map" Button
             VStack(spacing: 16) {
-                // Temporary debug — fires the consent prompt as if you walked up to a Pura.
-                Button("Simulate pura approach") {
-                    simulateRandomPuraApproach()
+                // Temporary Slice 11 debug — fires the consent prompt as if you walked up to a site.
+                Menu("Simulate site approach") {
+                    ForEach(simulatableSitesByDistrict, id: \.district) { group in
+                        Section(group.district) {
+                            ForEach(group.sites, id: \.slug) { site in
+                                Button(site.name) {
+                                    env.proximity.simulateTrigger(site: site)
+                                }
+                            }
+                        }
+                    }
                 }
                 .buttonStyle(.bordered)
-                .accessibilityHint("Picks a random Pura site and fires the consent prompt as if you walked up to it.")
+                .accessibilityHint("Pick any site to fire its consent prompt as if you walked up to it.")
 
                 Text(nearbySitesCount > 0 ? "keep wandering until you passed by one!" : "keep wandering to discover cultural stories!")
                     .font(.system(size: 16, weight: .regular))
@@ -598,12 +614,6 @@ struct NowView: View {
     }
 
     // MARK: - Actions & Helpers
-
-    private func simulateRandomPuraApproach() {
-        let puras = env.content.allSites().filter { $0.slug.hasPrefix("pura-") }
-        guard let site = puras.randomElement() else { return }
-        env.proximity.simulateTrigger(site: site)
-    }
 
     private func triggerQueueToast() {
         withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
