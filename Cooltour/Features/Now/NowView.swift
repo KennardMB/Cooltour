@@ -83,12 +83,20 @@ struct NowView: View {
             }
 
             // Temporary Slice 11 debug — allow while playing so you can test the interrupt prompt.
-            Button("Simulate pura approach") {
-              simulateRandomPuraApproach()
+            Menu("Simulate site approach") {
+              ForEach(simulatableSitesByDistrict, id: \.district) { group in
+                Section(group.district) {
+                  ForEach(group.sites, id: \.slug) { site in
+                    Button(site.name) {
+                      env.proximity.simulateTrigger(site: site)
+                    }
+                  }
+                }
+              }
             }
             .buttonStyle(.bordered)
             .disabled(state == .prompting)
-            .accessibilityHint("Picks a random Pura site and fires the consent prompt as if you walked up to it.")
+            .accessibilityHint("Pick any site to fire its consent prompt as if you walked up to it.")
 
             if state == .prompting, let prompt {
               VStack(spacing: 12) {
@@ -167,10 +175,12 @@ struct NowView: View {
     }
   }
 
-  private func simulateRandomPuraApproach() {
-    let puras = env.content.allSites().filter { $0.slug.hasPrefix("pura-") }
-    guard let site = puras.randomElement() else { return }
-    env.proximity.simulateTrigger(site: site)
+  /// Loaded sites grouped by district for the Simulate-approach menu, keeping each
+  /// region's sites together (e.g. all Renon sites in one section) instead of one flat list.
+  private var simulatableSitesByDistrict: [(district: String, sites: [Site])] {
+    Dictionary(grouping: env.content.allSites(), by: \.districtName)
+      .map { (district: $0.key, sites: $0.value.sorted { $0.name < $1.name }) }
+      .sorted { $0.district < $1.district }
   }
 
   /// First line or so of the transcript for the card's preview text.

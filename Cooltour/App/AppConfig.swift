@@ -3,7 +3,12 @@ import Foundation
 enum AppConfig {
   static let appName = "Cooltour"
 
-  static let contentPackName = "denpasar"
+  /// Content packs seeded into the store at launch, in order. Sites from every pack coexist,
+  /// so the app (map, proximity, Now) and the Simulate-approach menu span all of them.
+  static let contentPackNames = ["denpasar", "renon"]
+
+  /// First pack, kept for callers that still expect a single name.
+  static let contentPackName = contentPackNames[0]
 
   static let defaultTriggerRadiusMeters: Double = 60
 
