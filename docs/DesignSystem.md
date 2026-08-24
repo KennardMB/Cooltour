@@ -331,6 +331,23 @@ NowView()
     .environment(env)
 ```
 
+### 20. `SettingsView` (Figma Node 231:1666)
+- **Visuals**: Full grid canvas (`.defaultTiledBackground(scale: 0.20)`) with custom top navigation header (`"Settings"` in `Baru Lagi` 20pt `#111111`).
+- **Section Group Cards**:
+  - Section Header in `SF Pro` 16pt Regular `#757575`.
+  - Grouped Card: Backed by `Image("BrushCard").resizable()` providing the authentic hand-drawn rough brush stroke border (`#E2E1DE`) and off-white background fill (`#FEFEFE`).
+  - Rows: Titles in `SF Pro` 16pt blue (`#1D52D8`), values in `SF Pro` 14pt `#757575`, separated by 1pt `#E2E1DE` dividers.
+- **Features Preserved**:
+  - Background triggering toggle (`$settings.walkingMode`) and location access status with descriptive footer.
+  - Playback auto-play toggle and default speed picker menu.
+  - Notifications status check and system settings routing.
+  - About metadata (`AppConfig.appName`, offline status, sites count) and diagnostic debug links (`Content pack`, `Proximity`).
+
+```swift
+SettingsView()
+    .environment(env)
+```
+
 ---
 
 ## 6. Accessibility & Concurrency Guidelines
