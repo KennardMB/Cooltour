@@ -82,13 +82,13 @@ struct NowView: View {
               )
             }
 
-            // Temporary Slice 11 debug — allow while playing so you can test the interrupt prompt.
-            Button("Simulate pura approach") {
-              simulateRandomPuraApproach()
+            // Temporary debug — allow while playing so you can test the interrupt prompt.
+            Button("Simulate Renon approach") {
+              simulateRandomSiteApproach()
             }
             .buttonStyle(.bordered)
             .disabled(state == .prompting)
-            .accessibilityHint("Picks a random Pura site and fires the consent prompt as if you walked up to it.")
+            .accessibilityHint("Picks a random Renon site and fires the consent prompt as if you walked up to it.")
 
             if state == .prompting, let prompt {
               VStack(spacing: 12) {
@@ -167,9 +167,8 @@ struct NowView: View {
     }
   }
 
-  private func simulateRandomPuraApproach() {
-    let puras = env.content.allSites().filter { $0.slug.hasPrefix("pura-") }
-    guard let site = puras.randomElement() else { return }
+  private func simulateRandomSiteApproach() {
+    guard let site = env.content.allSites().randomElement() else { return }
     env.proximity.simulateTrigger(site: site)
   }
 

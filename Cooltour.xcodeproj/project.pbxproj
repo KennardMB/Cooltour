@@ -18,7 +18,7 @@
 
 /* Begin PBXFileReference section */
 		0CBAFE56302A0ABA0064E786 /* Cooltour.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cooltour.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0CEC1EF3302C5667000A409D /* DenpasarWalk.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = DenpasarWalk.gpx; path = Testing/DenpasarWalk.gpx; sourceTree = "<group>"; };
+		0CEC1EF3302C5667000A409D /* RenonWalk.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = RenonWalk.gpx; path = Testing/RenonWalk.gpx; sourceTree = "<group>"; };
 		A100000000000000000000E2 /* CooltourTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CooltourTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -69,7 +69,7 @@
 		0CBAFE4D302A0ABA0064E786 = {
 			isa = PBXGroup;
 			children = (
-				0CEC1EF3302C5667000A409D /* DenpasarWalk.gpx */,
+				0CEC1EF3302C5667000A409D /* RenonWalk.gpx */,
 				0CBAFE58302A0ABA0064E786 /* Cooltour */,
 				A100000000000000000000E9 /* CooltourTests */,
 				0CBAFE57302A0ABA0064E786 /* Products */,

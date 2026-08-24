@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Cooltour" xmlns="http://www.topografix.com/GPX/1/1">
+  <!--
+    Test route through the Renon content pack. Walks roughly north→south so each
+    trigger radius is entered and then left (which re-arms it). Select this file as
+    the scheme's simulated location, or Debug ▸ Simulate Location, then watch
+    Settings ▸ Debug ▸ Proximity as it moves. Xcode interpolates between waypoints
+    at walking speed, so the fix crosses each radius boundary gradually — the
+    flapping/re-arm case AGENTS.md §4 requires.
+  -->
+
+  <!-- Start well north of museum-sidik-jari: nothing should trigger here. -->
+  <wpt lat="-8.66050" lon="115.24050"/>
+  <wpt lat="-8.66130" lon="115.24010"/>
+
+  <!-- museum-sidik-jari (r=35m) -->
+  <wpt lat="-8.66210" lon="115.23980"/>
+
+  <!-- leave museum, approach civic cluster -->
+  <wpt lat="-8.66500" lon="115.23700"/>
+  <wpt lat="-8.66750" lon="115.23480"/>
+
+  <!-- kantor-gubernur-bali (r=40m) -->
+  <wpt lat="-8.66890" lon="115.23350"/>
+
+  <!-- gedung-dprd-provinsi-bali (r=40m) -->
+  <wpt lat="-8.66980" lon="115.23520"/>
+
+  <!-- lapangan-niti-mandala-renon (r=50m) -->
+  <wpt lat="-8.67050" lon="115.23150"/>
+
+  <!-- monumen-perjuangan-rakyat-bali / Bajra Sandhi (r=40m) -->
+  <wpt lat="-8.67170" lon="115.23390"/>
+
+  <!-- kawasan-diplomatik-renon (r=45m) -->
+  <wpt lat="-8.67420" lon="115.23180"/>
+
+  <!-- pura-dalem-renon (r=40m) -->
+  <wpt lat="-8.67650" lon="115.22820"/>
+
+  <!-- pusat-kuliner-tukad-yeh-aya (r=50m) -->
+  <wpt lat="-8.67820" lon="115.23500"/>
+
+  <!-- walk away: everything leaves its radius and re-arms -->
+  <wpt lat="-8.67950" lon="115.23650"/>
+  <wpt lat="-8.68100" lon="115.23800"/>
+</gpx>

@@ -3,7 +3,7 @@ import Foundation
 enum AppConfig {
   static let appName = "Cooltour"
 
-  static let contentPackName = "denpasar"
+  static let contentPackName = "renon"
 
   static let defaultTriggerRadiusMeters: Double = 60
 
