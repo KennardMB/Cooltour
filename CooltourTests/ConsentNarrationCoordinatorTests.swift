@@ -30,29 +30,35 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   private func makeCoordinator(
-    countdown: Duration = .seconds(60)
+    countdown: Duration = .seconds(60),
+    chime: MockApproachChimePlayer = MockApproachChimePlayer()
   ) -> (
-    ConsentNarrationCoordinator, MockAudioPlayerService, MockPromptVoice, MockConsentRemoteControl,
+    ConsentNarrationCoordinator, MockAudioPlayerService, MockPromptVoice,
+    MockApproachChimePlayer, MockConsentRemoteControl,
     MockStoryQueue
   ) {
     let audio = MockAudioPlayerService()
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
     let queue = MockStoryQueue()
+    let settings = SettingsStore()
+    settings.appLanguage = .english
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
+      approachChime: chime,
       remoteControl: remote,
       storyQueue: queue,
+      settings: settings,
       dismissCountdown: countdown
     )
-    return (coordinator, audio, voice, remote, queue)
+    return (coordinator, audio, voice, chime, remote, queue)
   }
 
   // MARK: - Prompting
 
   @Test func triggerPromptsSpeaksAndArmsTheStem() {
-    let (coordinator, audio, voice, remote, _) = makeCoordinator()
+    let (coordinator, audio, voice, _, remote, _) = makeCoordinator()
 
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
 
@@ -64,10 +70,61 @@ struct ConsentNarrationCoordinatorTests {
     #expect(!audio.isPlaying)
   }
 
+  @Test func triggerPlaysChimeBeforeSpeaking() {
+    let chime = MockApproachChimePlayer()
+    chime.autoFinish = false
+    let (coordinator, _, voice, _, _, _) = makeCoordinator(chime: chime)
+
+    coordinator.handleTrigger(site: makeSite(), story: makeStory())
+
+    #expect(chime.playCount == 1)
+    #expect(voice.lastSpoken == nil)
+
+    chime.finishPlaying()
+
+    #expect(voice.lastSpoken == "You're approaching Pura Maospahit. Press play to hear it.")
+  }
+
+  @Test func acceptDuringChimeStopsEarcon() {
+    let chime = MockApproachChimePlayer()
+    chime.autoFinish = false
+    let (coordinator, _, _, _, _, _) = makeCoordinator(chime: chime)
+    coordinator.handleTrigger(site: makeSite(), story: makeStory())
+    let id = coordinator.pendingPrompt!.id
+
+    coordinator.accept(promptID: id)
+
+    #expect(chime.stopCount == 1)
+  }
+
+  @Test func triggerUsesAppLanguageForSpokenPrompt() {
+    let audio = MockAudioPlayerService()
+    let voice = MockPromptVoice()
+    let remote = MockConsentRemoteControl()
+    let queue = MockStoryQueue()
+    let settings = SettingsStore()
+    settings.appLanguage = .indonesian
+    let coordinator = ConsentNarrationCoordinator(
+      audio: audio,
+      promptVoice: voice,
+      remoteControl: remote,
+      storyQueue: queue,
+      settings: settings
+    )
+
+    coordinator.handleTrigger(site: makeSite(), story: makeStory())
+
+    #expect(
+      voice.lastSpoken
+        == "Anda mendekati Pura Maospahit. Tekan putar untuk mendengarkannya."
+    )
+    #expect(coordinator.pendingPrompt?.spokenText == voice.lastSpoken)
+  }
+
   // MARK: - Accept
 
   @Test func acceptPlaysTheStoryAndHandsBackTheStem() {
-    let (coordinator, audio, voice, remote, _) = makeCoordinator()
+    let (coordinator, audio, voice, _, remote, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     let id = coordinator.pendingPrompt!.id
 
@@ -81,7 +138,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func stemPressPlaysTheStory() {
-    let (coordinator, audio, _, remote, _) = makeCoordinator()
+    let (coordinator, audio, _, _, remote, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
 
     remote.simulateStemPress()
@@ -93,7 +150,7 @@ struct ConsentNarrationCoordinatorTests {
   // MARK: - Dismiss
 
   @Test func dismissPlaysNothing() {
-    let (coordinator, audio, _, remote, _) = makeCoordinator()
+    let (coordinator, audio, _, _, remote, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     let id = coordinator.pendingPrompt!.id
 
@@ -109,11 +166,14 @@ struct ConsentNarrationCoordinatorTests {
   @Test func noAnswerTimesOutIntoSilence() async {
     var outcomes: [PromptOutcome] = []
     let audio = MockAudioPlayerService()
+    let settings = SettingsStore()
+    settings.appLanguage = .english
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: MockPromptVoice(),
       remoteControl: MockConsentRemoteControl(),
       storyQueue: MockStoryQueue(),
+      settings: settings,
       dismissCountdown: .milliseconds(1)
     )
     coordinator.onOutcome = { _, outcome in outcomes.append(outcome) }
@@ -129,7 +189,7 @@ struct ConsentNarrationCoordinatorTests {
   // MARK: - Idempotency and staleness
 
   @Test func answeringTwiceResolvesOnlyOnce() {
-    let (coordinator, _, _, _, _) = makeCoordinator()
+    let (coordinator, _, _, _, _, _) = makeCoordinator()
     var outcomes: [PromptOutcome] = []
     coordinator.onOutcome = { _, outcome in outcomes.append(outcome) }
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
@@ -144,7 +204,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func staleAnswerCannotResolveTheCurrentPrompt() {
-    let (coordinator, audio, _, _, _) = makeCoordinator()
+    let (coordinator, audio, _, _, _, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     let staleID = coordinator.pendingPrompt!.id
     coordinator.dismiss(promptID: staleID)
@@ -160,7 +220,7 @@ struct ConsentNarrationCoordinatorTests {
   // MARK: - Queue (Slice 11.5)
 
   @Test func triggerWhilePromptingEnqueuesSilently() {
-    let (coordinator, _, _, _, queue) = makeCoordinator()
+    let (coordinator, _, _, _, _, queue) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     let firstID = coordinator.pendingPrompt!.id
 
@@ -171,7 +231,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func playingThenTriggerPausesDuringSpeechThenResumes() {
-    let (coordinator, audio, voice, _, _) = makeCoordinator()
+    let (coordinator, audio, voice, _, _, _) = makeCoordinator()
     voice.autoFinish = false
 
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
@@ -191,7 +251,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func queueKeepsUnderlyingStoryPlaying() {
-    let (coordinator, audio, _, _, queue) = makeCoordinator()
+    let (coordinator, audio, _, _, _, queue) = makeCoordinator()
     var outcomes: [PromptOutcome] = []
     coordinator.onOutcome = { _, outcome in outcomes.append(outcome) }
 
@@ -211,7 +271,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func dismissKeepsUnderlyingStoryPlaying() {
-    let (coordinator, audio, _, _, queue) = makeCoordinator()
+    let (coordinator, audio, _, _, _, queue) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
     coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
@@ -225,7 +285,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func finishingStoryAutoPlaysQueuedNext() {
-    let (coordinator, audio, _, _, _) = makeCoordinator()
+    let (coordinator, audio, _, _, _, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
     coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
@@ -238,7 +298,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func triggerWhilePlayingDoesNotArmStemPressForNewPrompt() {
-    let (coordinator, audio, _, remote, _) = makeCoordinator()
+    let (coordinator, audio, _, _, remote, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
     #expect(audio.isPlaying)
@@ -261,11 +321,14 @@ struct ConsentNarrationCoordinatorTests {
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
     let queue = MockStoryQueue()
+    let settings = SettingsStore()
+    settings.appLanguage = .english
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
       storyQueue: queue,
+      settings: settings,
       dismissCountdown: .milliseconds(1)
     )
 
@@ -296,7 +359,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func triggerWhilePlayingDismissPreservesPausedStoryState() {
-    let (coordinator, audio, _, _, _) = makeCoordinator()
+    let (coordinator, audio, _, _, _, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
 
@@ -316,7 +379,7 @@ struct ConsentNarrationCoordinatorTests {
   // MARK: - Return to idle
 
   @Test func playbackFinishingReturnsToIdleAndCanPromptAgain() {
-    let (coordinator, _, _, _, _) = makeCoordinator()
+    let (coordinator, _, _, _, _, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
     #expect(coordinator.state == .playing)
@@ -329,7 +392,7 @@ struct ConsentNarrationCoordinatorTests {
   }
 
   @Test func audioFinishingIsWiredBackToTheCoordinator() {
-    let (coordinator, audio, _, _, _) = makeCoordinator()
+    let (coordinator, audio, _, _, _, _) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
     #expect(coordinator.state == .playing)

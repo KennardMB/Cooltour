@@ -7,10 +7,15 @@ import Foundation
 /// A nil or empty direction omits the phrase entirely rather than guessing: per J3, the app says
 /// nothing about direction when it isn't trustworthy.
 enum ApproachPrompt {
-  static func text(siteName: String, directionPhrase: String? = nil) -> String {
-    if let directionPhrase, !directionPhrase.isEmpty {
-      return "You're approaching \(siteName), \(directionPhrase). Press play to hear it."
-    }
-    return "You're approaching \(siteName). Press play to hear it."
+  static func text(
+    siteName: String,
+    directionPhrase: String? = nil,
+    languageCode: String = "en"
+  ) -> String {
+    ConsentStrings.approachPrompt(
+      siteName: siteName,
+      directionPhrase: directionPhrase,
+      languageCode: languageCode
+    )
   }
 }
