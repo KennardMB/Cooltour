@@ -30,26 +30,38 @@ final class WatchApproachNotificationService: NSObject, WatchApproachNotifying {
   }
 
   func postPrompt(_ prompt: PendingPrompt, languageCode: String) {
-    let content = UNMutableNotificationContent()
-    content.title = ConsentStrings.notificationTitle(
-      siteName: prompt.siteName,
-      languageCode: languageCode
-    )
-    // Site name is already the title; body nudges the tap without dumping the spoken prompt.
-    content.body = ConsentStrings.statusPrompting(languageCode: languageCode)
-    // Default sound so the wrist buzzes when the Watch app is not open.
-    content.sound = .default
-    content.userInfo = [
-      "promptID": prompt.id.uuidString,
-      "siteSlug": prompt.siteSlug,
-    ]
+    Task {
+      let settings = await center.notificationSettings()
+      let allowed =
+        settings.authorizationStatus == .authorized
+        || settings.authorizationStatus == .provisional
+      guard allowed else { return }
 
-    let request = UNNotificationRequest(
-      identifier: prompt.id.uuidString,
-      content: content,
-      trigger: nil
-    )
-    center.add(request) { _ in }
+      let content = UNMutableNotificationContent()
+      content.title = ConsentStrings.notificationTitle(
+        siteName: prompt.siteName,
+        languageCode: languageCode
+      )
+      // Site name is already the title; body nudges the tap without dumping the spoken prompt.
+      content.body = ConsentStrings.statusPrompting(languageCode: languageCode)
+      // Default sound so the wrist buzzes when the Watch app is not open.
+      content.sound = .default
+      content.userInfo = [
+        "promptID": prompt.id.uuidString,
+        "siteSlug": prompt.siteSlug,
+      ]
+
+      let request = UNNotificationRequest(
+        identifier: prompt.id.uuidString,
+        content: content,
+        trigger: nil
+      )
+      do {
+        try await center.add(request)
+      } catch {
+        // Soft-fail — phone consent still works; do not invent a Watch outcome.
+      }
+    }
   }
 
   func withdrawPrompt(id: UUID) {

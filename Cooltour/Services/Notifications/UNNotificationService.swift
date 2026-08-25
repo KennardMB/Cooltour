@@ -63,7 +63,9 @@ final class UNNotificationService: NSObject, NotificationService {
     } else {
       content.body = prompt.storyTitle
     }
-    content.sound = nil
+    // Default sound so a locked iPhone can mirror the alert to Apple Watch. Silent
+    // notifications often stay phone-only.
+    content.sound = .default
     content.categoryIdentifier = Self.categoryIdentifier
     content.userInfo = [
       "promptID": prompt.id.uuidString,

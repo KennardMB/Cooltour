@@ -165,4 +165,13 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
       }
     }
   }
+
+  nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+    let snapshotData = userInfo[Self.snapshotKey] as? Data
+    Task { @MainActor in
+      if let snapshotData {
+        self.ingestSnapshotData(snapshotData)
+      }
+    }
+  }
 }

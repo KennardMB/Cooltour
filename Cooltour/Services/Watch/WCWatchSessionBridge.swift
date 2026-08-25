@@ -12,6 +12,8 @@ final class WCWatchSessionBridge: NSObject, WatchSessionBridge, WCSessionDelegat
   private let proximity: any ProximityEngine
 
   private var lastPushed: WatchSessionSnapshot?
+  /// Coarse key so countdown ticks don't flood `transferUserInfo` — only wake-worthy changes.
+  private var lastTransferredWakeKey: String?
   private var observationTask: Task<Void, Never>?
   private let encoder = JSONEncoder()
   private let decoder = JSONDecoder()
@@ -43,7 +45,15 @@ final class WCWatchSessionBridge: NSObject, WatchSessionBridge, WCSessionDelegat
     guard WCSession.isSupported(), WCSession.default.activationState == .activated else { return }
     do {
       let data = try encoder.encode(snapshot)
+      // Latest-wins glance state (including countdown).
       try WCSession.default.updateApplicationContext([Self.snapshotKey: data])
+      // Queued delivery that can wake the Watch in the background — applicationContext alone
+      // often waits until the user opens Cooltour Watch again.
+      let wakeKey = Self.wakeKey(for: snapshot)
+      if wakeKey != lastTransferredWakeKey {
+        lastTransferredWakeKey = wakeKey
+        WCSession.default.transferUserInfo([Self.snapshotKey: data])
+      }
     } catch {
       // Latest-wins; a later refresh will retry. Do not invent Watch state.
     }
@@ -73,6 +83,13 @@ final class WCWatchSessionBridge: NSObject, WatchSessionBridge, WCSessionDelegat
 
   private nonisolated static let snapshotKey = "snapshot"
   private nonisolated static let commandKey = "command"
+
+  /// Ignores dismiss-countdown ticks so background wakes stay rare and meaningful.
+  private static func wakeKey(for snapshot: WatchSessionSnapshot) -> String {
+    let prompt = snapshot.pendingPrompt?.id.uuidString ?? "-"
+    let target = snapshot.wayfindingTarget?.siteSlug ?? "-"
+    return "\(snapshot.walkingModeEnabled)|\(snapshot.narrationState.rawValue)|\(prompt)|\(target)"
+  }
 
   private func makeSnapshot() -> WatchSessionSnapshot {
     let story = audio.currentStory
