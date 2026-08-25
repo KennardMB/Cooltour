@@ -9,13 +9,16 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
   private(set) var snapshot: WatchSessionSnapshot?
   private(set) var isPhoneReachable = false
   private(set) var isSessionActivated = false
+  /// True while the Watch UI is active. Approach notifications fire only when this is false
+  /// (Slice 22–24); foreground uses the in-app consent card + custom Haptic A instead.
+  var isAppInForeground = false
 
   private let encoder = JSONEncoder()
   private let decoder = JSONDecoder()
   private var lastApproachPromptID: UUID?
   private var lastPlayStartSlug: String?
 
-  /// Fired when Haptic A should play (new prompt id).
+  /// Fired when Haptic A should play (new prompt id) while the Watch app is foreground.
   var onApproachHaptic: (() -> Void)?
   /// Fired when Haptic B should play (wayfinding armed / site changed).
   var onPlayStartHaptic: (() -> Void)?
@@ -24,7 +27,9 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
     guard WCSession.isSupported() else { return }
     let session = WCSession.default
     session.delegate = self
-    session.activate()
+    if session.activationState == .notActivated {
+      session.activate()
+    }
   }
 
   func send(_ command: WatchCommand) {
