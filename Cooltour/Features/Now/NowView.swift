@@ -10,6 +10,7 @@ struct NowView: View {
 
     @State private var isShowingSitesPlayer: Bool = false
     @State private var isShowingProfile: Bool = false
+    @State private var isShowingMap: Bool = false
     @State private var isShowingPauseOverlay: Bool = false
     @State private var showQueueToast: Bool = false
     @State private var locationTitle: String = "Live Location"
@@ -84,11 +85,14 @@ struct NowView: View {
             .navigationBarHidden(true)
             .fullScreenCover(isPresented: $isShowingSitesPlayer) {
                 SitesPlayerView(onOpenMap: {
-                    env.selectedTab = .map
+                    isShowingMap = true
                 })
             }
             .sheet(isPresented: $isShowingProfile) {
                 ProfileView()
+            }
+            .sheet(isPresented: $isShowingMap) {
+                MapView()
             }
             .onAppear {
                 updateLocationDisplay()
@@ -300,7 +304,7 @@ struct NowView: View {
                 VStack(spacing: 0) {
                     // Open Map Button (Figma Node 241:1618)
                     Button {
-                        env.selectedTab = .map
+                        isShowingMap = true
                     } label: {
                         Image("BrushButtonOpenMap")
                             .resizable()
@@ -392,7 +396,7 @@ struct NowView: View {
                         Spacer()
 
                         Button {
-                            env.selectedTab = .map
+                            isShowingMap = true
                         } label: {
                             Text("Open Map")
                                 .font(.system(size: 14, weight: .bold))

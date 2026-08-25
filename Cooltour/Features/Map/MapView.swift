@@ -3,6 +3,7 @@ import SwiftUI
 
 struct MapView: View {
   @Environment(AppEnvironment.self) private var environment
+  @Environment(\.dismiss) private var dismiss
   @State private var selectedSite: Site?
   @State private var showDebugRadius = false
   @State private var cameraPosition: MapCameraPosition = .userLocation(
@@ -89,11 +90,24 @@ struct MapView: View {
       }
       .navigationTitle("Map")
       .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            dismiss()
+          } label: {
+            Image(systemName: "xmark.circle.fill")
+              .font(.system(size: 22))
+              .foregroundStyle(.secondary)
+          }
+          .buttonStyle(.plain)
+          .accessibilityLabel("Close map")
+        }
+      }
       .sheet(item: $selectedSite) { site in
         SiteDetailSheet(site: site)
       }
       .task {
-        // Delay map rendering slightly so the tab switch is instantly responsive
+        // Delay map rendering slightly so the transition is smooth
         try? await Task.sleep(for: .seconds(0.15))
         isMapReady = true
       }
