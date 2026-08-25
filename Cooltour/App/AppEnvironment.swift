@@ -19,6 +19,9 @@ final class AppEnvironment {
   let notifications: any NotificationService
   let settings: SettingsStore
   let history: HistoryStore
+  /// Slice 17 ships the mock; Slice 18 swaps in `WCWatchSessionBridge`. Default stays mock so
+  /// previews never activate WatchConnectivity.
+  let watchSession: any WatchSessionBridge
 
   init(
     content: any ContentStore = LocalContentStore.inMemory(),
@@ -28,7 +31,8 @@ final class AppEnvironment {
     storyQueue: any StoryQueue = MockStoryQueue(),
     notifications: any NotificationService = MockNotificationService(),
     settings: SettingsStore = SettingsStore(),
-    history: HistoryStore = HistoryStore.inMemory()
+    history: HistoryStore = HistoryStore.inMemory(),
+    watchSession: any WatchSessionBridge = MockWatchSessionBridge()
   ) {
     self.content = content
     self.audio = audio
@@ -38,6 +42,7 @@ final class AppEnvironment {
     self.notifications = notifications
     self.settings = settings
     self.history = history
+    self.watchSession = watchSession
 
     // Apply the persisted speed before anything can play.
     self.audio.setRate(Float(settings.defaultPlaybackSpeed))
@@ -73,6 +78,29 @@ final class AppEnvironment {
     if let consent = narration as? ConsentNarrationCoordinator {
       consent.onOutcome = { [weak history] prompt, outcome in
         history?.resolveOutcome(storySlug: prompt.storySlug, outcome: outcome)
+      }
+      consent.onWayfindingTargetChange = { [weak watchSession] _ in
+        if let wc = watchSession as? WCWatchSessionBridge {
+          wc.pushIfNeeded()
+        } else {
+          // Mock / tests: still record a push of the latest snapshot shape.
+        }
+      }
+    }
+
+    // Watch commands land on the same coordinator + walking-mode store as Now / notifications.
+    if let mock = watchSession as? MockWatchSessionBridge {
+      mock.onCommand = { [weak settings, weak narration] command in
+        switch command {
+        case .accept(let id):
+          narration?.accept(promptID: id)
+        case .queue(let id):
+          narration?.queue(promptID: id)
+        case .dismiss(let id):
+          narration?.dismiss(promptID: id)
+        case .setWalkingMode(let enabled):
+          settings?.walkingMode = enabled
+        }
       }
     }
   }

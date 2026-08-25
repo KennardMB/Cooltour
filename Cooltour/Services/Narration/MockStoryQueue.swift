@@ -10,6 +10,7 @@ final class MockStoryQueue: StoryQueue {
 
   func enqueue(site: Site, story: Story) {
     guard !items.contains(where: { $0.storySlug == story.slug }) else { return }
+    if story.site == nil { story.site = site }
     let item = QueuedStory(
       id: UUID(),
       siteSlug: site.slug,

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Localized copy for the consent gate (spoken prompt, notifications, Now status).
+/// Localized copy for the consent gate (spoken prompt, notifications, Now status, Watch glance).
 /// Uses an explicit language code so in-app language override works outside SwiftUI `Text`.
 /// String Catalog keys are kept in sync for SwiftUI literals; programmatic strings live here
 /// because `String(localized:locale:)` does not reliably resolve manual catalog keys at runtime.
@@ -55,6 +55,13 @@ enum ConsentStrings {
 
   static func statusStarting(languageCode: String) -> String {
     languageCode == "id" ? "Memulai…" : "Starting up…"
+  }
+
+  /// Slice 17 stub / Slice 18 unreachable phone — Watch is not a standalone brain.
+  static func statusPhoneRequired(languageCode: String) -> String {
+    languageCode == "id"
+      ? "Gunakan iPhone yang terpasang"
+      : "Requires the paired iPhone"
   }
 
   static func playNowAction(languageCode: String) -> String {

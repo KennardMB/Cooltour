@@ -345,7 +345,8 @@ Consent and arrow are meant for a quick raise-and-lower. No scrolling transcript
 | Doc | Role |
 |---|---|
 | This PRD | Watch product requirements |
-| `InitialCooltour.md` §N5 | Original “Watch next” placeholder |
+| [`WatchSlices.md`](WatchSlices.md) | Build plan — Slices 17–21 |
+| `InitialCooltour.md` §N5 | Original “Watch next” placeholder (superseded by WatchSlices) |
 | `MilaSlices.md` | Consent, queue, course-first direction, notifications |
 | `Architecture.md` | Current iPhone service map; Watch bridge not built yet |
 | `AGENTS.md` | Shared models/protocols must stay UI-agnostic for Watch |

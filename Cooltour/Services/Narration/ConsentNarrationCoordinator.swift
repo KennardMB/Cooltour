@@ -1,18 +1,21 @@
 import Foundation
 import Observation
 
-/// The consent gate (Slice 11 + 11.5). Owns prompting, briefly pausing the current story only for
-/// the spoken prompt line, and the three answers (play / dismiss / queue). List storage lives on
-/// `StoryQueue`.
+/// The consent gate (Slice 11 + 11.5 + Watch 18/20). Owns prompting, briefly pausing the current
+/// story only for the spoken prompt line, the three answers (play / dismiss / queue), and
+/// wayfinding arm/clear. List storage lives on `StoryQueue`.
 @Observable
 final class ConsentNarrationCoordinator: NarrationCoordinator {
   private(set) var state: NarrationState = .idle
   private(set) var pendingPrompt: PendingPrompt?
   /// Seconds left on the post-speech dismiss countdown; nil when not counting.
   private(set) var dismissCountdownSeconds: Int?
+  private(set) var wayfindingTarget: WayfindingTarget?
 
   /// Fires when a prompt resolves (or a busy trigger is silently queued).
   var onOutcome: ((PendingPrompt, PromptOutcome) -> Void)?
+  /// Fires whenever `wayfindingTarget` is set or cleared so the Watch bridge can push immediately.
+  var onWayfindingTargetChange: ((WayfindingTarget?) -> Void)?
 
   /// Exposed so tests await the dismiss countdown deterministically.
   private(set) var timeoutTask: Task<Void, Never>?
@@ -29,6 +32,8 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
 
   private var pendingSite: Site?
   private var pendingStory: Story?
+  /// Site for the story currently handed to the player — used to arm wayfinding on start.
+  private var playingSite: Site?
   /// True only while TTS is speaking over a paused story. Cleared when speech ends (resume) or
   /// when the user answers during speech.
   private var pausedForSpokenPrompt = false
@@ -79,12 +84,12 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
 
   func accept(promptID: UUID) {
     guard state == .prompting, let prompt = pendingPrompt, prompt.id == promptID,
-      let story = pendingStory
+      let site = pendingSite, let story = pendingStory
     else { return }
     // Play now replaces whatever was underneath — do not resume it.
     pausedForSpokenPrompt = false
     endPrompt()
-    if startPlayback(story) {
+    if startPlayback(story, site: site) {
       onOutcome?(prompt, .played)
     } else {
       // Chosen language has no audio — silence, treat as a dismiss for history.
@@ -110,6 +115,24 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     settleAfterPromptResolved()
   }
 
+  func cancelSession() {
+    let keepPlaying = audio.isPlaying || audio.currentStory != nil
+    endPrompt()
+    pausedForSpokenPrompt = false
+    // Walking-off clears consent + arrow; an already-playing story can finish in the ear.
+    setWayfinding(nil)
+    if !keepPlaying {
+      playingSite = nil
+      state = .idle
+    } else {
+      state = .playing
+    }
+  }
+
+  func clearWayfindingTarget() {
+    setWayfinding(nil)
+  }
+
   func playbackDidFinish() {
     // Underlying story can finish while a prompt is still open (A resumed under B's ask).
     // Leave the prompt up; settleAfterPromptResolved / accept handle what happens next.
@@ -117,8 +140,11 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
 
     guard state == .playing else { return }
     if let next = storyQueue.popNext() {
-      _ = startPlayback(next)
+      let site = next.site
+      _ = startPlayback(next, site: site)
     } else {
+      playingSite = nil
+      setWayfinding(nil)
       state = .idle
     }
   }
@@ -246,25 +272,50 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
       return
     }
     if let next = storyQueue.popNext() {
-      _ = startPlayback(next)
+      _ = startPlayback(next, site: next.site)
     } else {
+      playingSite = nil
+      setWayfinding(nil)
       state = .idle
     }
   }
 
   /// Starts story audio or advances past unavailable assets. Returns whether something is playing.
+  /// Arms wayfinding in the same step so A→B never publishes a nil target between sites.
   @discardableResult
-  private func startPlayback(_ story: Story) -> Bool {
+  private func startPlayback(_ story: Story, site: Site?) -> Bool {
     if audio.play(story: story) {
       state = .playing
+      playingSite = site ?? story.site
+      if let armed = playingSite {
+        setWayfinding(
+          WayfindingPolicy.target(
+            siteSlug: armed.slug,
+            siteName: armed.name,
+            latitude: armed.latitude,
+            longitude: armed.longitude,
+            triggerRadiusMeters: armed.triggerRadiusMeters
+          )
+        )
+      } else {
+        setWayfinding(nil)
+      }
       return true
     }
     // Missing recording for the selected language — try the next queued story, else idle.
     if let next = storyQueue.popNext() {
-      return startPlayback(next)
+      return startPlayback(next, site: next.site)
     }
+    playingSite = nil
+    setWayfinding(nil)
     state = .idle
     return false
+  }
+
+  private func setWayfinding(_ target: WayfindingTarget?) {
+    guard wayfindingTarget != target else { return }
+    wayfindingTarget = target
+    onWayfindingTargetChange?(target)
   }
 
   private func endPrompt() {

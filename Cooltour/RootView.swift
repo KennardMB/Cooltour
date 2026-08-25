@@ -38,6 +38,8 @@ struct RootView: View {
         environment.proximity.stop()
         // Queue is walk-scoped — turning walking mode off drops anything she saved for later.
         environment.storyQueue.clear()
+        // Cancel open consent + wayfinding so Watch / Now don't keep a dead prompt (Slice 18).
+        environment.narration.cancelSession()
       }
     }
     .onChange(of: environment.proximity.isListening) { _, isListening in

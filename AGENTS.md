@@ -190,9 +190,10 @@ can be added after the fact; the reason a change exists can't.
 | Notifications | UserNotifications (local only, no push) |
 | Maps | MapKit (SwiftUI `Map`) |
 
-Because Watch is coming, keep anything shared — models, service protocols, playback and
-proximity logic — free of iOS-only and UI-only assumptions. Don't build the Watch target
-yet; just don't make it expensive later.
+Watch companion work lives in [`documents/WatchSlices.md`](documents/WatchSlices.md).
+Keep anything shared — models, service protocols, playback and proximity logic — free
+of iOS-only and UI-only assumptions. The Watch never owns story audio or the
+proximity brain; it talks to the phone through WatchConnectivity payloads.
 
 New capabilities go behind flags in `AppConfig` (`autoPlayDefault`, `usePHASE`,
 `headingRefinement`) so they can ship dark.
