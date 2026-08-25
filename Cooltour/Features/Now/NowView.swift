@@ -94,8 +94,10 @@ struct NowView: View {
             .sheet(isPresented: $isShowingSimulateApproachSheet) {
                 SimulateApproachSheet(
                     siteGroups: simulatableSitesByDistrict,
-                    onSelectSite: { site in
-                        env.proximity.simulateTrigger(site: site)
+                    onSimulateSites: { sites in
+                        for site in sites {
+                            env.proximity.simulateTrigger(site: site)
+                        }
                         isShowingSimulateApproachSheet = false
                     }
                 )
@@ -205,7 +207,6 @@ struct NowView: View {
                 } label: {
                     Image("BrushButtonPlayActive")
                         .resizable()
-                        .scaledToFit()
                         .frame(height: 60)
                         .frame(maxWidth: .infinity)
                 }
@@ -327,8 +328,7 @@ struct NowView: View {
                     } label: {
                         Image("BrushButtonOpenMap")
                             .resizable()
-                            .scaledToFit()
-                            .frame(height: 50)
+                            .frame(height: 60)
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.plain)
@@ -346,7 +346,8 @@ struct NowView: View {
 
     private func discoveredSitePromptView(prompt: PendingPrompt, countdown: Int?) -> some View {
         let site = env.content.allSites().first { $0.name == prompt.siteName || $0.slug == prompt.siteSlug }
-        let hasMultipleSitesInRange = nearbySitesCount > 1
+        let isAudioActive = env.audio.isPlaying || env.audio.currentStory != nil || !env.storyQueue.items.isEmpty
+        let showQueueButton = isAudioActive
         let languageCode = env.settings.resolvedLanguageCode
         let queueAction = ConsentStrings.addToQueueAction(languageCode: languageCode)
         let playAction = ConsentStrings.playNowAction(languageCode: languageCode)
@@ -395,36 +396,38 @@ struct NowView: View {
                 }
 
                 // 2. Detection Strip Card (Figma Node 223:1466)
-                HStack {
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(Color(red: 29/255, green: 82/255, blue: 216/255))
-                            .frame(width: 12, height: 12)
+                ZStack {
+                    Image("BrushCard")
+                        .resizable()
+                        .frame(height: 48)
+                        .frame(maxWidth: .infinity)
 
-                        Text("\(max(1, nearbySitesCount)) sites detected near you!")
-                            .font(.system(size: 14, weight: .regular))
-                            .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+                    HStack {
+                        HStack(spacing: 8) {
+                            Circle()
+                                .fill(Color(red: 29/255, green: 82/255, blue: 216/255))
+                                .frame(width: 10, height: 10)
+
+                            Text("\(max(1, nearbySitesCount)) sites detected near you!")
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+                        }
+
+                        Spacer()
+
+                        Button {
+                            env.selectedTab = .map
+                        } label: {
+                            Text("Open Map")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                        }
+                        .buttonStyle(.plain)
                     }
-
-                    Spacer()
-
-                    Button {
-                        env.selectedTab = .map
-                    } label: {
-                        Text("Open Map")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
-                    }
-                    .buttonStyle(.plain)
+                    .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(Color(red: 254/255, green: 254/255, blue: 254/255))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .strokeBorder(Color(red: 232/255, green: 238/255, blue: 251/255), lineWidth: 4) // #E8EEFB
-                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
 
                 // 3. Photo Polaroid Card (Figma Node 223:1450)
                 VStack(alignment: .leading, spacing: 8) {
@@ -474,81 +477,83 @@ struct NowView: View {
                 }
                 .padding(.horizontal, 4)
 
-                // 5. Action Buttons (Row 1: Add to queue + Play now)
-                HStack(spacing: 12) {
-                    // "add to queue" button
-                    if hasMultipleSitesInRange {
+                // 5. Action Buttons (Play Now + optional Add to Queue)
+                if showQueueButton {
+                    HStack(spacing: 12) {
+                        // "add to queue" button (Brush Orange)
                         Button {
                             env.narration.queue(promptID: prompt.id)
                             triggerQueueToast()
                         } label: {
                             ZStack {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(red: 255/255, green: 102/255, blue: 52/255)) // #FF6634
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .strokeBorder(Color(red: 196/255, green: 75/255, blue: 37/255), lineWidth: 4) // #C44B25
-                                    )
+                                Image("BrushButtonOrange")
+                                    .resizable()
                                     .frame(height: 60)
+                                    .frame(maxWidth: .infinity)
 
                                 Text(queueAction)
                                     .font(.custom("Baru Lagi", size: 16))
                                     .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
                             }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("\(queueAction) \(prompt.siteName)")
-                    } else {
-                        // Disabled State
-                        ZStack {
-                            Image("BrushButtonDefaultDisabled")
-                                .resizable()
-                                .frame(height: 60)
 
-                            Text(queueAction)
-                                .font(.custom("Baru Lagi", size: 16))
-                                .foregroundStyle(Color(red: 158/255, green: 158/255, blue: 158/255))
+                        // "play now" button (Brush Blue)
+                        Button {
+                            env.narration.accept(promptID: prompt.id)
+                            isShowingSitesPlayer = true
+                        } label: {
+                            ZStack {
+                                Image("BrushButtonBlue")
+                                    .resizable()
+                                    .frame(height: 60)
+                                    .frame(maxWidth: .infinity)
+
+                                Text(playAction)
+                                    .font(.custom("Baru Lagi", size: 16))
+                                    .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
                         }
-                        .frame(height: 60)
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("\(queueAction) disabled, only one site in range")
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("\(playAction) \(prompt.siteName)")
                     }
-
-                    // "play now" button
+                } else {
+                    // Single site trigger without active audio: Full-width "play now" button
                     Button {
                         env.narration.accept(promptID: prompt.id)
                         isShowingSitesPlayer = true
                     } label: {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .strokeBorder(Color(red: 17/255, green: 49/255, blue: 130/255), lineWidth: 4) // #113182
-                                )
+                            Image("BrushButtonBlue")
+                                .resizable()
                                 .frame(height: 60)
+                                .frame(maxWidth: .infinity)
 
                             Text(playAction)
-                                .font(.custom("Baru Lagi", size: 16))
+                                .font(.custom("Baru Lagi", size: 18))
                                 .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
                         }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(playAction) \(prompt.siteName)")
                 }
 
-                // 6. Dismiss Button (Row 2: dismiss....(10s))
+                // 6. Dismiss Button (Brush Row style with countdown)
                 Button {
                     env.narration.dismiss(promptID: prompt.id)
                 } label: {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(red: 254/255, green: 254/255, blue: 254/255).opacity(0.85))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .strokeBorder(Color(red: 226/255, green: 225/255, blue: 222/255), lineWidth: 4) // #E2E1DE
-                            )
-                            .frame(height: 56)
+                        Image("BrushRowButton")
+                            .resizable()
+                            .frame(height: 60)
+                            .frame(maxWidth: .infinity)
 
                         Text(
                             ConsentStrings.dismissWithCountdown(
@@ -556,10 +561,11 @@ struct NowView: View {
                                 languageCode: languageCode
                             )
                         )
-                            .font(.custom("Baru Lagi", size: 16))
-                            .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+                        .font(.custom("Baru Lagi", size: 16))
+                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
                     }
                     .frame(maxWidth: .infinity)
+                    .frame(height: 60)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(
@@ -747,26 +753,112 @@ struct NowView: View {
 
 // MARK: - Simulate Approach Sheet
 
-/// Scrollable site picker for debug simulate-approach — a `Menu` resets while scrolling
-/// when the parent view re-renders from live GPS updates.
+/// Multi-select and single-select site picker for debug simulate-approach to test overlapping site scenarios.
 private struct SimulateApproachSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let siteGroups: [(district: String, sites: [Site])]
-    let onSelectSite: (Site) -> Void
+    let onSimulateSites: ([Site]) -> Void
+
+    @State private var selectedSlugs: Set<String> = []
+
+    private var allSites: [Site] {
+        siteGroups.flatMap { $0.sites }
+    }
+
+    private var selectedSites: [Site] {
+        allSites.filter { selectedSlugs.contains($0.slug) }
+    }
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(siteGroups, id: \.district) { group in
-                    Section(group.district) {
-                        ForEach(group.sites, id: \.slug) { site in
-                            Button(site.name) {
-                                onSelectSite(site)
+            VStack(spacing: 0) {
+                List {
+                    ForEach(siteGroups, id: \.district) { group in
+                        Section(group.district) {
+                            ForEach(group.sites, id: \.slug) { site in
+                                let isSelected = selectedSlugs.contains(site.slug)
+                                Button {
+                                    if isSelected {
+                                        selectedSlugs.remove(site.slug)
+                                    } else {
+                                        selectedSlugs.insert(site.slug)
+                                    }
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                            .font(.system(size: 20))
+                                            .foregroundStyle(isSelected ? Color(red: 29/255, green: 82/255, blue: 216/255) : Color(red: 158/255, green: 158/255, blue: 158/255))
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(site.name)
+                                                .font(.system(size: 15, weight: .medium))
+                                                .foregroundStyle(AppColor.Text.primary)
+
+                                            if let storyTitle = site.stories.first?.title {
+                                                Text(storyTitle)
+                                                    .font(.system(size: 12))
+                                                    .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
+                                                    .lineLimit(1)
+                                            }
+                                        }
+
+                                        Spacer()
+
+                                        Button {
+                                            onSimulateSites([site])
+                                            dismiss()
+                                        } label: {
+                                            Text("Trigger 1")
+                                                .font(.system(size: 12, weight: .bold))
+                                                .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color(red: 232/255, green: 238/255, blue: 251/255))
+                                                .clipShape(Capsule())
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .foregroundStyle(AppColor.Text.primary)
                         }
                     }
+                }
+
+                if !selectedSlugs.isEmpty {
+                    VStack(spacing: 8) {
+                        Button {
+                            onSimulateSites(selectedSites)
+                            dismiss()
+                        } label: {
+                            ZStack {
+                                Image("BrushButtonBlue")
+                                    .resizable()
+                                    .frame(height: 52)
+                                    .frame(maxWidth: .infinity)
+
+                                Text("Simulate \(selectedSlugs.count) Overlapping Site\(selectedSlugs.count > 1 ? "s" : "")")
+                                    .font(.custom("Baru Lagi", size: 16))
+                                    .foregroundStyle(Color.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 52)
+                        }
+                        .buttonStyle(.plain)
+
+                        Button("Clear selection") {
+                            selectedSlugs.removeAll()
+                        }
+                        .font(.caption)
+                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(Color(red: 248/255, green: 247/255, blue: 244/255))
+                    .overlay(
+                        Divider(), alignment: .top
+                    )
                 }
             }
             .navigationTitle("Simulate site approach")
@@ -775,6 +867,16 @@ private struct SimulateApproachSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") {
                         dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .primaryAction) {
+                    if !selectedSlugs.isEmpty {
+                        Button("Simulate (\(selectedSlugs.count))") {
+                            onSimulateSites(selectedSites)
+                            dismiss()
+                        }
+                        .fontWeight(.bold)
                     }
                 }
             }

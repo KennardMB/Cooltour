@@ -46,19 +46,17 @@ public struct ProfileView: View {
             VStack(alignment: .leading, spacing: 24) {
               // 1. User Header Section
               HStack(spacing: 20) {
-                // 80x80 Avatar Box
+                // 80x80 Avatar Box (Brush stroke style)
                 ZStack {
-                  RoundedRectangle(cornerRadius: AppRadius.standard)
-                    .fill(AppColor.Brand.tint)
+                  Image("BrushProfileAvatar")
+                    .resizable()
                     .frame(width: 80, height: 80)
-                    .overlay(
-                      RoundedRectangle(cornerRadius: AppRadius.standard)
-                        .strokeBorder(AppColor.Brand.primary, lineWidth: AppBorderWidth.standard)
-                    )
                   
                   Text(userInitial)
-                    .appFont(.heading1, color: AppColor.Brand.primary)
+                    .font(.custom("Baru Lagi", size: 32))
+                    .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
                 }
+                .frame(width: 80, height: 80)
                 .accessibilityHidden(true)
                 
                 // Name and Subtitle Column
@@ -168,28 +166,32 @@ public struct ProfileView: View {
   }
 }
 
-// MARK: - Profile Menu Row Component
+// MARK: - Profile Menu Row Component (Brush-stroke row button)
 
 private struct ProfileMenuRow: View {
   let title: String
   
   var body: some View {
-    HStack {
-      Text(title)
-        .appFont(.heading3, color: AppColor.Background.muted)
+    ZStack {
+      Image("BrushRowButton")
+        .resizable()
+        .frame(height: 60)
+        .frame(maxWidth: .infinity)
       
-      Spacer()
-      
-      AppIcon(.chevronRight, size: 20)
+      HStack {
+        Text(title)
+          .font(.custom("Baru Lagi", size: 16))
+          .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+        
+        Spacer()
+        
+        AppIcon(.chevronRight, size: 20)
+          .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
+      }
+      .padding(.horizontal, 20)
     }
-    .padding(.horizontal, AppSpacing.lg)
-    .padding(.vertical, AppSpacing.lg)
-    .background(AppColor.Background.pure)
-    .clipShape(RoundedRectangle(cornerRadius: AppRadius.standard))
-    .overlay(
-      RoundedRectangle(cornerRadius: AppRadius.standard)
-        .strokeBorder(AppColor.Background.muted, lineWidth: AppBorderWidth.standard)
-    )
+    .frame(maxWidth: .infinity)
+    .frame(height: 60)
   }
 }
 
