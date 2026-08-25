@@ -1,7 +1,7 @@
 import Lottie
 import SwiftUI
 
-// MARK: - Now Hero Illustration (Figma Node 223:1344)
+// MARK: - Now Hero Illustration (Figma Node 223:1344 / 243:1477)
 /// Animated hand-drawn illustration showing a traveler walking past cultural sites.
 public struct NowHeroIllustrationView: View {
     public init() {}
@@ -11,11 +11,11 @@ public struct NowHeroIllustrationView: View {
             .playing(loopMode: .loop)
             .resizable()
             .scaledToFit()
+            .frame(maxWidth: .infinity)
     }
 }
 
 #Preview {
     NowHeroIllustrationView()
-        .frame(width: 360, height: 300)
-        .padding()
+    .frame(height: .infinity)
 }

@@ -170,12 +170,12 @@ struct NowView: View {
 
             Spacer(minLength: 20)
 
-            // Hero Sketch Illustration (Placeholder ready for animated drop-in)
+            // Hero Sketch Illustration (Figma Node 243:1486, full width)
             NowHeroIllustrationView()
-                .frame(maxWidth: 360, maxHeight: 300)
-                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity)
+                .frame(height: .infinity)
 
-            Spacer(minLength: 20)
+            Spacer(minLength: 4)
 
             // Bottom Greeting & Start Exploration Action
             VStack(alignment: .leading, spacing: 14) {
@@ -280,15 +280,15 @@ struct NowView: View {
                 }
                 .padding(.top, 24)
 
-                // Center: Hero Illustration
+                // Center: Hero Illustration (Full width)
                 NowHeroIllustrationView()
-                    .frame(maxWidth: 360, maxHeight: 270)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: .infinity)
+                    .padding(.top, 10)
 
                 // Bottom Content: Caption + "open map" Button
                 VStack(spacing: 16) {
-                    Text(nearbySitesCount > 0 ? "keep wandering until you passed by one!" : "keep wandering to discover cultural stories!")
+                    Text(nearbySitesCount > 0 ? "keep wandering until you passed by one!" : "until you discover cultural stories")
                         .font(.system(size: 16, weight: .regular))
                         .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
                         .multilineTextAlignment(.center)
