@@ -1,12 +1,12 @@
-# Nyasar
+# Walkaby
 
 **Wander freely. Let the city tell you why.**
 
-Nyasar *(Indonesian, informal: "to wander off, to get pleasantly lost")* is a free-roam, audio-first iOS app that surfaces the story behind a place the moment you're standing in front of it — no planning, no searching, no screen required.
+Walkaby is a free-roam, audio-first iOS app that surfaces the story behind a place the moment you're standing in front of it — no planning, no searching, no screen required.
 
 Built by **Cooltour**, a team at the Apple Developer Academy, as a human-centered design project inspired by **Kultara**, a Bali-based social enterprise running community walking tours connecting travelers with local artisans, guides, and communities.
 
-> Rename freely — this is a placeholder pending final team decision.
+The product name in code is `AppConfig.appName` (`Walkaby`). This repository and Xcode target still use the team codename *Cooltour*.
 
 ---
 
@@ -18,57 +18,70 @@ Validated across five interviews with solo travelers and Kultara's own guides an
 
 ## The idea
 
-Nyasar listens for where you are and what you're near, and plays a short, story-driven narration exactly when you're in front of the thing that sparked your curiosity — not before, not after. Audio keeps your eyes up and on the place, not on the screen.
+Walkaby listens for where you are and what you're near, asks whether you want a story when you approach a tagged site, then plays short, story-driven narration exactly while you're in front of the thing that sparked your curiosity. Audio keeps your eyes up and on the place, not on the screen.
 
 **Design principle:** every feature is tested against one question — *does this pull the user's attention onto the device, or push it back out onto the city?*
 
 ---
 
-## MVP Scope
+## MVP scope
 
-| Feature | Description |
+| Area | What it does today |
 |---|---|
-| **Proximity detection** | Locates the user in the world using GPS, compass heading, and dwell time to know when they're near or facing a tagged cultural site |
-| **Story trigger** | Plays narrated content automatically as the user approaches a site, or on manual tap — user-configurable |
-| **Playback speed control** | Adjustable narration speed |
-| **Notification + transcript** | Tappable iPhone notification plays the story; expandable transcript available as a fallback (not the primary mode) |
-| **Site content database** | Structured story + location content per site, written as narrative — not encyclopedia-style facts |
-| **Map integration** | Secondary tab showing tagged sites and the user's live position; supports orientation and browsing, not the core experience |
+| **Proximity detection** | GPS via Core Location (`CLLocationUpdate`, `CLMonitor` geofences). Triggers only on trusted fixes (≤ 35 m accuracy). Re-arm logic prevents repeat fires at radius boundaries. |
+| **Consent gate** | Stories never auto-play. A spoken prompt + notification asks play / queue / dismiss before narration starts. |
+| **Story playback** | Bundled pre-recorded audio (AVFoundation). Playback speed, ±10 s skip, lock-screen / AirPods controls, transcript fallback. |
+| **Now experience** | Start exploration, wandering state, site discovery prompt, full-screen sites player (carousel, scrubber, queue, transcript sheet). |
+| **Map** | Seeded sites + live user position; manual play from site detail. |
+| **Exploration** | Persisted walk sessions and trigger history with per-story outcomes. |
+| **Settings** | Walking mode, playback speed, English / Indonesian UI and audio language, permissions guidance. |
+| **Offline-first** | Content packs (JSON + audio) bundled in-app; no runtime network or AI calls in the core loop. |
 
-## Nice to Have (Post-MVP)
+### Content packs (seeded)
 
-- **Walk history** — a persisted log of stories triggered on past walks
-- **Photo capture per site** — user photos replace the default map pin icon for that site; paired with a lightweight journal
-- **Sharing** — share photos and completed routes
+| Pack | Region |
+|---|---|
+| `denpasar` | Central Denpasar sites |
+| `renon` | Renon district sites |
 
-## What Nyasar deliberately isn't
+Additional pack JSON (e.g. Sanur) may exist in `Resources/` before it is wired into `AppConfig.contentPackNames`.
 
-- **Not a route-builder.** The core innovation is triggering content by *where you are and what you're facing*, not planning a path in advance.
-- **Not a travel-buddy matcher.** Solo travelers seek connection with locals as a doorway into culture, not social matching with other travelers — this space was considered and deliberately rejected.
-- **Not remote/rural at MVP.** Content quality depends on seedable, story-rich data. MVP scope is intentionally city-first (Denpasar), where content can realistically be produced and Kultara's own operating ground provides both seed content and a test channel.
+### Post-MVP / not wired yet
 
----
-
-## Platform & Stack
-
-Designed Apple-native and screen-free by default:
-
-- **Location & motion:** Core Location (GPS + compass heading), dwell-time logic for trigger confidence
-- **Spatial audio:** Apple PHASE
-- **Context-aware narration:** WeatherKit (time-of-day / condition matching)
-- **Voice content:** ElevenLabs for narration synthesis; RAG-grounded generation anchored to real sightlines and verified local sourcing
-- **Wearables:** AirPods (head-orientation awareness), Apple Watch (interactable notifications — planned post-iPhone MVP)
-- **Offline-first:** content bundled/pre-downloaded so playback works without a live connection; GPS functions offline
-
-**Silence-on-low-confidence principle:** if the system isn't confident about a match, it stays quiet rather than guessing — protecting trust over completeness.
+- Apple Watch companion
+- PHASE spatial audio (`AppConfig.usePHASE` is off)
+- Heading-based trigger refinement (`AppConfig.headingRefinement` is off)
+- WeatherKit / time-of-day narration selection
+- Route builder, social matching, accounts, AR
 
 ---
 
-## Design Research
+## Platform & stack
+
+| | |
+|---|---|
+| IDE | Xcode 26 |
+| Language | Swift 6 (strict concurrency) |
+| Minimum target | iOS 26.5, iPhone first |
+| UI | SwiftUI, Observation (`@Observable`) |
+| Persistence | SwiftData (sites, stories, walks, trigger events) |
+| Location | Core Location — live updates + `CLMonitor` background wakes |
+| Audio | AVFoundation story playback; on-device TTS for consent prompts only |
+| Notifications | UserNotifications (local, actionable) |
+| Maps | MapKit (SwiftUI `Map`) |
+| Tests | Swift Testing (`CooltourTests`) |
+
+**Silence-on-low-confidence:** if proximity or GPS confidence is below threshold, the app stays quiet rather than guessing.
+
+Architecture details: [`documents/Architecture.md`](documents/Architecture.md). Build slices and acceptance criteria: [`documents/InitialCooltour.md`](documents/InitialCooltour.md). Contributor rules: [`AGENTS.md`](AGENTS.md).
+
+---
+
+## Design research
 
 This project follows a full human-centered design process: stakeholder interviews (supply-side: Kultara guides/co-founder; demand-side: solo travelers), affinity mapping, persona development and validation, and iterative concept testing against a fixed evaluation framework.
 
-Full research documentation, interview analysis, and persona rationale live in `/docs` (or link to your research repo/Notion here).
+Design tokens and Figma alignment: [`docs/DesignSystem.md`](docs/DesignSystem.md).
 
 **Core persona — Sam, "The Organic Wanderer":** culture-willing but access-gated, not culture-obsessed. Curiosity is reactive and in-the-moment; the product's job is to lower the cost of engaging with culture at the exact moment curiosity strikes.
 
@@ -76,12 +89,29 @@ Full research documentation, interview analysis, and persona rationale live in `
 
 ## Status
 
-Pre-development — MVP scope finalized, entering design/build phase.
+**Active MVP development** — core walk loop is implemented and under UI polish.
+
+| Slice area | State |
+|---|---|
+| Project skeleton, DI, config | Done |
+| Content store + bundled packs | Done (Denpasar, Renon) |
+| Audio playback + speed / skip | Done |
+| Proximity engine (foreground + background) | Done |
+| Local notifications + consent narration | Done |
+| Now screen (Figma FE phase 1) | In progress — idle, wandering, prompt, sites player, profile |
+| Map tab | Done (baseline) |
+| Exploration / walk history | Done (baseline) |
+| Settings + localization | Done (baseline) |
+| Offline hardening & MVP exit criteria | Partial — device testing ongoing |
+
+Debug surfaces (`Proximity`, content pack) ship for acceptance testing; simulate-approach picker available on the Now wandering screen during development.
+
+---
 
 ## Team
 
-Cooltour — Apple Developer Academy. 
+Cooltour — Apple Developer Academy.
+
 ## License
 
 TBD
-
