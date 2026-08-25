@@ -22,6 +22,11 @@ final class MockAudioPlayerService: AudioPlayerService {
 
   @discardableResult
   func play(story: Story) -> Bool {
+    if currentStory?.slug == story.slug {
+      isPlaying = true
+      return true
+    }
+
     currentStory = story
     isPlaying = true
     progress = 0.0

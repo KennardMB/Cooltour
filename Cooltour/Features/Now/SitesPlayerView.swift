@@ -24,8 +24,11 @@ public struct SitesPlayerView: View {
     public var body: some View {
         ObservingAudio(audio: env.audio) { isPlaying, isLoading, currentStory, progress in
             let sites = availableSites()
-            let activeSite = sites.indices.contains(currentSiteIndex) ? sites[currentSiteIndex] : (sites.first)
-            let activeStory = activeSite?.stories.first ?? currentStory
+            let playingSite = Self.siteForStory(currentStory, in: sites)
+            let carouselSite = sites.indices.contains(currentSiteIndex) ? sites[currentSiteIndex] : sites.first
+            // Follow the loaded story for metadata and controls; carousel is for browsing other stops.
+            let activeSite = playingSite ?? carouselSite
+            let activeStory = currentStory ?? carouselSite?.stories.first
             let duration = max(1.0, activeStory?.durationSeconds ?? 180.0)
             let effectiveProgress = isScrubbing ? scrubProgress : progress
             let currentTime = effectiveProgress * duration
@@ -196,12 +199,10 @@ public struct SitesPlayerView: View {
                         Button {
                             if isPlaying {
                                 env.audio.pause()
-                            } else {
-                                if let activeStory {
-                                    env.audio.play(story: activeStory)
-                                } else {
-                                    env.audio.resume()
-                                }
+                            } else if env.audio.currentStory?.slug == activeStory?.slug {
+                                env.audio.resume()
+                            } else if let activeStory {
+                                env.audio.play(story: activeStory)
                             }
                         } label: {
                             AppIcon(isPlaying ? .pause : .play, size: 60)
@@ -356,6 +357,12 @@ public struct SitesPlayerView: View {
                 )
                 .presentationDetents([.large])
             }
+            .onAppear {
+                syncSiteIndexToPlayingStory(currentStory, in: sites)
+            }
+            .onChange(of: currentStory?.slug) { _, _ in
+                syncSiteIndexToPlayingStory(currentStory, in: sites)
+            }
         }
     }
 
@@ -364,6 +371,25 @@ public struct SitesPlayerView: View {
     private func availableSites() -> [Site] {
         let sites = env.content.allSites()
         return sites.isEmpty ? [] : sites
+    }
+
+    static func siteForStory(_ story: Story?, in sites: [Site]) -> Site? {
+        guard let story else { return nil }
+        return sites.first { site in
+            site.stories.contains { $0.slug == story.slug }
+        }
+    }
+
+    static func siteIndex(for story: Story?, in sites: [Site]) -> Int? {
+        guard let playingSite = siteForStory(story, in: sites) else { return nil }
+        return sites.firstIndex(where: { $0.slug == playingSite.slug })
+    }
+
+    private func syncSiteIndexToPlayingStory(_ story: Story?, in sites: [Site]) {
+        guard let index = Self.siteIndex(for: story, in: sites) else { return }
+        if currentSiteIndex != index {
+            currentSiteIndex = index
+        }
     }
 
     private func countNearbyPOIs() -> Int {
@@ -606,7 +632,6 @@ private struct FullTranscriptSheet: View {
                             env.audio.seek(toProgress: newProgress)
                         } label: {
                             AppIcon(.rewind10, size: 36)
-                                .foregroundStyle(Color.white)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Rewind 10 seconds")
@@ -615,12 +640,10 @@ private struct FullTranscriptSheet: View {
                         Button {
                             if isPlaying {
                                 env.audio.pause()
-                            } else {
-                                if let effectiveStory {
-                                    env.audio.play(story: effectiveStory)
-                                } else {
-                                    env.audio.resume()
-                                }
+                            } else if env.audio.currentStory?.slug == effectiveStory?.slug {
+                                env.audio.resume()
+                            } else if let effectiveStory {
+                                env.audio.play(story: effectiveStory)
                             }
                         } label: {
                             AppIcon(isPlaying ? .pauseOrange : .playOrange, size: 60)
@@ -634,7 +657,6 @@ private struct FullTranscriptSheet: View {
                             env.audio.seek(toProgress: newProgress)
                         } label: {
                             AppIcon(.forward10, size: 36)
-                                .foregroundStyle(Color.white)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Forward 10 seconds")

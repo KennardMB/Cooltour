@@ -11,6 +11,7 @@ struct NowView: View {
     @State private var isShowingSitesPlayer: Bool = false
     @State private var isShowingProfile: Bool = false
     @State private var isShowingPauseOverlay: Bool = false
+    @State private var isShowingSimulateApproachSheet: Bool = false
     @State private var showQueueToast: Bool = false
     @State private var locationTitle: String = "Live Location"
     @State private var locationSubtitle: String = "Denpasar, Bali, Indonesia"
@@ -89,6 +90,15 @@ struct NowView: View {
             }
             .sheet(isPresented: $isShowingProfile) {
                 ProfileView()
+            }
+            .sheet(isPresented: $isShowingSimulateApproachSheet) {
+                SimulateApproachSheet(
+                    siteGroups: simulatableSitesByDistrict,
+                    onSelectSite: { site in
+                        env.proximity.simulateTrigger(site: site)
+                        isShowingSimulateApproachSheet = false
+                    }
+                )
             }
             .onAppear {
                 updateLocationDisplay()
@@ -211,122 +221,124 @@ struct NowView: View {
     // MARK: - State B: Wandering / Exploring Screen (Figma Node 223:1414)
 
     private var wanderingContentView: some View {
-        VStack(spacing: 0) {
-            // Top Bar: "You are now in" + Red "pause" Button
-            HStack(alignment: .center, spacing: 8) {
-                // Location Info Column (SVG Location Icon)
-                Button {
-                    handleLocationTap()
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(isLocationAuthorized ? "IconLocationActive" : "IconLocationInactive")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 32, height: 32)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                // Top Bar: "You are now in" + Red "pause" Button
+                HStack(alignment: .center, spacing: 8) {
+                    // Location Info Column (SVG Location Icon)
+                    Button {
+                        handleLocationTap()
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(isLocationAuthorized ? "IconLocationActive" : "IconLocationInactive")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("You are now in")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(Color(red: 57/255, green: 57/255, blue: 57/255))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("You are now in")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(Color(red: 57/255, green: 57/255, blue: 57/255))
 
-                            Text(locationSubtitle)
-                                .font(.system(size: 12, weight: .regular))
-                                .foregroundStyle(Color(red: 57/255, green: 57/255, blue: 57/255))
-                                .lineLimit(1)
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Location: \(locationSubtitle)")
-
-                Spacer()
-
-                // Red Brush Pause Button (112x40pt, Figma Node 241:1593)
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        isShowingPauseOverlay = true
-                    }
-                } label: {
-                    Image("BrushButtonPause")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 112, height: 40)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Pause tour")
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
-
-            Spacer(minLength: 12)
-
-            // Center Top: Pulsating Location Dot + Headline
-            VStack(spacing: 14) {
-                PulsatingLocationDot()
-
-                if nearbySitesCount > 0 {
-                    Text("\(nearbySitesCount) sites detected\naround you!")
-                        .font(.custom("Baru Lagi", size: 20))
-                        .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                } else {
-                    Text("No Site yet,\nKeep Wandering!")
-                        .font(.custom("Baru Lagi", size: 20))
-                        .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                }
-            }
-            .padding(.top, 8)
-
-            Spacer(minLength: 12)
-
-            // Center: Hero Illustration
-            NowHeroIllustrationView()
-                .frame(maxWidth: 360, maxHeight: 270)
-                .padding(.horizontal, 20)
-
-            Spacer(minLength: 12)
-
-            // Bottom Content: Caption + "open map" Button
-            VStack(spacing: 16) {
-                // Temporary Slice 11 debug — fires the consent prompt as if you walked up to a site.
-                Menu("Simulate site approach") {
-                    ForEach(simulatableSitesByDistrict, id: \.district) { group in
-                        Section(group.district) {
-                            ForEach(group.sites, id: \.slug) { site in
-                                Button(site.name) {
-                                    env.proximity.simulateTrigger(site: site)
-                                }
+                                Text(locationSubtitle)
+                                    .font(.system(size: 12, weight: .regular))
+                                    .foregroundStyle(Color(red: 57/255, green: 57/255, blue: 57/255))
+                                    .lineLimit(1)
                             }
                         }
                     }
-                }
-                .buttonStyle(.bordered)
-                .accessibilityHint("Pick any site to fire its consent prompt as if you walked up to it.")
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Location: \(locationSubtitle)")
 
-                Text(nearbySitesCount > 0 ? "keep wandering until you passed by one!" : "keep wandering to discover cultural stories!")
-                    .font(.system(size: 16, weight: .regular))
-                    .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
-                    .multilineTextAlignment(.center)
+                    Spacer()
 
-                // Open Map Button (Figma Node 241:1618)
-                Button {
-                    env.selectedTab = .map
-                } label: {
-                    Image("BrushButtonOpenMap")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 50)
-                        .frame(maxWidth: .infinity)
+                    // Red Brush Pause Button (112x40pt, Figma Node 241:1593)
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            isShowingPauseOverlay = true
+                        }
+                    } label: {
+                        Image("BrushButtonPause")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 112, height: 40)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Pause tour")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Open map")
-                .accessibilityHint("Opens the full map view")
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+
+                // Center Top: Pulsating Location Dot + Headline
+                VStack(spacing: 14) {
+                    PulsatingLocationDot()
+
+                    if nearbySitesCount > 0 {
+                        Text("\(nearbySitesCount) sites detected\naround you!")
+                            .font(.custom("Baru Lagi", size: 20))
+                            .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(4)
+                    } else {
+                        Text("No Site yet,\nKeep Wandering!")
+                            .font(.custom("Baru Lagi", size: 20))
+                            .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(4)
+                    }
+                }
+                .padding(.top, 24)
+
+                // Center: Hero Illustration
+                NowHeroIllustrationView()
+                    .frame(maxWidth: 360, maxHeight: 270)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+
+                // Bottom Content: Caption + "open map" Button
+                VStack(spacing: 16) {
+                    // Temporary Slice 11 debug — fires the consent prompt as if you walked up to a site.
+                    Button {
+                        isShowingSimulateApproachSheet = true
+                    } label: {
+                        Text("Simulate site approach")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color(red: 254/255, green: 254/255, blue: 254/255))
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .strokeBorder(Color(red: 232/255, green: 238/255, blue: 251/255), lineWidth: 4)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Pick any site to fire its consent prompt as if you walked up to it.")
+
+                    Text(nearbySitesCount > 0 ? "keep wandering until you passed by one!" : "keep wandering to discover cultural stories!")
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+                        .multilineTextAlignment(.center)
+
+                    // Open Map Button (Figma Node 241:1618)
+                    Button {
+                        env.selectedTab = .map
+                    } label: {
+                        Image("BrushButtonOpenMap")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 50)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Open map")
+                    .accessibilityHint("Opens the full map view")
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+                .padding(.bottom, 28)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 28)
         }
     }
 
@@ -730,6 +742,44 @@ struct NowView: View {
            let data = try? Data(contentsOf: url),
            let img = UIImage(data: data) { return img }
         return nil
+    }
+}
+
+// MARK: - Simulate Approach Sheet
+
+/// Scrollable site picker for debug simulate-approach — a `Menu` resets while scrolling
+/// when the parent view re-renders from live GPS updates.
+private struct SimulateApproachSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let siteGroups: [(district: String, sites: [Site])]
+    let onSelectSite: (Site) -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(siteGroups, id: \.district) { group in
+                    Section(group.district) {
+                        ForEach(group.sites, id: \.slug) { site in
+                            Button(site.name) {
+                                onSelectSite(site)
+                            }
+                            .foregroundStyle(AppColor.Text.primary)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Simulate site approach")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
     }
 }
 
