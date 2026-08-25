@@ -5,23 +5,28 @@ struct RootView: View {
 
   var body: some View {
     @Bindable var env = environment
-    TabView(selection: $env.selectedTab) {
-      NowView()
-        .tag(AppTab.now)
-        .tabItem { Label("Now", systemImage: "waveform") }
-      MapView()
-        .tag(AppTab.map)
-        .tabItem { Label("Map", systemImage: "map") }
-      NavigationStack {
-        MyExplorationsView()
+    ZStack(alignment: .bottomTrailing) {
+      TabView(selection: $env.selectedTab) {
+        NowView()
+          .tag(AppTab.now)
+          .tabItem { Label("Now", systemImage: "waveform") }
+        MapView()
+          .tag(AppTab.map)
+          .tabItem { Label("Map", systemImage: "map") }
+        NavigationStack {
+          MyExplorationsView()
+        }
+        .tag(AppTab.exploration)
+        .tabItem { Label("Exploration", systemImage: "clock") }
+        NavigationStack {
+          SettingsView()
+        }
+        .tag(AppTab.settings)
+        .tabItem { Label("Settings", systemImage: "gearshape") }
       }
-      .tag(AppTab.exploration)
-      .tabItem { Label("Exploration", systemImage: "clock") }
-      NavigationStack {
-        SettingsView()
-      }
-      .tag(AppTab.settings)
-      .tabItem { Label("Settings", systemImage: "gearshape") }
+
+      // Global Floating Simulate Site Approach Button (Above TabBar)
+      FloatingSimulateButton(bottomPadding: 68)
     }
     // Walking mode, not the app appearing, is what starts listening now (Slice 11). A walk that
     // was on when the app was last quit resumes on launch; otherwise the app stays silent until

@@ -11,7 +11,6 @@ struct NowView: View {
     @State private var isShowingSitesPlayer: Bool = false
     @State private var isShowingProfile: Bool = false
     @State private var isShowingPauseOverlay: Bool = false
-    @State private var isShowingSimulateApproachSheet: Bool = false
     @State private var showQueueToast: Bool = false
     @State private var locationTitle: String = "Live Location"
     @State private var locationSubtitle: String = "Denpasar, Bali, Indonesia"
@@ -91,17 +90,6 @@ struct NowView: View {
             .sheet(isPresented: $isShowingProfile) {
                 ProfileView()
             }
-            .sheet(isPresented: $isShowingSimulateApproachSheet) {
-                SimulateApproachSheet(
-                    siteGroups: simulatableSitesByDistrict,
-                    onSimulateSites: { sites in
-                        for site in sites {
-                            env.proximity.simulateTrigger(site: site)
-                        }
-                        isShowingSimulateApproachSheet = false
-                    }
-                )
-            }
             .onAppear {
                 updateLocationDisplay()
             }
@@ -111,18 +99,20 @@ struct NowView: View {
             .onChange(of: env.proximity.lastFix?.latitude) { _, _ in
                 updateLocationDisplay()
             }
+            .onChange(of: env.audio.currentStory?.slug) { _, newSlug in
+                if newSlug != nil && env.settings.walkingMode {
+                    isShowingSitesPlayer = true
+                }
+            }
+            .onChange(of: env.audio.isPlaying) { _, isPlaying in
+                if isPlaying && env.settings.walkingMode && env.audio.currentStory != nil {
+                    isShowingSitesPlayer = true
+                }
+            }
         }
     }
 
     // MARK: - State A: Idle Home Screen (Figma Node 223:1335)
-
-    /// Loaded sites grouped by district for the Simulate-approach menu, keeping each
-    /// region's sites together (e.g. all Renon sites in one section) instead of one flat list.
-    private var simulatableSitesByDistrict: [(district: String, sites: [Site])] {
-        Dictionary(grouping: env.content.allSites(), by: \.districtName)
-            .map { (district: $0.key, sites: $0.value.sorted { $0.name < $1.name }) }
-            .sorted { $0.district < $1.district }
-    }
 
     private var idleContentView: some View {
         VStack(spacing: 0) {
@@ -298,25 +288,6 @@ struct NowView: View {
 
                 // Bottom Content: Caption + "open map" Button
                 VStack(spacing: 16) {
-                    // Temporary Slice 11 debug — fires the consent prompt as if you walked up to a site.
-                    Button {
-                        isShowingSimulateApproachSheet = true
-                    } label: {
-                        Text("Simulate site approach")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color(red: 254/255, green: 254/255, blue: 254/255))
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .strokeBorder(Color(red: 232/255, green: 238/255, blue: 251/255), lineWidth: 4)
-                            )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityHint("Pick any site to fire its consent prompt as if you walked up to it.")
-
                     Text(nearbySitesCount > 0 ? "keep wandering until you passed by one!" : "keep wandering to discover cultural stories!")
                         .font(.system(size: 16, weight: .regular))
                         .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
@@ -748,140 +719,6 @@ struct NowView: View {
            let data = try? Data(contentsOf: url),
            let img = UIImage(data: data) { return img }
         return nil
-    }
-}
-
-// MARK: - Simulate Approach Sheet
-
-/// Multi-select and single-select site picker for debug simulate-approach to test overlapping site scenarios.
-private struct SimulateApproachSheet: View {
-    @Environment(\.dismiss) private var dismiss
-
-    let siteGroups: [(district: String, sites: [Site])]
-    let onSimulateSites: ([Site]) -> Void
-
-    @State private var selectedSlugs: Set<String> = []
-
-    private var allSites: [Site] {
-        siteGroups.flatMap { $0.sites }
-    }
-
-    private var selectedSites: [Site] {
-        allSites.filter { selectedSlugs.contains($0.slug) }
-    }
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                List {
-                    ForEach(siteGroups, id: \.district) { group in
-                        Section(group.district) {
-                            ForEach(group.sites, id: \.slug) { site in
-                                let isSelected = selectedSlugs.contains(site.slug)
-                                Button {
-                                    if isSelected {
-                                        selectedSlugs.remove(site.slug)
-                                    } else {
-                                        selectedSlugs.insert(site.slug)
-                                    }
-                                } label: {
-                                    HStack(spacing: 12) {
-                                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                            .font(.system(size: 20))
-                                            .foregroundStyle(isSelected ? Color(red: 29/255, green: 82/255, blue: 216/255) : Color(red: 158/255, green: 158/255, blue: 158/255))
-
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(site.name)
-                                                .font(.system(size: 15, weight: .medium))
-                                                .foregroundStyle(AppColor.Text.primary)
-
-                                            if let storyTitle = site.stories.first?.title {
-                                                Text(storyTitle)
-                                                    .font(.system(size: 12))
-                                                    .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
-                                                    .lineLimit(1)
-                                            }
-                                        }
-
-                                        Spacer()
-
-                                        Button {
-                                            onSimulateSites([site])
-                                            dismiss()
-                                        } label: {
-                                            Text("Trigger 1")
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 4)
-                                                .background(Color(red: 232/255, green: 238/255, blue: 251/255))
-                                                .clipShape(Capsule())
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                }
-
-                if !selectedSlugs.isEmpty {
-                    VStack(spacing: 8) {
-                        Button {
-                            onSimulateSites(selectedSites)
-                            dismiss()
-                        } label: {
-                            ZStack {
-                                Image("BrushButtonBlue")
-                                    .resizable()
-                                    .frame(height: 52)
-                                    .frame(maxWidth: .infinity)
-
-                                Text("Simulate \(selectedSlugs.count) Overlapping Site\(selectedSlugs.count > 1 ? "s" : "")")
-                                    .font(.custom("Baru Lagi", size: 16))
-                                    .foregroundStyle(Color.white)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                        }
-                        .buttonStyle(.plain)
-
-                        Button("Clear selection") {
-                            selectedSlugs.removeAll()
-                        }
-                        .font(.caption)
-                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(Color(red: 248/255, green: 247/255, blue: 244/255))
-                    .overlay(
-                        Divider(), alignment: .top
-                    )
-                }
-            }
-            .navigationTitle("Simulate site approach")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        dismiss()
-                    }
-                }
-
-                ToolbarItem(placement: .primaryAction) {
-                    if !selectedSlugs.isEmpty {
-                        Button("Simulate (\(selectedSlugs.count))") {
-                            onSimulateSites(selectedSites)
-                            dismiss()
-                        }
-                        .fontWeight(.bold)
-                    }
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
     }
 }
 

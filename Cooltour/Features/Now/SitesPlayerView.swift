@@ -34,7 +34,7 @@ public struct SitesPlayerView: View {
             let currentTime = effectiveProgress * duration
             let remainingTime = max(0, duration - currentTime)
 
-            ZStack {
+            ZStack(alignment: .bottomTrailing) {
                 VStack(spacing: 0) {
                     // 1. Top Header: Location Indicator & Pause Button
                     HStack(spacing: 12) {
@@ -347,6 +347,9 @@ public struct SitesPlayerView: View {
                         .transition(.opacity)
                     }
                 }
+
+                // Global Floating Simulate Site Approach Button
+                FloatingSimulateButton(bottomPadding: 32)
             }
             .defaultTiledBackground(scale: 0.20)
             .sheet(isPresented: $isShowingFullTranscript) {
@@ -362,6 +365,11 @@ public struct SitesPlayerView: View {
             }
             .onChange(of: currentStory?.slug) { _, _ in
                 syncSiteIndexToPlayingStory(currentStory, in: sites)
+            }
+            .onChange(of: env.narration.state) { _, newState in
+                if newState == .prompting {
+                    dismiss()
+                }
             }
         }
     }
