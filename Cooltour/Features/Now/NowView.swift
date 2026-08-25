@@ -104,6 +104,11 @@ struct NowView: View {
                     isShowingSitesPlayer = true
                 }
             }
+            .onChange(of: env.storyQueue.items.count) { oldCount, newCount in
+                if newCount > oldCount && (env.audio.isPlaying || env.audio.currentStory != nil) && env.settings.walkingMode {
+                    isShowingSitesPlayer = true
+                }
+            }
         }
     }
 
@@ -450,6 +455,9 @@ struct NowView: View {
                         Button {
                             env.narration.queue(promptID: prompt.id)
                             triggerQueueToast()
+                            if env.audio.isPlaying || env.audio.currentStory != nil {
+                                isShowingSitesPlayer = true
+                            }
                         } label: {
                             ZStack {
                                 Image("BrushButtonOrange")
