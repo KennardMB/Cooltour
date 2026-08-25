@@ -260,25 +260,35 @@ struct NowView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
 
-                // Center Top: Pulsating Location Dot + Headline
-                VStack(spacing: 14) {
+                // Center Top: Pulsating Location Dot + Headline + Subtitle Caption (Figma Node 243:1523)
+                VStack(spacing: 8) {
                     PulsatingLocationDot()
+                        .padding(.bottom, 4)
 
                     if nearbySitesCount > 0 {
-                        Text("\(nearbySitesCount) sites detected\naround you!")
+                        Text("\(nearbySitesCount) sites near you!")
                             .font(.custom("Baru Lagi", size: 20))
                             .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
                             .multilineTextAlignment(.center)
-                            .lineSpacing(4)
+
+                        Text("Keep wandering until you passed by one!")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+                            .multilineTextAlignment(.center)
                     } else {
                         Text("No Site yet,\nKeep Wandering!")
                             .font(.custom("Baru Lagi", size: 20))
                             .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
                             .multilineTextAlignment(.center)
                             .lineSpacing(4)
+
+                        Text("until you discover cultural stories")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
+                            .multilineTextAlignment(.center)
                     }
                 }
-                .padding(.top, 24)
+                .padding(.top, 20)
 
                 // Center: Hero Illustration (Full width)
                 NowHeroIllustrationView()
@@ -286,13 +296,8 @@ struct NowView: View {
                     .frame(height: .infinity)
                     .padding(.top, 10)
 
-                // Bottom Content: Caption + "open map" Button
-                VStack(spacing: 16) {
-                    Text(nearbySitesCount > 0 ? "keep wandering until you passed by one!" : "until you discover cultural stories")
-                        .font(.system(size: 16, weight: .regular))
-                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
-                        .multilineTextAlignment(.center)
-
+                // Bottom Content: "open map" Button
+                VStack(spacing: 0) {
                     // Open Map Button (Figma Node 241:1618)
                     Button {
                         env.selectedTab = .map
@@ -307,7 +312,7 @@ struct NowView: View {
                     .accessibilityHint("Opens the full map view")
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 24)
+                .padding(.top, 16)
                 .padding(.bottom, 28)
             }
         }
