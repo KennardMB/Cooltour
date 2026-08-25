@@ -336,15 +336,66 @@ guess still fails the attention test. Hide.
 
 ---
 
+### Slice 22 — Activate WatchConnectivity at launch
+**Branch:** `feature/watchos` · **Est:** 0.5 day
+**Depends on:** Slice 19.
+
+**Goal:** Phone→Watch snapshots can wake the Watch extension even before the user opens the glance.
+
+**In scope:**
+- Call `WatchSessionClient.activate()` from `CooltourWatchApp.init`, not only `onAppear`.
+- Track `scenePhase` → `isAppInForeground` for later notification vs haptic routing.
+
+**Acceptance:** After the Watch app has been launched once, leaving it and walking into a site still delivers `didReceiveApplicationContext` to the session client (device note in PR).
+
+---
+
+### Slice 23 — Approach notification policy
+**Branch:** `feature/watchos` · **Est:** 0.5 day
+**Depends on:** Slice 22.
+
+**Goal:** Pure rules for when background gets a local notification vs when foreground gets custom Haptic A.
+
+**In scope:**
+- `WatchApproachNotificationPolicy.shouldPost` — new `promptID`, app **not** foreground.
+- `shouldPlayForegroundHaptic` — new `promptID`, app **is** foreground.
+- `shouldWithdraw` — posted id no longer matches `pendingPrompt`.
+
+**Acceptance:** Unit tests cover post-only-in-background, no double post on countdown ticks, withdraw on clear / id change.
+
+---
+
+### Slice 24 — Watch local notification (buzz without opening the app)
+**Branch:** `feature/watchos` · **Est:** 1 day
+**Depends on:** Slice 23.
+
+**Goal:** Approach buzzes the wrist via a system notification while Cooltour Watch is closed; tap opens the consent gate.
+
+**In scope:**
+- `WatchApproachNotificationService` — tap-only local notification (site name + prompting status; no Play/Queue/Dismiss actions on the banner).
+- Wire into `WatchSessionClient.apply`: background → post; foreground → Haptic A; resolve → withdraw.
+- Request notification authorization on `activate()`.
+- Suppress banner while the Watch UI is already presenting (`willPresent` → empty options).
+
+**Out of scope:** Interactive notification actions on Watch (phone Slice 13 already has them); complications / Smart Stack.
+
+**Acceptance (device):**
+1. Phone in pocket, Watch app **not** open → enter site → wrist buzzes (notification).
+2. Tap notification → Cooltour Watch opens with site name + Play / Queue / Dismiss.
+3. Dismiss / timeout / Play on phone → Watch notification clears.
+4. Watch glance already open on approach → custom Haptic A, **no** duplicate notification banner.
+
+---
+
 ## 6. Dependencies
 
 ```
-Slice 17  payloads + Watch target          ← merge first, like the Slice 11 protocol PR
+Slice 17  payloads + Watch target
     ├── Slice 18  bridge + glance + walking toggle
-    │       └── Slice 19  consent + Haptic A          ← demo centerpiece
-    │               └── Slice 20  wayfinding arm + Haptic B
-    │                       └── Slice 21  arrow
-    └── Slice 12 (iPhone spoken direction)  ← independent; not on this critical path
+    │       └── Slice 19  consent + Haptic A
+    │               ├── Slice 20  wayfinding arm + Haptic B → Slice 21 arrow
+    │               └── Slice 22  WC at launch → Slice 23 policy → Slice 24 Watch notification
+    └── Slice 12 (iPhone spoken direction)  ← independent
 ```
 
 **Parallelism after 17 merges:** one person can take 18→19 (Watch UI + consent) while another
@@ -398,17 +449,18 @@ Those tabs are iPhone-only (PRD non-goals).
 
 Matches PRD §12. All device items need real-device notes in the PR (AGENTS.md).
 
-- [ ] Walk into a seeded site, phone in pocket → Haptic A, Watch shows site name + three actions.
+- [ ] Walk into a seeded site, phone in pocket, Watch app **closed** → notification buzz;
+      tap opens Watch consent gate. With glance open → Haptic A + in-app consent.
 - [ ] Play now on Watch → audio on phone/AirPods once; Haptic B; arrow points at the real site
       while walking.
 - [ ] Add to queue while another story plays → no arrow yet; when that story starts → Haptic B
       + arrow for *that* site.
-- [ ] Dismiss or countdown finish → silence; no Haptic B; no arrow.
+- [ ] Dismiss or countdown finish → silence; no Haptic B; no arrow; Watch notification withdrawn.
 - [ ] Walking mode off on Watch → phone stops listening; open prompt cancels; no further A/B.
 - [ ] Bad GPS or untrusted heading → arrow hides; site name stays.
 - [ ] Airplane mode + phone present: the consent and play-now loop still works.
 - [ ] Unit tests for payload round-trip, prompt-id staleness, wayfinding arm-only-on-play,
-      and `ArrowAngle` wraparound / low-confidence `nil`.
+      `ArrowAngle` wraparound / low-confidence `nil`, and approach-notification policy.
 - [ ] VoiceOver + Dynamic Type on every Watch screen that shipped.
 - [ ] `AppConfig.appName` is still the only brand string in code.
 

@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import WatchConnectivity
 
-/// Watch-side session mirror (Slices 18–21). Holds the latest phone snapshot and reachability.
+/// Watch-side session mirror (Slices 18–24). Holds the latest phone snapshot and reachability.
 @MainActor
 @Observable
 final class WatchSessionClient: NSObject, WCSessionDelegate {
@@ -15,13 +15,20 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
 
   private let encoder = JSONEncoder()
   private let decoder = JSONDecoder()
+  private let notifications: any WatchApproachNotifying
   private var lastApproachPromptID: UUID?
+  private var lastPostedNotificationID: UUID?
   private var lastPlayStartSlug: String?
 
   /// Fired when Haptic A should play (new prompt id) while the Watch app is foreground.
   var onApproachHaptic: (() -> Void)?
   /// Fired when Haptic B should play (wayfinding armed / site changed).
   var onPlayStartHaptic: (() -> Void)?
+
+  init(notifications: any WatchApproachNotifying = WatchApproachNotificationService()) {
+    self.notifications = notifications
+    super.init()
+  }
 
   func activate() {
     guard WCSession.isSupported() else { return }
@@ -30,6 +37,7 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
     if session.activationState == .notActivated {
       session.activate()
     }
+    notifications.requestAuthorizationIfNeeded()
   }
 
   func send(_ command: WatchCommand) {
@@ -68,13 +76,31 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
   private nonisolated static let commandKey = "command"
 
   private func apply(_ snapshot: WatchSessionSnapshot) {
-    if let id = WatchHapticPolicy.shouldPlayApproachHaptic(
-      previousPromptID: lastApproachPromptID,
+    if let withdrawID = WatchApproachNotificationPolicy.shouldWithdraw(
+      postedPromptID: lastPostedNotificationID,
       snapshot: snapshot
+    ) {
+      notifications.withdrawPrompt(id: withdrawID)
+      lastPostedNotificationID = nil
+    }
+
+    if let prompt = WatchApproachNotificationPolicy.shouldPost(
+      previousPromptID: lastApproachPromptID,
+      snapshot: snapshot,
+      isAppInForeground: isAppInForeground
+    ) {
+      lastApproachPromptID = prompt.id
+      lastPostedNotificationID = prompt.id
+      notifications.postPrompt(prompt, languageCode: snapshot.languageCode)
+    } else if let id = WatchApproachNotificationPolicy.shouldPlayForegroundHaptic(
+      previousPromptID: lastApproachPromptID,
+      snapshot: snapshot,
+      isAppInForeground: isAppInForeground
     ) {
       lastApproachPromptID = id
       onApproachHaptic?()
     }
+
     if snapshot.pendingPrompt == nil {
       lastApproachPromptID = nil
     }
