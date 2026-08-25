@@ -1,8 +1,16 @@
 import SwiftUI
 
+public enum AppTab: Int, CaseIterable, Sendable {
+  case now = 0
+  case map = 1
+  case exploration = 2
+  case settings = 3
+}
+
 @MainActor
 @Observable
 final class AppEnvironment {
+  var selectedTab: AppTab = .now
   let content: any ContentStore
   let audio: any AudioPlayerService
   let proximity: any ProximityEngine

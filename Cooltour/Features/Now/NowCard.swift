@@ -105,12 +105,6 @@ struct NowCard: View {
         .frame(maxWidth: .infinity)
       }
 
-      SpeedChips(
-        speeds: SettingsStore.availablePlaybackSpeeds,
-        selected: speed,
-        onSelect: onSelectSpeed
-      )
-
       TranscriptDisclosure(transcript: transcript)
     }
     .padding()

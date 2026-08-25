@@ -1,6 +1,8 @@
 import Foundation
 import Testing
 
+@testable import Cooltour
+
 @Suite("Story language resolution")
 struct StoryLanguageResolutionTests {
   @Test func indonesianAudioAssetNilWhenNotShipped() {

@@ -20,7 +20,8 @@
           "narratorNote": "placeholder narration - pending Kultara guide recording",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "pura-maospahit.jpg"
     },
     {
       "slug": "pura-jagatnatha",
@@ -40,7 +41,8 @@
           "narratorNote": "placeholder narration - pending Kultara guide recording",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "pura-jagatnatha.jpg"
     },
     {
       "slug": "museum-bali",
@@ -60,7 +62,8 @@
           "narratorNote": "placeholder narration - pending Kultara guide recording",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "museum-bali.jpg"
     },
     {
       "slug": "puputan-badung",
@@ -80,7 +83,8 @@
           "narratorNote": "placeholder narration - pending Kultara guide recording",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "puputan-badung.jpg"
     },
     {
       "slug": "catur-muka",
@@ -100,7 +104,8 @@
           "narratorNote": "placeholder narration - pending Kultara guide recording",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "catur-muka.jpg"
     },
     {
       "slug": "pasar-badung",
@@ -120,7 +125,8 @@
           "narratorNote": "placeholder narration - pending Kultara guide recording",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "pasar-badung.jpg"
     },
     {
       "slug": "park-23",
@@ -140,7 +146,8 @@
           "narratorNote": "placeholder narration - pending Kultara guide recording",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "park-23.jpg"
     },
     {
       "slug": "apple-developer-academy",
@@ -160,7 +167,8 @@
           "narratorNote": "placeholder narration - pending Kultara guide recording",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "apple-developer-academy.jpg"
     },
     {
       "slug": "pura-batur-jati",
@@ -180,7 +188,8 @@
           "narratorNote": "dev test site, not real Kultara content — delete before shipping",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "pura-batur-jati.jpg"
     },
     {
       "slug": "quest-hotel-kuta",
@@ -200,7 +209,8 @@
           "narratorNote": "dev test site, not real Kultara content — delete before shipping",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "quest-hotel-kuta.jpg"
     },
     {
       "slug": "asrama-denkav-4",
@@ -220,7 +230,8 @@
           "narratorNote": "dev test site, not real Kultara content — delete before shipping",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "asrama-denkav-4.jpg"
     },
     {
       "slug": "cove-tripuri-house",
@@ -240,7 +251,8 @@
           "narratorNote": "dev test site, not real Kultara content — delete before shipping",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "cove-tripuri-house.jpg"
     },
     {
       "slug": "murni-teguh-hospital-tuban",
@@ -260,7 +272,8 @@
           "narratorNote": "dev test site, not real Kultara content — delete before shipping",
           "timeOfDayTag": null
         }
-      ]
+      ],
+      "imageFile": "murni-teguh-hospital-tuban.jpg"
     }
   ]
 }

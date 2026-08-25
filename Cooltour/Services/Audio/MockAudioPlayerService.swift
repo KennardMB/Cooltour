@@ -22,6 +22,11 @@ final class MockAudioPlayerService: AudioPlayerService {
 
   @discardableResult
   func play(story: Story) -> Bool {
+    if currentStory?.slug == story.slug {
+      isPlaying = true
+      return true
+    }
+
     currentStory = story
     isPlaying = true
     progress = 0.0
@@ -44,6 +49,10 @@ final class MockAudioPlayerService: AudioPlayerService {
 
   func setRate(_ newRate: Float) {
     rate = newRate
+  }
+
+  func seek(toProgress newProgress: Double) {
+    progress = max(0, min(1, newProgress))
   }
 
   func seek(bySeconds deltaSeconds: TimeInterval) {

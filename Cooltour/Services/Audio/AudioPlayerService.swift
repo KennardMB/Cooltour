@@ -21,6 +21,8 @@ protocol AudioPlayerService {
   func resume()
   func stop()
   func setRate(_ rate: Float)
+  /// Seeks to a 0…1 fraction of the current story. Used by the in-app scrubber.
+  func seek(toProgress progress: Double)
   /// Jumps by `deltaSeconds` within the current story, clamped to `[0, duration]`.
   /// Negative values rewind; positive values skip forward. No-op when nothing is loaded.
   func seek(bySeconds deltaSeconds: TimeInterval)

@@ -111,6 +111,14 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
   @discardableResult
   func play(story: Story) -> Bool {
+    // UI layers often call `play(story:)` on resume; reloading the file resets the playhead.
+    if currentStory?.slug == story.slug, player != nil, !isLoading {
+      if !isPlaying {
+        resume()
+      }
+      return true
+    }
+
     let language = settings.audioLanguage
     guard let assetName = story.audioAssetName(for: language) else {
       print(
@@ -193,6 +201,11 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     rate = newRate
     player?.rate = newRate
     updateNowPlayingInfo()
+  }
+
+  func seek(toProgress newProgress: Double) {
+    guard let player, player.duration > 0 else { return }
+    seek(toSeconds: max(0, min(1, newProgress)) * player.duration)
   }
 
   func seek(bySeconds deltaSeconds: TimeInterval) {
