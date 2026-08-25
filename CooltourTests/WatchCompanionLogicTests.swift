@@ -141,6 +141,112 @@ struct WatchHapticPolicyTests {
   }
 }
 
+struct WatchApproachNotificationPolicyTests {
+  private func snapshot(
+    state: NarrationState = .idle,
+    promptID: UUID? = nil
+  ) -> WatchSessionSnapshot {
+    let prompt: PendingPrompt? = promptID.map {
+      PendingPrompt(
+        id: $0,
+        siteSlug: "s",
+        siteName: "Pura Maospahit",
+        storySlug: "st",
+        storyTitle: "T",
+        directionPhrase: nil,
+        spokenText: "x"
+      )
+    }
+    return WatchSessionSnapshot(
+      walkingModeEnabled: true,
+      narrationState: state,
+      pendingPrompt: prompt,
+      dismissCountdownSeconds: promptID == nil ? nil : 5,
+      nowPlayingSiteName: nil,
+      nowPlayingStoryTitle: nil,
+      wayfindingTarget: nil,
+      languageCode: "en"
+    )
+  }
+
+  @Test func postsOnlyInBackgroundOnNewPromptID() {
+    let id = UUID()
+    let snap = snapshot(state: .prompting, promptID: id)
+
+    #expect(
+      WatchApproachNotificationPolicy.shouldPost(
+        previousPromptID: nil,
+        snapshot: snap,
+        isAppInForeground: false
+      )?.id == id
+    )
+    #expect(
+      WatchApproachNotificationPolicy.shouldPost(
+        previousPromptID: nil,
+        snapshot: snap,
+        isAppInForeground: true
+      ) == nil
+    )
+    #expect(
+      WatchApproachNotificationPolicy.shouldPost(
+        previousPromptID: id,
+        snapshot: snap,
+        isAppInForeground: false
+      ) == nil
+    )
+  }
+
+  @Test func foregroundHapticOnlyWhenGlanceIsOpen() {
+    let id = UUID()
+    let snap = snapshot(state: .prompting, promptID: id)
+
+    #expect(
+      WatchApproachNotificationPolicy.shouldPlayForegroundHaptic(
+        previousPromptID: nil,
+        snapshot: snap,
+        isAppInForeground: true
+      ) == id
+    )
+    #expect(
+      WatchApproachNotificationPolicy.shouldPlayForegroundHaptic(
+        previousPromptID: nil,
+        snapshot: snap,
+        isAppInForeground: false
+      ) == nil
+    )
+  }
+
+  @Test func withdrawsWhenPromptClearsOrChanges() {
+    let posted = UUID()
+    let other = UUID()
+
+    #expect(
+      WatchApproachNotificationPolicy.shouldWithdraw(
+        postedPromptID: posted,
+        snapshot: snapshot(state: .prompting, promptID: posted)
+      ) == nil
+    )
+    #expect(
+      WatchApproachNotificationPolicy.shouldWithdraw(
+        postedPromptID: posted,
+        snapshot: snapshot(state: .idle, promptID: nil)
+      ) == posted
+    )
+    #expect(
+      WatchApproachNotificationPolicy.shouldWithdraw(
+        postedPromptID: posted,
+        snapshot: snapshot(state: .prompting, promptID: other)
+      ) == posted
+    )
+    #expect(
+      WatchApproachNotificationPolicy.shouldWithdraw(
+        postedPromptID: nil,
+        snapshot: snapshot(state: .idle)
+      ) == nil
+    )
+  }
+}
+
 struct WayfindingPolicyTests {
   @Test func leaveRadiusClearsWhenBeyondTriggerOrMissing() {
     let target = WayfindingTarget(
