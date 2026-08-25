@@ -99,13 +99,8 @@ struct NowView: View {
             .onChange(of: env.proximity.lastFix?.latitude) { _, _ in
                 updateLocationDisplay()
             }
-            .onChange(of: env.audio.currentStory?.slug) { _, newSlug in
-                if newSlug != nil && env.settings.walkingMode {
-                    isShowingSitesPlayer = true
-                }
-            }
-            .onChange(of: env.audio.isPlaying) { _, isPlaying in
-                if isPlaying && env.settings.walkingMode && env.audio.currentStory != nil {
+            .onChange(of: env.audio.currentStory?.slug) { oldSlug, newSlug in
+                if newSlug != nil && oldSlug != newSlug && env.settings.walkingMode && env.narration.state != .prompting {
                     isShowingSitesPlayer = true
                 }
             }
