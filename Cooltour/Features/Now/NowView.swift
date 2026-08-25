@@ -177,7 +177,7 @@ struct NowView: View {
             // Hero Sketch Illustration (Figma Node 243:1486, full width)
             NowHeroIllustrationView()
                 .frame(maxWidth: .infinity)
-                .frame(height: .infinity)
+                .frame(height: 400)
 
             Spacer(minLength: 4)
 
@@ -297,7 +297,7 @@ struct NowView: View {
                 // Center: Hero Illustration (Full width)
                 NowHeroIllustrationView()
                     .frame(maxWidth: .infinity)
-                    .frame(height: .infinity)
+                    .frame(height: 400)
                     .padding(.top, 10)
 
                 // Bottom Content: "open map" Button
