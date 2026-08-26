@@ -1,3 +1,4 @@
+import CoreLocation
 import SwiftUI
 
 // MARK: - Onboarding Screen 5 View (Figma Node 245:1877)
@@ -15,6 +16,14 @@ public struct OnboardingScreen5View: View {
     private var displayName: String {
         let trimmed = userName.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? "traveler" : trimmed
+    }
+
+    private var isLocationAuthorized: Bool {
+        env.proximity.authorizationStatus == .authorizedWhenInUse || env.proximity.authorizationStatus == .authorizedAlways
+    }
+
+    private var isNotificationAuthorized: Bool {
+        env.notifications.isAuthorized
     }
 
     public var body: some View {
@@ -75,7 +84,7 @@ public struct OnboardingScreen5View: View {
                                     .frame(height: 60)
                                     .frame(maxWidth: .infinity)
 
-                                Text("Allow Location")
+                                Text(isLocationAuthorized ? "Location Allowed" : "Allow Location")
                                     .font(.custom("Baru Lagi", size: 16))
                                     .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255)) // #FEFEFE
                             }
@@ -83,7 +92,9 @@ public struct OnboardingScreen5View: View {
                             .frame(height: 60)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Allow Location")
+                        .disabled(isLocationAuthorized)
+                        .opacity(isLocationAuthorized ? 0.75 : 1.0)
+                        .accessibilityLabel(isLocationAuthorized ? "Location Allowed" : "Allow Location")
                         .accessibilityHint("Requests GPS location permissions to detect stories while walking")
 
                         // 2. Allow Notification Button (Orange Brush)
@@ -96,7 +107,7 @@ public struct OnboardingScreen5View: View {
                                     .frame(height: 60)
                                     .frame(maxWidth: .infinity)
 
-                                Text("Allow Notification")
+                                Text(isNotificationAuthorized ? "Notification Allowed" : "Allow Notification")
                                     .font(.custom("Baru Lagi", size: 16))
                                     .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
                             }
@@ -104,7 +115,9 @@ public struct OnboardingScreen5View: View {
                             .frame(height: 60)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Allow Notification")
+                        .disabled(isNotificationAuthorized)
+                        .opacity(isNotificationAuthorized ? 0.75 : 1.0)
+                        .accessibilityLabel(isNotificationAuthorized ? "Notification Allowed" : "Allow Notification")
                         .accessibilityHint("Requests notification permissions for nearby site alerts")
 
                         // 3. Skip / Maybe Later Button (Subtle Row)
@@ -133,16 +146,33 @@ public struct OnboardingScreen5View: View {
                 }
             }
         }
+        .onAppear {
+            Task {
+                await env.notifications.refreshAuthorization()
+            }
+        }
+        .onChange(of: env.proximity.authorizationStatus) { _, _ in
+            checkCompletion()
+        }
+        .onChange(of: env.notifications.isAuthorized) { _, _ in
+            checkCompletion()
+        }
     }
 
     private func handleAllowLocation() {
         env.proximity.start()
-        onNext?()
+        checkCompletion()
     }
 
     private func handleAllowNotification() {
         Task {
             _ = await env.notifications.requestAuthorization()
+            checkCompletion()
+        }
+    }
+
+    private func checkCompletion() {
+        if isLocationAuthorized && isNotificationAuthorized {
             onNext?()
         }
     }
