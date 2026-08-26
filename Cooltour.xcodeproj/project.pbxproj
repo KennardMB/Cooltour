@@ -475,6 +475,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Cooltour/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Walkaby;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Stories play the moment you walk up to a site, with the app in your pocket and the screen off. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Stories play automatically when you walk up to a nearby site. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -513,6 +514,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Cooltour/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Walkaby;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Stories play the moment you walk up to a site, with the app in your pocket and the screen off. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Stories play automatically when you walk up to a nearby site. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -590,7 +592,7 @@
 				DEVELOPMENT_TEAM = 325M9R8DH7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Cooltour;
+				INFOPLIST_KEY_CFBundleDisplayName = Walkaby;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Points toward the cultural site you are hearing about. Location stays on your Apple Watch and is never uploaded.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.challenge5.Cooltour;
@@ -624,7 +626,7 @@
 				DEVELOPMENT_TEAM = 325M9R8DH7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Cooltour;
+				INFOPLIST_KEY_CFBundleDisplayName = Walkaby;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Points toward the cultural site you are hearing about. Location stays on your Apple Watch and is never uploaded.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.challenge5.Cooltour;
