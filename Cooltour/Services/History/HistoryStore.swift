@@ -46,6 +46,14 @@ final class HistoryStore {
     cleanupEmptyWalks()
   }
 
+  /// Persists user-edited exploration title and color theme from the details editor.
+  func updateExploration(walk: Walk, customTitle: String, themeRawValue: String) {
+    let trimmed = customTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+    walk.customTitle = trimmed.isEmpty ? nil : trimmed
+    walk.themeRawValue = themeRawValue
+    try? context.save()
+  }
+
   func cleanupEmptyWalks() {
     let descriptor = FetchDescriptor<Walk>()
     if let allWalks = try? context.fetch(descriptor) {
