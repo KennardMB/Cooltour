@@ -48,7 +48,8 @@ struct ApproachPromptTests {
 
   @Test func dismissActionUsesLewatiInIndonesian() {
     #expect(ConsentStrings.dismissAction(languageCode: "id") == "Lewati")
-    #expect(ConsentStrings.dismissAction(languageCode: "en") == "Dismiss")
+    #expect(ConsentStrings.dismissAction(languageCode: "en") == "Pass")
     #expect(ConsentStrings.dismissWithCountdown(8, languageCode: "id") == "Lewati (8)")
+    #expect(ConsentStrings.dismissWithCountdown(8, languageCode: "en") == "Pass (8)")
   }
 }

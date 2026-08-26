@@ -45,4 +45,13 @@ enum AppConfig {
 
   /// Fixed in-app and lock-screen skip jump for story playback. No Settings knob in MVP.
   static let skipIntervalSeconds: TimeInterval = 10
+
+  /// Below this speed, GPS course is ignored and Watch heading is tried instead (Slice 21).
+  static let wayfindingMinWalkingSpeedMetersPerSecond: Double = 0.8
+
+  /// Course accuracy worse than this (degrees) is untrusted — hide or fall back to heading.
+  static let wayfindingMaxCourseAccuracyDegrees: Double = 45
+
+  /// Heading accuracy worse than this (degrees) is untrusted — hide the arrow.
+  static let wayfindingMaxHeadingAccuracyDegrees: Double = 25
 }

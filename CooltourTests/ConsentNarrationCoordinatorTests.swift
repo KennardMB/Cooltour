@@ -401,4 +401,72 @@ struct ConsentNarrationCoordinatorTests {
 
     #expect(coordinator.state == .idle)
   }
+
+  // MARK: - Watch session / wayfinding (Slices 18 + 20)
+
+  @Test func cancelSessionClearsPromptAndWayfinding() {
+    let (coordinator, audio, _, _, remote, _) = makeCoordinator()
+    coordinator.handleTrigger(site: makeSite(), story: makeStory())
+    #expect(coordinator.state == .prompting)
+
+    coordinator.cancelSession()
+
+    #expect(coordinator.state == .idle)
+    #expect(coordinator.pendingPrompt == nil)
+    #expect(coordinator.wayfindingTarget == nil)
+    #expect(!remote.isArmed)
+    #expect(!audio.isPlaying)
+  }
+
+  @Test func acceptArmsWayfindingQueueDoesNot() {
+    let (coordinator, _, _, _, _, queue) = makeCoordinator()
+    let siteA = makeSite(slug: "a", name: "A")
+    let storyA = makeStory(slug: "a-1", title: "A1")
+    coordinator.handleTrigger(site: siteA, story: storyA)
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+
+    #expect(coordinator.wayfindingTarget?.siteSlug == "a")
+    #expect(coordinator.wayfindingTarget?.latitude == siteA.latitude)
+
+    let siteB = makeSite(slug: "b", name: "B")
+    let storyB = makeStory(slug: "b-1", title: "B1")
+    coordinator.handleTrigger(site: siteB, story: storyB)
+    coordinator.queue(promptID: coordinator.pendingPrompt!.id)
+
+    #expect(queue.items.count == 1)
+    #expect(coordinator.wayfindingTarget?.siteSlug == "a")
+  }
+
+  @Test func finishingReplacesWayfindingWithQueuedSiteInOneStep() {
+    let (coordinator, audio, _, _, _, _) = makeCoordinator()
+    let siteA = makeSite(slug: "a", name: "A")
+    let storyA = makeStory(slug: "a-1", title: "A1")
+    let siteB = makeSite(slug: "b", name: "B")
+    let storyB = makeStory(slug: "b-1", title: "B1")
+
+    coordinator.handleTrigger(site: siteA, story: storyA)
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    #expect(coordinator.wayfindingTarget?.siteSlug == "a")
+
+    coordinator.handleTrigger(site: siteB, story: storyB)
+    coordinator.queue(promptID: coordinator.pendingPrompt!.id)
+
+    coordinator.playbackDidFinish()
+
+    #expect(coordinator.state == .playing)
+    #expect(coordinator.wayfindingTarget?.siteSlug == "b")
+    #expect(audio.currentStory?.slug == "b-1")
+  }
+
+  @Test func playbackEndWithEmptyQueueClearsWayfinding() {
+    let (coordinator, _, _, _, _, _) = makeCoordinator()
+    coordinator.handleTrigger(site: makeSite(), story: makeStory())
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    #expect(coordinator.wayfindingTarget != nil)
+
+    coordinator.playbackDidFinish()
+
+    #expect(coordinator.state == .idle)
+    #expect(coordinator.wayfindingTarget == nil)
+  }
 }

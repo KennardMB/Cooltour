@@ -392,10 +392,11 @@ Let the user take a photo tied to a `TriggerEvent`/site; the **photo replaces th
 Export/share a completed walk (stories + photos + path). This is the "retell" job — **not** traveler-matching. Ship last of the three.
 
 ### N5 — Apple Watch companion
-- watchOS SwiftUI app + **WatchConnectivity** to share content/session with the phone.
-- **Interactable notification on the wrist:** glance + tap to play — arguably *more* faithful to screen-free than the phone (eyes stay up).
-- Reuse `ProximityEngine`/`AudioPlayerService`/`ContentStore` protocols established in MVP (this is why they're protocol-first from slice 0).
-*Order note: Watch is "next" after MVP; the data model is designed now to make it cheap later.*
+Superseded by [`WatchSlices.md`](WatchSlices.md) (Slices 17–21) and
+[`PRD-AppleWatchCompanion.md`](PRD-AppleWatchCompanion.md). The Watch is a thin
+phone-orchestrated companion (haptics, consent taps, Now glance, post-play arrow) —
+it does **not** own playback or proximity. Build those slices; do not treat this
+bullet as the spec.
 
 ### N6 — WeatherKit / time-of-day narration matching
 Select among multiple stories per site based on time of day / conditions (`timeOfDayTag`). Small, atmospheric enhancement.

@@ -514,7 +514,12 @@ Same “who starts / who stops” question for the rest of the core loop.
 | **UIKit** | Proximity engine, Settings “Open System Settings” | `UIApplication` state / settings URL |
 | **Foundation** | Everywhere | Tasks, UserDefaults, dates |
 
-**Not used in the running app (yet):** PHASE (`AppConfig.usePHASE = false`), Core Motion heading, WeatherKit, WatchConnectivity, any network SDK.
+**Not used in the running app (yet):** PHASE (`AppConfig.usePHASE = false`), Core Motion heading
+for *trigger* gating, WeatherKit, any network SDK.
+
+**Watch (Slices 17–21):** `WCWatchSessionBridge` on the phone + `WatchSessionClient` on
+`Cooltour Watch`. Audio and proximity stay on iPhone; the wrist gets haptics, consent taps,
+walking-mode toggle, and a post-play direction arrow.
 
 ---
 
@@ -555,3 +560,5 @@ ProximityEvaluator  ──silence if inaccurate──► (nothing)
 | [`AudioArchitectureAnalysis.md`](AudioArchitectureAnalysis.md) | Why audio is bundled, not streamed. |
 | [`FEATURE_now_screen_audio_player.md`](FEATURE_now_screen_audio_player.md) | Now-card player notes. |
 | [`MilaSlices.md`](MilaSlices.md) | Slice ownership notes. |
+| [`PRD-AppleWatchCompanion.md`](PRD-AppleWatchCompanion.md) | Watch product requirements. |
+| [`WatchSlices.md`](WatchSlices.md) | Watch build plan (Slices 17–21). Not built yet. |
