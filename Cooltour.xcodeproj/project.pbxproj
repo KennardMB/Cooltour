@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B10000000000000000000003 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* Lottie */; };
+		W1000000000000000000000F /* Cooltour Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = W10000000000000000000001 /* Cooltour Watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		W10000000000000000000010 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10000000000000000000011 /* WatchConnectivity.framework */; };
+		W10000000000000000000012 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10000000000000000000011 /* WatchConnectivity.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -18,12 +20,36 @@
 			remoteGlobalIDString = 0CBAFE55302A0ABA0064E786;
 			remoteInfo = Cooltour;
 		};
+		W1000000000000000000000D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CBAFE4E302A0ABA0064E786 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = W10000000000000000000002;
+			remoteInfo = "Cooltour Watch";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		W1000000000000000000000C /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				W1000000000000000000000F /* Cooltour Watch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0CBAFE56302A0ABA0064E786 /* Cooltour.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cooltour.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CEC1EF3302C5667000A409D /* DenpasarWalk.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = DenpasarWalk.gpx; path = Testing/DenpasarWalk.gpx; sourceTree = "<group>"; };
+		0CEC1EF3302C5667000A409E /* RenonWalk.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = RenonWalk.gpx; path = Testing/RenonWalk.gpx; sourceTree = "<group>"; };
 		A100000000000000000000E2 /* CooltourTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CooltourTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		W10000000000000000000001 /* Cooltour Watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cooltour Watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		W10000000000000000000011 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,6 +76,16 @@
 			path = CooltourTests;
 			sourceTree = "<group>";
 		};
+		W10000000000000000000006 /* CooltourWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CooltourWatch;
+			sourceTree = "<group>";
+		};
+		W10000000000000000000007 /* Cooltour/SharedCompanion */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Cooltour/SharedCompanion;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +93,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B10000000000000000000003 /* Lottie in Frameworks */,
+				W10000000000000000000010 /* WatchConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,16 +104,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		W10000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				W10000000000000000000012 /* WatchConnectivity.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C9024123039A7500047B217 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				W10000000000000000000007 /* Cooltour/SharedCompanion */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		0CBAFE4D302A0ABA0064E786 = {
 			isa = PBXGroup;
 			children = (
 				0CEC1EF3302C5667000A409D /* DenpasarWalk.gpx */,
+				0CEC1EF3302C5667000A409E /* RenonWalk.gpx */,
 				0CBAFE58302A0ABA0064E786 /* Cooltour */,
+				W10000000000000000000006 /* CooltourWatch */,
 				A100000000000000000000E9 /* CooltourTests */,
+				W10000000000000000000013 /* Frameworks */,
 				0CBAFE57302A0ABA0064E786 /* Products */,
+				0C9024123039A7500047B217 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -86,8 +142,17 @@
 			children = (
 				0CBAFE56302A0ABA0064E786 /* Cooltour.app */,
 				A100000000000000000000E2 /* CooltourTests.xctest */,
+				W10000000000000000000001 /* Cooltour Watch.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		W10000000000000000000013 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				W10000000000000000000011 /* WatchConnectivity.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -100,10 +165,12 @@
 				0CBAFE52302A0ABA0064E786 /* Sources */,
 				0CBAFE53302A0ABA0064E786 /* Frameworks */,
 				0CBAFE54302A0ABA0064E786 /* Resources */,
+				W1000000000000000000000C /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				W1000000000000000000000E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				0CBAFE58302A0ABA0064E786 /* Cooltour */,
@@ -139,6 +206,29 @@
 			productReference = A100000000000000000000E2 /* CooltourTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		W10000000000000000000002 /* Cooltour Watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = W1000000000000000000000A /* Build configuration list for PBXNativeTarget "Cooltour Watch" */;
+			buildPhases = (
+				W10000000000000000000003 /* Sources */,
+				W10000000000000000000004 /* Frameworks */,
+				W10000000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				W10000000000000000000006 /* CooltourWatch */,
+				W10000000000000000000007 /* Cooltour/SharedCompanion */,
+			);
+			name = "Cooltour Watch";
+			packageProductDependencies = (
+			);
+			productName = "Cooltour Watch";
+			productReference = W10000000000000000000001 /* Cooltour Watch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -155,6 +245,9 @@
 					A100000000000000000000E1 = {
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = 0CBAFE55302A0ABA0064E786;
+					};
+					W10000000000000000000002 = {
+						CreatedOnToolsVersion = 26.6;
 					};
 				};
 			};
@@ -177,6 +270,7 @@
 			projectRoot = "";
 			targets = (
 				0CBAFE55302A0ABA0064E786 /* Cooltour */,
+				W10000000000000000000002 /* Cooltour Watch */,
 				A100000000000000000000E1 /* CooltourTests */,
 			);
 		};
@@ -191,6 +285,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A100000000000000000000E5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		W10000000000000000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -214,6 +315,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		W10000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -221,6 +329,11 @@
 			isa = PBXTargetDependency;
 			target = 0CBAFE55302A0ABA0064E786 /* Cooltour */;
 			targetProxy = A100000000000000000000EB /* PBXContainerItemProxy */;
+		};
+		W1000000000000000000000E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = W10000000000000000000002 /* Cooltour Watch */;
+			targetProxy = W1000000000000000000000D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -466,6 +579,74 @@
 			};
 			name = Release;
 		};
+		W10000000000000000000008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 325M9R8DH7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Cooltour;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Points toward the cultural site you are hearing about. Location stays on your Apple Watch and is never uploaded.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.challenge5.Cooltour;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.challenge5.Cooltour.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		W10000000000000000000009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 325M9R8DH7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Cooltour;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Points toward the cultural site you are hearing about. Location stays on your Apple Watch and is never uploaded.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.challenge5.Cooltour;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.challenge5.Cooltour.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -492,6 +673,15 @@
 			buildConfigurations = (
 				A100000000000000000000E7 /* Debug */,
 				A100000000000000000000E8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		W1000000000000000000000A /* Build configuration list for PBXNativeTarget "Cooltour Watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				W10000000000000000000008 /* Debug */,
+				W10000000000000000000009 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

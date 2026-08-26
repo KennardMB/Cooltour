@@ -1,6 +1,6 @@
 import Foundation
 
-/// Localized copy for the consent gate (spoken prompt, notifications, Now status).
+/// Localized copy for the consent gate (spoken prompt, notifications, Now status, Watch glance).
 /// Uses an explicit language code so in-app language override works outside SwiftUI `Text`.
 /// String Catalog keys are kept in sync for SwiftUI literals; programmatic strings live here
 /// because `String(localized:locale:)` does not reliably resolve manual catalog keys at runtime.
@@ -31,7 +31,7 @@ enum ConsentStrings {
   static func statusPrompting(languageCode: String) -> String {
     languageCode == "id"
       ? "Cerita di dekat — putar, antre, atau lewati?"
-      : "Story nearby — play, queue, or dismiss?"
+      : "Story nearby — play, queue, or pass?"
   }
 
   static func statusPlaying(title: String, languageCode: String) -> String {
@@ -57,6 +57,13 @@ enum ConsentStrings {
     languageCode == "id" ? "Memulai…" : "Starting up…"
   }
 
+  /// Slice 17 stub / Slice 18 unreachable phone — Watch is not a standalone brain.
+  static func statusPhoneRequired(languageCode: String) -> String {
+    languageCode == "id"
+      ? "Gunakan iPhone yang terpasang"
+      : "Requires the paired iPhone"
+  }
+
   static func playNowAction(languageCode: String) -> String {
     languageCode == "id" ? "Putar sekarang" : "Play now"
   }
@@ -66,11 +73,11 @@ enum ConsentStrings {
   }
 
   static func dismissAction(languageCode: String) -> String {
-    languageCode == "id" ? "Lewati" : "Dismiss"
+    languageCode == "id" ? "Lewati" : "Pass"
   }
 
   static func dismissWithCountdown(_ seconds: Int, languageCode: String) -> String {
-    languageCode == "id" ? "Lewati (\(seconds))" : "Dismiss (\(seconds))"
+    languageCode == "id" ? "Lewati (\(seconds))" : "Pass (\(seconds))"
   }
 
   static func storyPromptAccessibility(siteName: String, languageCode: String) -> String {

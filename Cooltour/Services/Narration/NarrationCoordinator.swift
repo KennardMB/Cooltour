@@ -14,6 +14,8 @@ protocol NarrationCoordinator: AnyObject, Observable {
   var pendingPrompt: PendingPrompt? { get }
   /// Seconds left on the post-speech dismiss countdown; nil when not counting (Slice 11.5).
   var dismissCountdownSeconds: Int? { get }
+  /// Armed when playback for a site starts; cleared on idle / walking-off / leave radius (Slice 20).
+  var wayfindingTarget: WayfindingTarget? { get }
 
   /// A site came into range. The coordinator decides whether to prompt, ignore it (busy), or
   /// queue it. Wired to `proximity.onTrigger` in `AppEnvironment`.
@@ -28,4 +30,11 @@ protocol NarrationCoordinator: AnyObject, Observable {
 
   /// "Add to queue." Plays nothing now; the queue auto-plays it after the current story finishes.
   func queue(promptID: UUID)
+
+  /// Walking mode off (or Watch equivalent): cancel open prompt, clear wayfinding, return to idle.
+  /// Does not play anything.
+  func cancelSession()
+
+  /// Bridge / leave-radius path: drop the arrow target without touching playback.
+  func clearWayfindingTarget()
 }

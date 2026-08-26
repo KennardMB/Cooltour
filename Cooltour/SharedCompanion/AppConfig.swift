@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppConfig {
-  static let appName = "Cooltour"
+  static let appName = "Walkaby"
 
   /// Content packs seeded into the store at launch, in order. Sites from every pack coexist,
   /// so the app (map, proximity, Now) and the Simulate-approach menu span all of them.
@@ -45,4 +45,13 @@ enum AppConfig {
 
   /// Fixed in-app and lock-screen skip jump for story playback. No Settings knob in MVP.
   static let skipIntervalSeconds: TimeInterval = 10
+
+  /// Below this speed, GPS course is ignored and Watch heading is tried instead (Slice 21).
+  static let wayfindingMinWalkingSpeedMetersPerSecond: Double = 0.8
+
+  /// Course accuracy worse than this (degrees) is untrusted — hide or fall back to heading.
+  static let wayfindingMaxCourseAccuracyDegrees: Double = 45
+
+  /// Heading accuracy worse than this (degrees) is untrusted — hide the arrow.
+  static let wayfindingMaxHeadingAccuracyDegrees: Double = 25
 }

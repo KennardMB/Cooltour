@@ -81,6 +81,13 @@ struct NowView: View {
                         .zIndex(10)
                     }
                 }
+                // Watch / stem / notification Play now only call `accept` — same as the on-screen
+                // button, open the sites player so the Now UI stays in sync with audio.
+                .onChange(of: narrationState) { _, newState in
+                    if newState == .playing {
+                        isShowingSitesPlayer = true
+                    }
+                }
             }
             .navigationBarHidden(true)
             .fullScreenCover(isPresented: $isShowingSitesPlayer) {

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Cooltour" xmlns="http://www.topografix.com/GPX/1/1">
+  <!--
+    Renon pack test route (`Cooltour/Resources/renon.json`). Order: Pura Dalem →
+    Diplomatic quarter → Niti Mandala square → Bajra Sandhi → Governor → DPRD →
+    Tukad Yeh Aya food street → Museum Sidik Jari. Each site is entered then left
+    so trigger + re-arm can fire.
+
+    Each <wpt> is stamped 5 seconds after the previous — Xcode uses the time delta
+    as the travel duration between points (not walking speed). Debug ▸ Simulate
+    Location ▸ RenonWalk.gpx with Walking Mode on (phone may be locked).
+  -->
+
+  <!-- Start outside everything (SW of Pura Dalem Renon). -->
+  <wpt lat="-8.675422" lon="115.227110">
+    <time>2026-01-01T00:00:00Z</time>
+  </wpt>
+  <wpt lat="-8.675871" lon="115.227564">
+    <time>2026-01-01T00:00:05Z</time>
+  </wpt>
+
+  <!-- pura-dalem-renon (r=40m) — enter -->
+  <wpt lat="-8.676356" lon="115.228055">
+    <time>2026-01-01T00:00:10Z</time>
+  </wpt>
+  <wpt lat="-8.676500" lon="115.228200">
+    <time>2026-01-01T00:00:15Z</time>
+  </wpt>
+  <!-- leave pura-dalem-renon -->
+  <wpt lat="-8.675235" lon="115.230180">
+    <time>2026-01-01T00:00:20Z</time>
+  </wpt>
+
+  <!-- kawasan-diplomatik-renon (r=45m) — enter -->
+  <wpt lat="-8.674038" lon="115.231636">
+    <time>2026-01-01T00:00:25Z</time>
+  </wpt>
+  <wpt lat="-8.674200" lon="115.231800">
+    <time>2026-01-01T00:00:30Z</time>
+  </wpt>
+  <!-- leave kawasan-diplomatik-renon -->
+  <wpt lat="-8.672165" lon="115.231635">
+    <time>2026-01-01T00:00:35Z</time>
+  </wpt>
+
+  <!-- lapangan-niti-mandala-renon (r=50m) — enter -->
+  <wpt lat="-8.670320" lon="115.231318">
+    <time>2026-01-01T00:00:40Z</time>
+  </wpt>
+  <wpt lat="-8.670500" lon="115.231500">
+    <time>2026-01-01T00:00:45Z</time>
+  </wpt>
+  <!-- leave lapangan-niti-mandala-renon -->
+  <wpt lat="-8.671160" lon="115.232820">
+    <time>2026-01-01T00:00:50Z</time>
+  </wpt>
+
+  <!-- monumen-perjuangan-rakyat-bali (r=40m) — enter -->
+  <wpt lat="-8.671556" lon="115.233755">
+    <time>2026-01-01T00:00:55Z</time>
+  </wpt>
+  <wpt lat="-8.671700" lon="115.233900">
+    <time>2026-01-01T00:01:00Z</time>
+  </wpt>
+  <!-- leave monumen-perjuangan-rakyat-bali -->
+  <wpt lat="-8.670160" lon="115.233680">
+    <time>2026-01-01T00:01:05Z</time>
+  </wpt>
+
+  <!-- kantor-gubernur-bali (r=40m) — enter -->
+  <wpt lat="-8.668756" lon="115.233355">
+    <time>2026-01-01T00:01:10Z</time>
+  </wpt>
+  <wpt lat="-8.668900" lon="115.233500">
+    <time>2026-01-01T00:01:15Z</time>
+  </wpt>
+  <!-- leave kantor-gubernur-bali -->
+  <wpt lat="-8.669395" lon="115.234435">
+    <time>2026-01-01T00:01:20Z</time>
+  </wpt>
+
+  <!-- gedung-dprd-provinsi-bali (r=40m) — enter -->
+  <wpt lat="-8.669656" lon="115.235055">
+    <time>2026-01-01T00:01:25Z</time>
+  </wpt>
+  <wpt lat="-8.669800" lon="115.235200">
+    <time>2026-01-01T00:01:30Z</time>
+  </wpt>
+  <!-- leave gedung-dprd-provinsi-bali -->
+  <wpt lat="-8.674420" lon="115.235090">
+    <time>2026-01-01T00:01:35Z</time>
+  </wpt>
+
+  <!-- pusat-kuliner-tukad-yeh-aya (r=50m) — enter -->
+  <wpt lat="-8.678020" lon="115.234818">
+    <time>2026-01-01T00:01:40Z</time>
+  </wpt>
+  <wpt lat="-8.678200" lon="115.235000">
+    <time>2026-01-01T00:01:45Z</time>
+  </wpt>
+  <!-- leave pusat-kuliner-tukad-yeh-aya -->
+  <wpt lat="-8.669345" lon="115.237640">
+    <time>2026-01-01T00:01:50Z</time>
+  </wpt>
+
+  <!-- museum-sidik-jari (r=35m) — enter -->
+  <wpt lat="-8.661974" lon="115.239673">
+    <time>2026-01-01T00:01:55Z</time>
+  </wpt>
+  <wpt lat="-8.662100" lon="115.239800">
+    <time>2026-01-01T00:02:00Z</time>
+  </wpt>
+  <!-- walk away — all sites re-arm -->
+  <wpt lat="-8.663447" lon="115.240527">
+    <time>2026-01-01T00:02:05Z</time>
+  </wpt>
+  <wpt lat="-8.664346" lon="115.240890">
+    <time>2026-01-01T00:02:10Z</time>
+  </wpt>
+</gpx>
