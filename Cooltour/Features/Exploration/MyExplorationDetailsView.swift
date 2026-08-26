@@ -99,12 +99,12 @@ struct MyExplorationDetailsView: View {
               )
               .padding(.horizontal, AppSpacing.lg)
               
-              // D. Audio Queue Timeline (Sequential from first to last trigger)
-              let sortedEvents = walk.triggerEvents.sorted { $0.firedAt < $1.firedAt }
-              if !sortedEvents.isEmpty {
+              // D. Audio Queue Timeline — one row per site, earliest trigger only.
+              let timelineEvents = uniqueTimelineEvents()
+              if !timelineEvents.isEmpty {
                 VStack(spacing: 0) {
-                  ForEach(Array(sortedEvents.enumerated()), id: \.element.id) { index, event in
-                    let isLast = index == sortedEvents.count - 1
+                  ForEach(Array(timelineEvents.enumerated()), id: \.element.id) { index, event in
+                    let isLast = index == timelineEvents.count - 1
                     let site = env.content.allSites().first(where: { $0.slug == event.siteSlug })
                     let story = site?.stories.first(where: { $0.slug == event.storySlug })
                     let isThisStoryPlaying = isPlaying && currentStory?.slug == story?.slug
@@ -160,6 +160,19 @@ struct MyExplorationDetailsView: View {
         }
       }
     }
+  }
+  
+  /// Chronological unique sites for the timeline — repeats of the same site keep the earliest trigger.
+  private func uniqueTimelineEvents() -> [TriggerEvent] {
+    let sorted = walk.triggerEvents.sorted { $0.firedAt < $1.firedAt }
+    var seen = Set<String>()
+    var unique: [TriggerEvent] = []
+    for event in sorted {
+      guard !seen.contains(event.siteSlug) else { continue }
+      seen.insert(event.siteSlug)
+      unique.append(event)
+    }
+    return unique
   }
   
   private func visitedSiteInfos() -> [(name: String, imageAssetName: String?)] {
