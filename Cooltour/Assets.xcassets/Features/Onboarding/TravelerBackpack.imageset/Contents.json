@@ -1,0 +1,15 @@
+{
+  "images" : [
+    {
+      "filename" : "some guy in a backpack 1 [Vectorized].svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
+  }
+}

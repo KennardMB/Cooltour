@@ -3,18 +3,24 @@ import SwiftUI
 struct RootView: View {
   @Environment(AppEnvironment.self) private var environment
   @Environment(\.scenePhase) private var scenePhase
+  @AppStorage("has_completed_onboarding") private var hasCompletedOnboarding: Bool = false
 
   @State private var isShowingSplash: Bool = true
   @State private var splashTask: Task<Void, Never>?
 
   var body: some View {
     ZStack(alignment: .bottomTrailing) {
-      NowView()
+      if !hasCompletedOnboarding {
+        OnboardingFlowView()
+          .transition(.opacity)
+      } else {
+        NowView()
 
-      // Global Floating Simulate Site Approach Button (Bottom-Right)
-      FloatingSimulateButton(bottomPadding: 24)
+        // Global Floating Simulate Site Approach Button (Bottom-Right)
+        FloatingSimulateButton(bottomPadding: 24)
+      }
 
-      // Animated Splash Screen Overlay (Launch + Foregrounding)
+      // Animated Splash Screen Overlay (Launch only)
       if isShowingSplash {
         SplashScreenView()
           .transition(.opacity)
@@ -28,12 +34,6 @@ struct RootView: View {
       triggerSplash()
       if environment.settings.walkingMode {
         environment.proximity.start()
-      }
-    }
-    .onChange(of: scenePhase) { oldPhase, newPhase in
-      // Show splash screen every time the user re-opens from background / recent apps
-      if newPhase == .active && (oldPhase == .background || oldPhase == .inactive) {
-        triggerSplash()
       }
     }
     .onChange(of: environment.settings.walkingMode) { _, isOn in
