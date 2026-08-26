@@ -13,6 +13,7 @@ struct NowView: View {
     @State private var isShowingMap: Bool = false
     @State private var isShowingPauseOverlay: Bool = false
     @State private var showQueueToast: Bool = false
+    @State private var showPlayerQueueToast: Bool = false
     @State private var locationTitle: String = "Live Location"
     @State private var locationSubtitle: String = "Denpasar, Bali, Indonesia"
     @State private var lastGeocodedCoord: CLLocationCoordinate2D?
@@ -62,8 +63,8 @@ struct NowView: View {
                         wanderingContentView
                     }
 
-                    // 3. Miniplayer (Figma Node 271:2441)
-                    if env.settings.walkingMode && (isPlaying || currentStory != nil || !env.playlist.carouselEntries.isEmpty) {
+                    // 3. Miniplayer (Figma Node 271:2441) - ONLY during active wandering, hidden during site prompt
+                    if env.settings.walkingMode && narrationState != .prompting && (isPlaying || currentStory != nil || !env.playlist.carouselEntries.isEmpty) {
                         NowMiniplayerView {
                             isShowingSitesPlayer = true
                         }
@@ -74,7 +75,7 @@ struct NowView: View {
                     // 4. Queue Toast / Snackbar Notification
                     if showQueueToast {
                         queueToastView
-                            .padding(.bottom, (env.settings.walkingMode && (isPlaying || currentStory != nil || !env.playlist.carouselEntries.isEmpty)) ? 76 : 0)
+                            .padding(.bottom, (env.settings.walkingMode && narrationState != .prompting && (isPlaying || currentStory != nil || !env.playlist.carouselEntries.isEmpty)) ? 76 : 0)
                     }
 
                     // 5. Pause Tour Overlay (Figma Node 209:3795)
@@ -110,10 +111,15 @@ struct NowView: View {
                 }
             }
             .navigationBarHidden(true)
-            .fullScreenCover(isPresented: $isShowingSitesPlayer) {
-                SitesPlayerView(onOpenMap: {
-                    isShowingMap = true
-                })
+            .fullScreenCover(isPresented: $isShowingSitesPlayer, onDismiss: {
+                showPlayerQueueToast = false
+            }) {
+                SitesPlayerView(
+                    initialShowQueueToast: showPlayerQueueToast,
+                    onOpenMap: {
+                        isShowingMap = true
+                    }
+                )
             }
             .sheet(isPresented: $isShowingProfile) {
                 ProfileView()
@@ -504,10 +510,8 @@ struct NowView: View {
                         // "add to queue" button (Brush Orange)
                         Button {
                             env.narration.queue(promptID: prompt.id)
-                            triggerQueueToast()
-                            if env.audio.isPlaying || env.audio.currentStory != nil {
-                                isShowingSitesPlayer = true
-                            }
+                            showPlayerQueueToast = true
+                            isShowingSitesPlayer = true
                         } label: {
                             ZStack {
                                 Image("BrushButtonOrange")
@@ -598,7 +602,7 @@ struct NowView: View {
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
-            .padding(.bottom, hasActiveAudio ? 96 : 28)
+            .padding(.bottom, 28)
             .accessibilityElement(children: .contain)
             .accessibilityLabel(
                 ConsentStrings.storyPromptAccessibility(

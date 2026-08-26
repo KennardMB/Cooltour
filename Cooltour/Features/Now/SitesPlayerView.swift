@@ -7,6 +7,7 @@ public struct SitesPlayerView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppEnvironment.self) private var env
 
+    public var initialShowQueueToast: Bool
     public var onOpenMap: (() -> Void)?
 
     @State private var currentSiteIndex: Int = 0
@@ -16,8 +17,10 @@ public struct SitesPlayerView: View {
     @State private var isShowingSpeedSheet: Bool = false
     @State private var isScrubbing: Bool = false
     @State private var scrubProgress: Double = 0.0
+    @State private var showQueueToast: Bool = false
 
-    public init(onOpenMap: (() -> Void)? = nil) {
+    public init(initialShowQueueToast: Bool = false, onOpenMap: (() -> Void)? = nil) {
+        self.initialShowQueueToast = initialShowQueueToast
         self.onOpenMap = onOpenMap
     }
 
@@ -298,6 +301,11 @@ public struct SitesPlayerView: View {
                     .transition(.opacity)
                 }
 
+                // 11. Queue Toast / Snackbar Notification (inside player)
+                if showQueueToast {
+                    queueToastView
+                }
+
                 // Global Floating Simulate Site Approach Button
                 FloatingSimulateButton(bottomPadding: 32)
             }
@@ -320,6 +328,9 @@ public struct SitesPlayerView: View {
             }
             .onAppear {
                 syncCarouselFromPlaylist(playheadIndex: playheadIndex, entryCount: entries.count)
+                if initialShowQueueToast {
+                    triggerQueueToast()
+                }
             }
             .onChange(of: playheadIndex) { _, newValue in
                 syncCarouselFromPlaylist(playheadIndex: newValue, entryCount: entries.count)
@@ -327,12 +338,75 @@ public struct SitesPlayerView: View {
             .onChange(of: entries.map(\.id)) { _, _ in
                 syncCarouselFromPlaylist(playheadIndex: playheadIndex, entryCount: entries.count)
             }
+            .onChange(of: queuedItems.count) { oldCount, newCount in
+                if newCount > oldCount {
+                    triggerQueueToast()
+                }
+            }
             .onChange(of: narrationState) { _, newState in
                 if newState == .prompting {
                     dismiss()
                 }
             }
             }
+            }
+        }
+    }
+
+    // MARK: - Queue Toast View & Trigger
+
+    private var queueToastView: some View {
+        VStack {
+            Spacer()
+
+            HStack(spacing: 12) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(Color(red: 1/255, green: 181/255, blue: 82/255)) // #01B552
+
+                Text("Added to queue")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.white)
+
+                Spacer()
+
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        showQueueToast = false
+                        isShowingQueueSheet = true
+                    }
+                } label: {
+                    Text("Open")
+                        .font(.custom("Baru Lagi", size: 16))
+                        .foregroundStyle(Color(red: 255/255, green: 102/255, blue: 52/255)) // #FF6634
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open queue")
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(red: 27/255, green: 27/255, blue: 27/255))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: Color.black.opacity(0.24), radius: 10, x: 0, y: 5)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+        .zIndex(20)
+    }
+
+    private func triggerQueueToast() {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+            showQueueToast = true
+        }
+        Task {
+            try? await Task.sleep(nanoseconds: 3_500_000_000)
+            withAnimation(.easeInOut(duration: 0.25)) {
+                showQueueToast = false
             }
         }
     }
