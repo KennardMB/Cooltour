@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "W10000000000000000000002"
-               BuildableName = "Cooltour Watch.app"
-               BlueprintName = "Cooltour Watch"
-               ReferencedContainer = "container:Cooltour.xcodeproj">
+               BlueprintIdentifier = "0CBAFE55302A0ABA0064E786"
+               BuildableName = "Walkaby.app"
+               BlueprintName = "Walkaby"
+               ReferencedContainer = "container:Walkaby.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -26,8 +26,19 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A100000000000000000000E1"
+               BuildableName = "WalkabyTests.xctest"
+               BlueprintName = "WalkabyTests"
+               ReferencedContainer = "container:Walkaby.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -43,10 +54,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "W10000000000000000000002"
-            BuildableName = "Cooltour Watch.app"
-            BlueprintName = "Cooltour Watch"
-            ReferencedContainer = "container:Cooltour.xcodeproj">
+            BlueprintIdentifier = "0CBAFE55302A0ABA0064E786"
+            BuildableName = "Walkaby.app"
+            BlueprintName = "Walkaby"
+            ReferencedContainer = "container:Walkaby.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -60,10 +71,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "W10000000000000000000002"
-            BuildableName = "Cooltour Watch.app"
-            BlueprintName = "Cooltour Watch"
-            ReferencedContainer = "container:Cooltour.xcodeproj">
+            BlueprintIdentifier = "0CBAFE55302A0ABA0064E786"
+            BuildableName = "Walkaby.app"
+            BlueprintName = "Walkaby"
+            ReferencedContainer = "container:Walkaby.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

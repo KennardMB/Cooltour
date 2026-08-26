@@ -2,7 +2,7 @@ import Foundation
 import Testing
 import UIKit
 
-@testable import Cooltour
+@testable import Walkaby
 
 @Suite("Content Pack Integrity Tests")
 struct ContentPackIntegrityTests {

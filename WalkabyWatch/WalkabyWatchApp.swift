@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct CooltourWatchApp: App {
+struct WalkabyWatchApp: App {
   @State private var session: WatchSessionClient
   @State private var wayfinding = WatchWayfinding()
   @Environment(\.scenePhase) private var scenePhase

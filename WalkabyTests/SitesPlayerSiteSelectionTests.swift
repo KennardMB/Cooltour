@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Cooltour
+@testable import Walkaby
 
 @MainActor
 struct SitesPlayerSiteSelectionTests {

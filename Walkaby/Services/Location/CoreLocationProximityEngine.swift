@@ -31,7 +31,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
 
   /// Same name every launch: the monitored conditions are stored by the system under it, so a
   /// relaunched process picks up the existing set instead of registering duplicates.
-  private static let monitorName = "CooltourSiteMonitor"
+  private static let monitorName = "WalkabySiteMonitor"
 
   private let content: any ContentStore
   /// Kept only for the authorization prompt and status; the fixes come from `CLLocationUpdate`.

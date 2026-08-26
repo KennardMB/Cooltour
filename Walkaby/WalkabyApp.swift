@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct CooltourApp: App {
+struct WalkabyApp: App {
   @State private var environment: AppEnvironment
   private let container: ModelContainer
 
