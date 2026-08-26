@@ -68,7 +68,8 @@ final class LocalContentStore: ContentStore {
           longitude: siteData.lng,
           triggerRadiusMeters: siteData.triggerRadiusMeters,
           headingRequired: siteData.headingRequired,
-          thumbnailAssetName: siteData.imageFile
+          thumbnailAssetName: siteData.imageFile,
+          imageSource: siteData.imageSource
         )
         context.insert(site)
 

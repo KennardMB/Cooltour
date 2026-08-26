@@ -176,13 +176,18 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     dismissCountdownSeconds = nil
 
     let id = prompt.id
-    // Only arm remote control (AirPod stem press) if no story was active.
-    // When a story is already active (playing or paused), media controls belong to that story.
-    if !pausedForSpokenPrompt && audio.currentStory == nil {
-      remoteControl.arm(title: story.title) { [weak self] in
+    // Arm remote control for AirPod gestures during the prompt:
+    // - Single-click / squeeze: "Play Now"
+    // - Double-click / double-squeeze: "Add to Queue"
+    remoteControl.arm(
+      title: story.title,
+      onPlay: { [weak self] in
         self?.accept(promptID: id)
+      },
+      onQueue: { [weak self] in
+        self?.queue(promptID: id)
       }
-    }
+    )
     notifications?.postPrompt(prompt)
     approachChime.play { [weak self] in
       self?.promptVoice.speak(spoken, languageCode: languageCode)

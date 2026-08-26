@@ -12,6 +12,7 @@ final class Site {
   var triggerRadiusMeters: Double
   var headingRequired: Bool
   var thumbnailAssetName: String?
+  var imageSource: String?
 
   @Relationship(deleteRule: .cascade, inverse: \Story.site)
   var stories: [Story] = []
@@ -24,7 +25,8 @@ final class Site {
     longitude: Double,
     triggerRadiusMeters: Double,
     headingRequired: Bool,
-    thumbnailAssetName: String? = nil
+    thumbnailAssetName: String? = nil,
+    imageSource: String? = nil
   ) {
     self.slug = slug
     self.name = name
@@ -34,5 +36,6 @@ final class Site {
     self.triggerRadiusMeters = triggerRadiusMeters
     self.headingRequired = headingRequired
     self.thumbnailAssetName = thumbnailAssetName
+    self.imageSource = imageSource
   }
 }

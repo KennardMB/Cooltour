@@ -297,8 +297,8 @@ struct ConsentNarrationCoordinatorTests {
     #expect(audio.currentStory?.slug == "b-1")
   }
 
-  @Test func triggerWhilePlayingDoesNotArmStemPressForNewPrompt() {
-    let (coordinator, audio, _, _, remote, _) = makeCoordinator()
+  @Test func triggerWhilePlayingArmsStemSinglePressPlayAndDoublePressQueue() {
+    let (coordinator, audio, _, _, remote, queue) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
     coordinator.accept(promptID: coordinator.pendingPrompt!.id)
     #expect(audio.isPlaying)
@@ -308,12 +308,32 @@ struct ConsentNarrationCoordinatorTests {
     coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
     #expect(coordinator.state == .prompting)
     #expect(coordinator.pendingPrompt?.siteSlug == "b")
-    #expect(!remote.isArmed)
+    #expect(remote.isArmed)
 
-    // Simulating stem press should not trigger acceptance of site B
-    remote.simulateStemPress()
-    #expect(coordinator.state == .prompting)
+    // Simulating double stem press should add site B to queue and resume A
+    remote.simulateDoubleStemPress()
+    #expect(coordinator.state == .playing)
+    #expect(queue.items.contains(where: { $0.storySlug == "b-1" }))
     #expect(audio.currentStory?.slug == "a-1")
+    #expect(!remote.isArmed)
+  }
+
+  @Test func triggerWhilePlayingSingleStemPressPlaysNewStory() {
+    let (coordinator, audio, _, _, remote, _) = makeCoordinator()
+    coordinator.handleTrigger(site: makeSite(slug: "a", name: "A"), story: makeStory(slug: "a-1"))
+    coordinator.accept(promptID: coordinator.pendingPrompt!.id)
+    #expect(audio.isPlaying)
+
+    // Trigger site B while A is playing
+    coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
+    #expect(coordinator.state == .prompting)
+    #expect(remote.isArmed)
+
+    // Simulating single stem press should play site B
+    remote.simulateStemPress()
+    #expect(coordinator.state == .playing)
+    #expect(audio.currentStory?.slug == "b-1")
+    #expect(!remote.isArmed)
   }
 
   @Test func pauseAndResumeDuringPromptKeepsOriginalStory() async {
@@ -338,7 +358,7 @@ struct ConsentNarrationCoordinatorTests {
 
     coordinator.handleTrigger(site: makeSite(slug: "b", name: "B"), story: makeStory(slug: "b-1"))
     #expect(coordinator.state == .prompting)
-    #expect(!remote.isArmed)
+    #expect(remote.isArmed)
 
     // Pause audio while prompt is active
     audio.pause()

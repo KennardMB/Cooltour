@@ -11,10 +11,15 @@ import Foundation
 /// process-wide singleton.
 @MainActor
 protocol ConsentRemoteControl: AnyObject {
-  /// Register a one-shot play handler and show `title` as the pending now-playing item, so a stem
-  /// squeeze answers "play now" and the lock screen shows what's on offer.
-  func arm(title: String, onPlay: @escaping () -> Void)
+  /// Register a single-click handler (play now), an optional double-click handler (add to queue),
+  /// and show `title` as the pending now-playing item.
+  func arm(
+    title: String,
+    onPlay: @escaping () -> Void,
+    onQueue: (() -> Void)?
+  )
 
-  /// Remove the handler and clear the pending now-playing item. Safe to call when not armed.
+  /// Remove handlers and clear the pending now-playing item. Safe to call when not armed.
   func disarm()
 }
+

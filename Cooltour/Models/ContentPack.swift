@@ -16,6 +16,7 @@ struct ContentPack: Decodable {
     let triggerRadiusMeters: Double
     let headingRequired: Bool
     let imageFile: String?
+    let imageSource: String?
     let stories: [StoryData]
   }
 

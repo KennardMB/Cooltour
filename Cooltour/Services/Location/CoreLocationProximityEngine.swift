@@ -39,6 +39,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
   private var evaluator = ProximityEvaluator()
   private var updates: Task<Void, Never>?
   private var monitorTask: Task<Void, Never>?
+  private var monitor: CLMonitor?
   private var backgroundSession: CLBackgroundActivitySession?
   private var hasRequestedAlways = false
   /// Site coordinates don't move; rebuilding a `CLLocation` per site per fix is pure waste.
@@ -47,6 +48,11 @@ final class CoreLocationProximityEngine: ProximityEngine {
   init(content: any ContentStore) {
     self.content = content
     self.authorizationStatus = manager.authorizationStatus
+    if !isBackgroundTriggeringEnabled {
+      monitorTask = Task { [weak self] in
+        await self?.syncMonitor(enabled: false)
+      }
+    }
   }
 
   var isBackgroundTriggeringEnabled: Bool {
@@ -68,6 +74,7 @@ final class CoreLocationProximityEngine: ProximityEngine {
     }
     // Runs either way: with the feature off this is what removes conditions registered
     // while it was on, so a disabled app can't still be woken by a geofence.
+    monitorTask?.cancel()
     monitorTask = Task { [weak self] in
       await self?.syncMonitor(enabled: backgroundEnabled)
     }
@@ -99,12 +106,17 @@ final class CoreLocationProximityEngine: ProximityEngine {
     updates?.cancel()
     updates = nil
     monitorTask?.cancel()
-    monitorTask = nil
     // Ends the background grant immediately rather than at the next launch.
     backgroundSession?.invalidate()
     backgroundSession = nil
     isListening = false
     cachedLocations.removeAll()
+
+    // Immediately remove CLMonitor conditions from the iOS system daemon
+    // reusing the single monitor instance so iOS stops background geofencing.
+    monitorTask = Task { [weak self] in
+      await self?.syncMonitor(enabled: false)
+    }
   }
 
   func clearLog() {
@@ -122,10 +134,19 @@ final class CoreLocationProximityEngine: ProximityEngine {
     manager.requestAlwaysAuthorization()
   }
 
+  private func getOrCreateMonitor() async -> CLMonitor {
+    if let existing = monitor {
+      return existing
+    }
+    let newMonitor = await CLMonitor(Self.monitorName)
+    self.monitor = newMonitor
+    return newMonitor
+  }
+
   /// Reconciles the monitored set with the setting. Adding a condition that's already recorded
   /// would re-register it on every launch, so existing identifiers are left alone.
   private func syncMonitor(enabled: Bool) async {
-    let monitor = await CLMonitor(Self.monitorName)
+    let monitor = await getOrCreateMonitor()
 
     guard enabled else {
       for identifier in await monitor.identifiers {
