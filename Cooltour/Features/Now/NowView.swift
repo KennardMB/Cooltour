@@ -35,12 +35,17 @@ struct NowView: View {
         return env.proximity.nearbySites.filter { $0.distanceMeters <= 1000 }.count
     }
 
+    private var hasActiveAudio: Bool {
+        env.audio.isPlaying || env.audio.currentStory != nil || !env.playlist.carouselEntries.isEmpty
+    }
+
     var body: some View {
         NavigationStack {
             // Opens Observation scopes
             ObservingNarration(coordinator: env.narration) { narrationState, prompt, countdown in
                 ObservingPlaylist(playlist: env.playlist) { _, _, _ in
-                ZStack {
+                ObservingAudio(audio: env.audio) { isPlaying, isLoading, currentStory, progress in
+                ZStack(alignment: .bottom) {
                     // 1. Grid Background Texture (Figma Tile Background #F8F7F4)
                     TiledBackgroundView()
                         .ignoresSafeArea()
@@ -53,16 +58,26 @@ struct NowView: View {
                         // State C: Discovered Site Prompt (Figma Node 223:1448)
                         discoveredSitePromptView(prompt: prompt, countdown: countdown)
                     } else {
-                        // State B: Wandering / Exploring Screen (Figma Node 223:1414)
+                        // State B: Wandering / Exploring Screen (Figma Node 223:1414 & 265:2325)
                         wanderingContentView
                     }
 
-                    // 3. Queue Toast / Snackbar Notification
-                    if showQueueToast {
-                        queueToastView
+                    // 3. Miniplayer (Figma Node 271:2441)
+                    if env.settings.walkingMode && (isPlaying || currentStory != nil || !env.playlist.carouselEntries.isEmpty) {
+                        NowMiniplayerView {
+                            isShowingSitesPlayer = true
+                        }
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(5)
                     }
 
-                    // 4. Pause Tour Overlay (Figma Node 209:3795)
+                    // 4. Queue Toast / Snackbar Notification
+                    if showQueueToast {
+                        queueToastView
+                            .padding(.bottom, (env.settings.walkingMode && (isPlaying || currentStory != nil || !env.playlist.carouselEntries.isEmpty)) ? 76 : 0)
+                    }
+
+                    // 5. Pause Tour Overlay (Figma Node 209:3795)
                     if isShowingPauseOverlay {
                         PauseTourOverlay(
                             onResume: {
@@ -90,6 +105,7 @@ struct NowView: View {
                     if newState == .playing {
                         isShowingSitesPlayer = true
                     }
+                }
                 }
                 }
             }
@@ -265,60 +281,69 @@ struct NowView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
 
-                // Center Top: Pulsating Location Dot + Headline + Subtitle Caption (Figma Node 243:1523)
-                VStack(spacing: 8) {
-                    PulsatingLocationDot()
-                        .padding(.bottom, 4)
+                // 2. Headline: "start walking" (Figma Node 265:2332)
+                Text("start walking")
+                    .font(.custom("Baru Lagi", size: 28))
+                    .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 24)
 
+                // 3. Center Hero Illustration (Figma Node 265:2333)
+                NowHeroIllustrationView(isAnimated: true)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 400)
+                    .padding(.top, 8)
+
+                // 4. Copywriting: Site detection status (Figma Node 265:2334)
+                VStack(spacing: 4) {
                     if nearbySitesCount > 0 {
                         Text("\(nearbySitesCount) sites near you!")
-                            .font(.custom("Baru Lagi", size: 20))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
                             .multilineTextAlignment(.center)
 
-                        Text("Keep wandering until you passed by one!")
-                            .font(.system(size: 16, weight: .regular))
+                        Text("keep wandering until you passed by one!")
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
                             .multilineTextAlignment(.center)
                     } else {
-                        Text("No Site yet,\nKeep Wandering!")
-                            .font(.custom("Baru Lagi", size: 20))
+                        Text("no sites near you yet")
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
                             .multilineTextAlignment(.center)
-                            .lineSpacing(4)
 
-                        Text("until you discover cultural stories")
-                            .font(.system(size: 16, weight: .regular))
+                        Text("walk around first!")
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
                             .multilineTextAlignment(.center)
                     }
                 }
-                .padding(.top, 20)
+                .padding(.horizontal, 24)
 
-                // Center: Hero Illustration (Full width)
-                NowHeroIllustrationView()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 400)
-                    .padding(.top, 10)
+                Spacer(minLength: 40)
 
-                // Bottom Content: "open map" Button
-                VStack(spacing: 0) {
-                    // Open Map Button (Figma Node 241:1618)
-                    Button {
-                        isShowingMap = true
-                    } label: {
-                        Image("BrushButtonOpenMap")
+                // 5. Bottom Action: "View Map (Cheating)" Button (Figma Node 265:2335)
+                Button {
+                    isShowingMap = true
+                } label: {
+                    ZStack {
+                        Image("BrushRowButton")
                             .resizable()
                             .frame(height: 60)
                             .frame(maxWidth: .infinity)
+
+                        Text("View Map (Cheating)")
+                            .font(.custom("Baru Lagi", size: 16))
+                            .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)) // #686866
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Open map")
-                    .accessibilityHint("Opens the full map view")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel("View Map (Cheating)")
+                .accessibilityHint("Opens the full map view")
                 .padding(.horizontal, 24)
-                .padding(.top, 16)
-                .padding(.bottom, 28)
+                .padding(.bottom, hasActiveAudio ? 96 : 28)
             }
         }
     }
@@ -573,7 +598,7 @@ struct NowView: View {
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
-            .padding(.bottom, 28)
+            .padding(.bottom, hasActiveAudio ? 96 : 28)
             .accessibilityElement(children: .contain)
             .accessibilityLabel(
                 ConsentStrings.storyPromptAccessibility(
@@ -738,39 +763,6 @@ struct NowView: View {
 
     private func loadSiteImage(name: String?) -> UIImage? {
         AssetResolver.siteImage(named: name)
-    }
-}
-
-// MARK: - Pulsating Location Dot
-
-private struct PulsatingLocationDot: View {
-    @State private var isPulsing: Bool = false
-
-    var body: some View {
-        ZStack {
-            // Outer soft pulse ring
-            Circle()
-                .fill(Color(red: 29/255, green: 82/255, blue: 216/255).opacity(isPulsing ? 0.12 : 0.35))
-                .frame(width: 76, height: 76)
-                .scaleEffect(isPulsing ? 1.25 : 0.85)
-
-            // Middle pulse ring
-            Circle()
-                .fill(Color(red: 29/255, green: 82/255, blue: 216/255).opacity(isPulsing ? 0.30 : 0.55))
-                .frame(width: 58, height: 58)
-                .scaleEffect(isPulsing ? 1.12 : 0.9)
-
-            // Core solid location circle
-            Circle()
-                .fill(Color(red: 29/255, green: 82/255, blue: 216/255)) // #1D52D8
-                .frame(width: 44, height: 44)
-        }
-        .frame(width: 80, height: 80)
-        .onAppear {
-            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
-                isPulsing = true
-            }
-        }
     }
 }
 

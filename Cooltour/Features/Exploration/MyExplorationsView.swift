@@ -39,9 +39,10 @@ struct MyExplorationsView: View {
       .padding(.top, AppSpacing.sm)
       
       // Exploration Walk Cards List
+      let savedWalks = walks.filter { !$0.triggerEvents.isEmpty }
       ScrollView {
         VStack(spacing: 20) {
-          if walks.isEmpty {
+          if savedWalks.isEmpty {
             // Empty State (Figma Node 223:1498)
             VStack(spacing: 20) {
               Spacer(minLength: 20)
@@ -62,7 +63,7 @@ struct MyExplorationsView: View {
             .frame(maxWidth: .infinity)
             .padding(.top, 20)
           } else {
-            ForEach(Array(walks.enumerated()), id: \.element.id) { index, walk in
+            ForEach(Array(savedWalks.enumerated()), id: \.element.id) { index, walk in
               let events = walk.triggerEvents.sorted { $0.firedAt > $1.firedAt }
               let title = walkTitle(for: walk, events: events)
               let timeText = walk.startedAt.formatted(date: .omitted, time: .shortened)

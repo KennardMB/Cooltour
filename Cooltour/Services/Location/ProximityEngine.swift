@@ -25,6 +25,7 @@ extension ProximityEngine {
     distanceMeters: Double = 10,
     wasBackground: Bool = false
   ) {
+    guard isListening else { return }
     guard let story = site.stories.first else { return }
     let event = ProximityEvent(
       date: .now,

@@ -47,18 +47,17 @@ final class AppEnvironment {
     // Apply the persisted speed before anything can play.
     self.audio.setRate(Float(settings.defaultPlaybackSpeed))
     
-    // Wire history logging. Capturing `history` weakly isn't strictly necessary since it doesn't
-    // retain the proximity engine, but keeps closures clean.
-    // Logged as `.pending` at trigger time; the coordinator's `onOutcome` resolves it once the
-    // user answers (or the prompt times out).
-    self.proximity.onEventLogged = { [weak history] event in
+    // Wire history logging only when walking mode is active. Capturing `history` and `settings` weakly
+    // keeps closures clean and prevents background/spurious entries when exploration is inactive.
+    self.proximity.onEventLogged = { [weak history, weak settings] event in
+      guard settings?.walkingMode == true else { return }
       history?.addEvent(from: event, outcome: .pending)
     }
 
-    // The one place proximity meets the consent gate. Captures the local rather than self, so
-    // the engine's callback can't retain the environment.
-    self.proximity.onTrigger = { site, story in
-      narration.handleTrigger(site: site, story: story)
+    // The one place proximity meets the consent gate. Only fires when walking mode is active.
+    self.proximity.onTrigger = { [weak narration, weak settings] site, story in
+      guard settings?.walkingMode == true else { return }
+      narration?.handleTrigger(site: site, story: story)
     }
 
     // Route interactive notification answers into the narration coordinator.

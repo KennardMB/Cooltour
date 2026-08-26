@@ -15,8 +15,10 @@ struct RootView: View {
       } else {
         NowView()
 
-        // Global Floating Simulate Site Approach Button (Bottom-Right)
-        FloatingSimulateButton(bottomPadding: 24)
+        // Global Floating Simulate Site Approach Button (Only visible during active exploration)
+        if environment.settings.walkingMode {
+          FloatingSimulateButton(bottomPadding: 24)
+        }
       }
 
       // Animated Splash Screen Overlay (Cold Launch only)
@@ -26,14 +28,19 @@ struct RootView: View {
           .zIndex(999)
       }
     }
-    // Walking mode, not the app appearing, is what starts listening now (Slice 11). A walk that
-    // was on when the app was last quit resumes on launch; otherwise the app stays silent until
-    // the user turns walking mode on.
+    // Walking mode, not the app appearing, is what starts listening now (Slice 11).
     .onAppear {
       triggerSplash()
       if environment.settings.walkingMode {
         environment.proximity.start()
       }
+    }
+    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+      environment.history.stopWalk()
+      environment.settings.walkingMode = false
+      UserDefaults.standard.set(false, forKey: AppConfig.walkingModeKey)
+      environment.proximity.stop()
+      environment.audio.stop()
     }
     .onChange(of: environment.settings.walkingMode) { _, isOn in
       if isOn {

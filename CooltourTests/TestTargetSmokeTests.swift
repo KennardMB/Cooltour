@@ -67,6 +67,15 @@ struct TestTargetSmokeTests {
     #expect(staticView.isAnimated == false)
   }
 
+  @Test @MainActor func nowMiniplayerViewCanInitializeAndTap() {
+    var tapped = false
+    let view = NowMiniplayerView(onTap: {
+      tapped = true
+    })
+    view.onTap()
+    #expect(tapped == true)
+  }
+
   @Test @MainActor func onboardingFlowViewCanInitializeAndFinish() {
     var finished = false
     let view = OnboardingFlowView(onFinish: {
