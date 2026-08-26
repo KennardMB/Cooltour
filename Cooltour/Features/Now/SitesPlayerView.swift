@@ -13,7 +13,6 @@ public struct SitesPlayerView: View {
     @State private var isSyncingCarousel = false
     @State private var isShowingFullTranscript: Bool = false
     @State private var isShowingQueueSheet: Bool = false
-    @State private var isShowingPauseOverlay: Bool = false
     @State private var isShowingSpeedSheet: Bool = false
     @State private var isScrubbing: Bool = false
     @State private var scrubProgress: Double = 0.0
@@ -38,9 +37,8 @@ public struct SitesPlayerView: View {
 
             ZStack(alignment: .bottomTrailing) {
                 VStack(spacing: 0) {
-                    // 1. Top Header: Minimize Chevron + Location Indicator + Pause Button
-                    HStack(spacing: 8) {
-                        // Dismiss / Minimize Chevron Button (top left)
+                    // 1. Top Header: Minimize Chevron (top left)
+                    HStack {
                         Button {
                             dismiss()
                         } label: {
@@ -56,40 +54,7 @@ public struct SitesPlayerView: View {
                         .accessibilityLabel("Minimize player")
                         .accessibilityHint("Returns to the main view")
 
-                        // Regional Location Indicator
-                        HStack(spacing: 8) {
-                            Image(env.proximity.authorizationStatus == .authorizedWhenInUse || env.proximity.authorizationStatus == .authorizedAlways ? "IconLocationActive" : "IconLocationInactive")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 32, height: 32)
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("You are now in")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundStyle(Color(red: 57/255, green: 57/255, blue: 57/255))
-
-                                Text(currentRegionalLocationString(activeSite: activeSite))
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
-                                    .lineLimit(1)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        // Pause Walk Button (Figma Node 241:1593)
-                        Button {
-                            env.audio.pause()
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isShowingPauseOverlay = true
-                            }
-                        } label: {
-                            Image("BrushButtonPause")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 112, height: 40)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Pause walk")
+                        Spacer()
                     }
                     .padding(.horizontal, AppSpacing.lg)
                     .padding(.top, AppSpacing.sm)
@@ -258,30 +223,7 @@ public struct SitesPlayerView: View {
                     .padding(.bottom, 10)
                 }
 
-                // 8. Pause Tour Modal Overlay (Figma Node 209:3795)
-                if isShowingPauseOverlay {
-                    PauseTourOverlay(
-                        onResume: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isShowingPauseOverlay = false
-                            }
-                            env.audio.resume()
-                        },
-                        onEndTour: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isShowingPauseOverlay = false
-                            }
-                            env.audio.stop()
-                            env.proximity.stop()
-                            env.history.stopWalk()
-                            env.playlist.clear()
-                            env.settings.walkingMode = false
-                            dismiss()
-                        }
-                    )
-                }
-
-                // 9. Playback Speed Picker Bottom Sheet (Figma Node 210:1033)
+                // 8. Playback Speed Picker Bottom Sheet (Figma Node 210:1033)
                 if isShowingSpeedSheet {
                     ZStack(alignment: .bottom) {
                         // Semi-opaque backdrop (tap to dismiss)
