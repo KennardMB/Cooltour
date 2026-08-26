@@ -58,6 +58,39 @@ struct RootView: View {
     .onChange(of: environment.settings.appLanguage) { _, _ in
       environment.notifications.syncLocalizedContent()
     }
+    .onOpenURL { url in
+      handleIncomingURL(url)
+    }
+  }
+
+  private func handleIncomingURL(_ url: URL) {
+    guard url.scheme?.lowercased() == "cooltour" else { return }
+
+    var targetSlug: String?
+    if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+      let slugItem = components.queryItems?.first(where: {
+        $0.name == "slug" || $0.name == "site" || $0.name == "id"
+      })?.value
+    {
+      targetSlug = slugItem
+    } else {
+      let pathComponents = url.pathComponents.filter { $0 != "/" && !$0.isEmpty }
+      let host = url.host(percentEncoded: false) ?? url.host
+      if let host, host != "site" && host != "approach" {
+        targetSlug = host
+      } else if let last = pathComponents.last {
+        targetSlug = last
+      }
+    }
+
+    guard let slug = targetSlug else { return }
+    let allSites = environment.content.allSites()
+    if let site = allSites.first(where: { $0.slug.caseInsensitiveCompare(slug) == .orderedSame }) {
+      if !hasCompletedOnboarding {
+        hasCompletedOnboarding = true
+      }
+      environment.proximity.simulateTrigger(site: site)
+    }
   }
 
   private func triggerSplash() {
