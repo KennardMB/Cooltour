@@ -14,7 +14,7 @@ struct MyExplorationDetailsView: View {
   
   init(walk: Walk) {
     self.walk = walk
-    // Initialize default walk title
+    // Default title: first and last visited site ("SiteA - SiteD"), not the full trail.
     let events = walk.triggerEvents.sorted { $0.firedAt < $1.firedAt }
     let defaultTitle: String
     if events.isEmpty {
@@ -22,7 +22,11 @@ struct MyExplorationDetailsView: View {
     } else {
       let names = events.map(\.siteName)
       let unique = Array(NSOrderedSet(array: names)).compactMap { $0 as? String }
-      defaultTitle = unique.joined(separator: " · ")
+      if let first = unique.first, let last = unique.last, first != last {
+        defaultTitle = "\(first) - \(last)"
+      } else {
+        defaultTitle = unique.first ?? "Exploration walk"
+      }
     }
     _walkTitle = State(initialValue: defaultTitle)
   }
@@ -76,6 +80,9 @@ struct MyExplorationDetailsView: View {
               
               // C. Exploration Summary Badges
               let placesCount = max(1, walk.triggerEvents.count)
+              // Future development — Exploration Badge Distance:
+              // Placeholder only (places × 0.7 km). Replace with real distance
+              // (sum consecutive unique site coordinates, or a recorded GPS path).
               let distanceEstimate = Double(placesCount) * 0.7
               ExplorationSummaryStats(
                 placesVisitedCount: placesCount,
