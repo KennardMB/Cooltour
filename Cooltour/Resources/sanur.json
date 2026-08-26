@@ -11,6 +11,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "prasasti-blanjong.jpg",
+      "imageSource": "https://ebooks.denpasartourism.com/en/prasasti-blanjong/",
       "stories": [
         {
           "slug": "prasasti-blanjong-01",
@@ -41,6 +42,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "museum-le-mayeur.jpg",
+      "imageSource": "https://themerusanur.com/blog/le-mayeur-museum-in-sanur-bali/",
       "stories": [
         {
           "slug": "museum-le-mayeur-01",
@@ -71,6 +73,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "pantai-matahari-terbit.jpg",
+      "imageSource": "https://ebooks.denpasartourism.com/en/pantai-matahari-terbit/",
       "stories": [
         {
           "slug": "pantai-matahari-terbit-01",
@@ -101,6 +104,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "pura-segara-sanur.jpg",
+      "imageSource": "https://ebooks.denpasartourism.com/pura-segara/",
       "stories": [
         {
           "slug": "pura-segara-sanur-01",
@@ -131,6 +135,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "grand-inna-bali-beach.png",
+      "imageSource": "https://inna-grand-bali-beach-sanur.all-balihotels.net/",
       "stories": [
         {
           "slug": "grand-inna-bali-beach-01",
@@ -161,6 +166,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "pantai-karang.jpg",
+      "imageSource": "https://denpasartourism.com/en/article/pantai-karang",
       "stories": [
         {
           "slug": "pantai-karang-01",
@@ -191,6 +197,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "warung-mak-beng.jpg",
+      "imageSource": "https://warungmakbeng.id/",
       "stories": [
         {
           "slug": "warung-mak-beng-01",
@@ -221,6 +228,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "pura-mertasari-mangrove.jpg",
+      "imageSource": "https://bali.idntimes.com/news/bali/asal-usul-berdirinya-pura-dalem-pengembak-mertasari-di-sanur-00-lm183-cfqb0j",
       "stories": [
         {
           "slug": "pura-mertasari-mangrove-01",

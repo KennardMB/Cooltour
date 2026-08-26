@@ -27,6 +27,9 @@ struct ContentPackIntegrityTests {
       #expect(!site.name.isEmpty)
       #expect(site.imageFile != nil)
       #expect(!site.imageFile!.isEmpty)
+      #expect(site.imageSource != nil)
+      #expect(!site.imageSource!.isEmpty)
+      #expect(site.imageSource!.hasPrefix("http"))
       #expect(!site.stories.isEmpty)
 
       for story in site.stories {
@@ -51,6 +54,9 @@ struct ContentPackIntegrityTests {
       #expect(!site.name.isEmpty)
       #expect(site.imageFile != nil)
       #expect(!site.imageFile!.isEmpty)
+      #expect(site.imageSource != nil)
+      #expect(!site.imageSource!.isEmpty)
+      #expect(site.imageSource!.hasPrefix("http"))
       #expect(!site.stories.isEmpty)
 
       for story in site.stories {
@@ -122,6 +128,14 @@ struct ContentPackIntegrityTests {
         }
       }
     }
+  }
+
+  @Test func appIconResolvesForMediaArtwork() {
+    let candidateBundles = [Bundle.main, Bundle(for: DummyTestAnchor.self)]
+    let appIconFound = candidateBundles.contains { bundle in
+      AssetResolver.appIconImage(bundle: bundle) != nil
+    }
+    #expect(appIconFound, "App icon image should resolve for media player artwork")
   }
 }
 

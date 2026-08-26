@@ -256,13 +256,19 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       return
     }
 
-    let info: [String: Any] = [
+    var info: [String: Any] = [
       MPMediaItemPropertyTitle: story.title,
       MPMediaItemPropertyArtist: story.site?.name ?? AppConfig.appName,
       MPMediaItemPropertyPlaybackDuration: activePlayer.duration,
       MPNowPlayingInfoPropertyElapsedPlaybackTime: activePlayer.currentTime,
       MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(rate) : 0.0,
     ]
+
+    if let image = AssetResolver.appIconImage() ?? AssetResolver.siteImage(named: story.site?.thumbnailAssetName) {
+      let artwork = AssetResolver.mediaArtwork(for: image)
+      info[MPMediaItemPropertyArtwork] = artwork
+    }
+
     MPNowPlayingInfoCenter.default().nowPlayingInfo = info
   }
 

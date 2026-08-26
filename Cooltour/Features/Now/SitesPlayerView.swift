@@ -456,9 +456,23 @@ private struct SitePhotoCard: View {
             .clipped()
 
             HStack {
-                Text("Source: ADA.com")
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(AppColor.Text.secondary)
+                if let source = site.imageSource, let url = URL(string: source) {
+                    let host = url.host?.replacingOccurrences(of: "www.", with: "") ?? "website"
+                    Link(destination: url) {
+                        HStack(spacing: 3) {
+                            Text("Source:")
+                                .foregroundStyle(AppColor.Text.secondary)
+                            Text(host)
+                                .foregroundStyle(AppColor.Brand.primary)
+                                .underline()
+                        }
+                        .font(.system(size: 11, weight: .regular))
+                    }
+                } else if let source = site.imageSource, !source.isEmpty {
+                    Text("Source: \(source)")
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundStyle(AppColor.Text.secondary)
+                }
                 Spacer()
             }
             .padding(.horizontal, 4)
@@ -526,7 +540,7 @@ private struct FullTranscriptSheet: View {
             let effectiveProgress = isScrubbing ? scrubProgress : progress
             let transcriptText = effectiveStory?.transcript(for: env.settings.audioLanguage) ?? "No transcription available."
             let lines = parseTranscriptLines(transcriptText)
-            let activeLineIndex = min(Int(effectiveProgress * Double(max(1, lines.count))), max(0, lines.count - 1))
+            let activeLineIndex = calculateActiveLineIndex(progress: effectiveProgress, lines: lines)
 
             ZStack {
                 Color(red: 255/255, green: 102/255, blue: 52/255) // #FF6634 Coral
@@ -584,16 +598,6 @@ private struct FullTranscriptSheet: View {
                                             .id(index)
                                     }
                                 }
-
-                                // Attribution Link
-                                HStack {
-                                    Text("Sources from \(Text("here!").font(.system(size: 16, weight: .semibold)).underline())")
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundStyle(Color.white)
-                                    Spacer()
-                                }
-                                .padding(.top, 12)
-                                .padding(.bottom, 24)
                             }
                             .padding(.horizontal, 24)
                             .padding(.vertical, 16)
@@ -667,10 +671,38 @@ private struct FullTranscriptSheet: View {
     }
 
     private func parseTranscriptLines(_ text: String) -> [String] {
-        let raw = text.components(separatedBy: CharacterSet(charactersIn: ".\n"))
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        return raw.isEmpty ? [text] : raw
+        let paragraphs = text.components(separatedBy: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        var result: [String] = []
+        for paragraph in paragraphs {
+            let sentences = paragraph
+                .replacingOccurrences(of: "([.!?])\\s+", with: "$1|", options: .regularExpression)
+                .components(separatedBy: "|")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+            result.append(contentsOf: sentences)
+        }
+        return result.isEmpty ? [text] : result
+    }
+
+    private func calculateActiveLineIndex(progress: Double, lines: [String]) -> Int {
+        guard !lines.isEmpty else { return 0 }
+        let clampedProgress = max(0.0, min(1.0, progress))
+        let weights = lines.map { line -> Double in
+            let wordCount = Double(line.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.count)
+            return max(3.0, wordCount) + 2.0
+        }
+        let totalWeight = weights.reduce(0.0, +)
+        guard totalWeight > 0 else { return 0 }
+
+        let targetWeight = clampedProgress * totalWeight
+        var cumulative = 0.0
+        for (index, weight) in weights.enumerated() {
+            cumulative += weight
+            if targetWeight <= cumulative {
+                return index
+            }
+        }
+        return lines.count - 1
     }
 }
 

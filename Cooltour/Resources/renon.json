@@ -11,6 +11,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "monumen-perjuangan-rakyat-bali.jpg",
+      "imageSource": "https://www.pariwisata.denpasarkota.go.id/artikel/munumen-bajrasandi",
       "stories": [
         {
           "slug": "monumen-perjuangan-rakyat-bali-01",
@@ -41,6 +42,7 @@
       "triggerRadiusMeters": 50,
       "headingRequired": false,
       "imageFile": "lapangan-niti-mandala-renon.jpg",
+      "imageSource": "https://www.indonesia.travel/id/id/destination/bali-nusa-tenggara/bali/monumen-perjuangan-rakyat-bali",
       "stories": [
         {
           "slug": "lapangan-niti-mandala-renon-01",
@@ -71,6 +73,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "kantor-gubernur-bali.jpg",
+      "imageSource": "https://www.baliprov.go.id/web/",
       "stories": [
         {
           "slug": "kantor-gubernur-bali-01",
@@ -101,6 +104,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "gedung-dprd-provinsi-bali.jpg",
+      "imageSource": "https://jdih-dprd.baliprov.go.id/",
       "stories": [
         {
           "slug": "gedung-dprd-provinsi-bali-01",
@@ -131,6 +135,7 @@
       "triggerRadiusMeters": 45,
       "headingRequired": false,
       "imageFile": "kawasan-diplomatik-renon.jpg",
+      "imageSource": "https://www.baliholidaysecrets.com/consulate-in-bali/",
       "stories": [
         {
           "slug": "kawasan-diplomatik-renon-01",
@@ -161,6 +166,7 @@
       "triggerRadiusMeters": 35,
       "headingRequired": false,
       "imageFile": "museum-sidik-jari.jpg",
+      "imageSource": "https://indonesiakaya.com/pustaka-indonesia/museum-lukisan-sidik-jari-jejak-karya-ngurah-gede-pemecutan/",
       "stories": [
         {
           "slug": "museum-sidik-jari-01",
@@ -191,6 +197,7 @@
       "triggerRadiusMeters": 40,
       "headingRequired": false,
       "imageFile": "pura-dalem-renon.jpg",
+      "imageSource": "https://nusaheritage.id/detail-objek-warisan-berwujud-preview/pura-dalem-lumajang-renon",
       "stories": [
         {
           "slug": "pura-dalem-renon-01",

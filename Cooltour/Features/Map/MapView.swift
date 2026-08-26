@@ -19,12 +19,7 @@ struct MapView: View {
             Map(position: $cameraPosition, selection: $selectedSite) {
               UserAnnotation()
 
-              let userLocation = environment.proximity.lastFix.map { CLLocation(latitude: $0.latitude, longitude: $0.longitude) }
-              let visibleSites = environment.content.allSites().filter { site in
-                guard let userLocation = userLocation else { return false }
-                let siteLocation = CLLocation(latitude: site.latitude, longitude: site.longitude)
-                return userLocation.distance(from: siteLocation) <= 100
-              }
+              let visibleSites = environment.content.allSites()
 
               ForEach(visibleSites) { site in
                 Annotation(

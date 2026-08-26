@@ -1,4 +1,5 @@
 import Foundation
+import MediaPlayer
 import UIKit
 
 /// Centralized utility for resolving bundled audio and image resources across
@@ -97,5 +98,51 @@ enum AssetResolver {
     }
 
     return nil
+  }
+
+  // MARK: - App Icon Resolution
+
+  /// Loads the app icon image for background media player and UI artwork.
+  static func appIconImage(bundle: Bundle = .main) -> UIImage? {
+    // 1. Direct AppIcon names in asset catalog
+    if let img = UIImage(named: "AppIcon", in: bundle, with: nil) {
+      return img
+    }
+    if let img = UIImage(named: "AppIcon60x60", in: bundle, with: nil) {
+      return img
+    }
+
+    // 2. Info.plist primary icon reference
+    if let iconsDict = bundle.infoDictionary?["CFBundleIcons"] as? [String: Any],
+       let primaryIcon = iconsDict["CFBundlePrimaryIcon"] as? [String: Any],
+       let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+       let lastIcon = iconFiles.last,
+       let img = UIImage(named: lastIcon, in: bundle, with: nil) {
+      return img
+    }
+
+    // 3. Bundled image file named "app iconnn"
+    if let path = bundle.path(forResource: "app iconnn", ofType: "png"),
+       let img = UIImage(contentsOfFile: path) {
+      return img
+    }
+    if let url = bundle.url(forResource: "app iconnn", withExtension: "png"),
+       let data = try? Data(contentsOf: url),
+       let img = UIImage(data: data) {
+      return img
+    }
+
+    return nil
+  }
+
+  // MARK: - Media Player Artwork
+
+  /// Creates MPMediaItemArtwork with an explicitly nonisolated request handler
+  /// so MediaPlayer background queue calls don't trip Swift 6 actor isolation assertions.
+  nonisolated static func mediaArtwork(for image: UIImage) -> MPMediaItemArtwork {
+    let size = image.size
+    return MPMediaItemArtwork(boundsSize: size) { _ in
+      image
+    }
   }
 }

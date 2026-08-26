@@ -433,10 +433,25 @@ struct NowView: View {
                     .frame(height: 240)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
 
-                    Text("Source: ADA.com")
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
+                    if let source = site?.imageSource, let url = URL(string: source) {
+                        let host = url.host?.replacingOccurrences(of: "www.", with: "") ?? "website"
+                        Link(destination: url) {
+                            HStack(spacing: 3) {
+                                Text("Source:")
+                                    .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
+                                Text(host)
+                                    .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
+                                    .underline()
+                            }
+                            .font(.system(size: 12, weight: .regular))
+                        }
                         .padding(.leading, 4)
+                    } else if let source = site?.imageSource, !source.isEmpty {
+                        Text("Source: \(source)")
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
+                            .padding(.leading, 4)
+                    }
                 }
                 .padding(8)
                 .background(Color(red: 254/255, green: 254/255, blue: 254/255))
