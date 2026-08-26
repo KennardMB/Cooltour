@@ -37,29 +37,26 @@ struct NotificationServiceTests {
     MockAudioPlayerService,
     MockPromptVoice,
     MockConsentRemoteControl,
-    MockStoryQueue,
     MockNotificationService
   ) {
     let audio = MockAudioPlayerService()
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
-    let queue = MockStoryQueue()
     let notifications = MockNotificationService()
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
-      storyQueue: queue,
       notifications: notifications,
       dismissCountdown: countdown
     )
-    return (coordinator, audio, voice, remote, queue, notifications)
+    return (coordinator, audio, voice, remote, notifications)
   }
 
   // MARK: - Tests
 
   @Test func triggerPostsLocalNotification() {
-    let (coordinator, _, _, _, _, notifications) = makeCoordinator()
+    let (coordinator, _, _, _, notifications) = makeCoordinator()
 
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
 
@@ -71,7 +68,7 @@ struct NotificationServiceTests {
   }
 
   @Test func acceptWithdrawsNotification() {
-    let (coordinator, _, _, _, _, notifications) = makeCoordinator()
+    let (coordinator, _, _, _, notifications) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     let promptID = coordinator.pendingPrompt!.id
 
@@ -82,7 +79,7 @@ struct NotificationServiceTests {
   }
 
   @Test func dismissWithdrawsNotification() {
-    let (coordinator, _, _, _, _, notifications) = makeCoordinator()
+    let (coordinator, _, _, _, notifications) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     let promptID = coordinator.pendingPrompt!.id
 
@@ -96,13 +93,11 @@ struct NotificationServiceTests {
     let audio = MockAudioPlayerService()
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
-    let queue = MockStoryQueue()
     let notifications = MockNotificationService()
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
-      storyQueue: queue,
       notifications: notifications,
       dismissCountdown: .milliseconds(1)
     )
@@ -116,7 +111,7 @@ struct NotificationServiceTests {
   }
 
   @Test func stemPressWithdrawsNotification() {
-    let (coordinator, audio, _, remote, _, notifications) = makeCoordinator()
+    let (coordinator, audio, _, remote, notifications) = makeCoordinator()
     coordinator.handleTrigger(site: makeSite(), story: makeStory())
     let promptID = coordinator.pendingPrompt!.id
 
@@ -131,19 +126,16 @@ struct NotificationServiceTests {
     let audio = MockAudioPlayerService()
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
-    let queue = MockStoryQueue()
     let notifications = MockNotificationService()
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
-      storyQueue: queue,
       notifications: notifications
     )
     let env = AppEnvironment(
       audio: audio,
       narration: coordinator,
-      storyQueue: queue,
       notifications: notifications
     )
 
@@ -162,19 +154,16 @@ struct NotificationServiceTests {
     let audio = MockAudioPlayerService()
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
-    let queue = MockStoryQueue()
     let notifications = MockNotificationService()
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
-      storyQueue: queue,
       notifications: notifications
     )
     let env = AppEnvironment(
       audio: audio,
       narration: coordinator,
-      storyQueue: queue,
       notifications: notifications
     )
 
@@ -193,19 +182,19 @@ struct NotificationServiceTests {
     let audio = MockAudioPlayerService()
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
-    let queue = MockStoryQueue()
+    let playlist = MockWalkSitePlaylist()
     let notifications = MockNotificationService()
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
-      storyQueue: queue,
+      playlist: playlist,
       notifications: notifications
     )
     let env = AppEnvironment(
       audio: audio,
       narration: coordinator,
-      storyQueue: queue,
+      playlist: playlist,
       notifications: notifications
     )
 
@@ -223,7 +212,7 @@ struct NotificationServiceTests {
 
     #expect(coordinator.state == .playing)
     #expect(env.audio.currentStory?.slug == "a-1")
-    #expect(env.storyQueue.items.map(\.storySlug) == ["b-1"])
+    #expect(env.playlist.queuedItems.map(\.storySlug) == ["b-1"])
     #expect(notifications.withdrawnPromptIDs == [firstPromptID, promptID])
   }
 
@@ -231,19 +220,16 @@ struct NotificationServiceTests {
     let audio = MockAudioPlayerService()
     let voice = MockPromptVoice()
     let remote = MockConsentRemoteControl()
-    let queue = MockStoryQueue()
     let notifications = MockNotificationService()
     let coordinator = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: voice,
       remoteControl: remote,
-      storyQueue: queue,
       notifications: notifications
     )
     let env = AppEnvironment(
       audio: audio,
       narration: coordinator,
-      storyQueue: queue,
       notifications: notifications
     )
 
@@ -262,7 +248,7 @@ struct NotificationServiceTests {
   }
 
   @Test func answeringTwiceViaNotificationResolvesOnlyOnce() {
-    let (coordinator, _, _, _, _, notifications) = makeCoordinator()
+    let (coordinator, _, _, _, notifications) = makeCoordinator()
     var outcomes: [PromptOutcome] = []
     coordinator.onOutcome = { _, outcome in outcomes.append(outcome) }
 

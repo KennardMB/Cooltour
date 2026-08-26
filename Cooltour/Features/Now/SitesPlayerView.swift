@@ -10,6 +10,7 @@ public struct SitesPlayerView: View {
     public var onOpenMap: (() -> Void)?
 
     @State private var currentSiteIndex: Int = 0
+    @State private var isSyncingCarousel = false
     @State private var isShowingFullTranscript: Bool = false
     @State private var isShowingQueueSheet: Bool = false
     @State private var isShowingPauseOverlay: Bool = false
@@ -23,18 +24,19 @@ public struct SitesPlayerView: View {
 
     public var body: some View {
         ObservingAudio(audio: env.audio) { isPlaying, isLoading, currentStory, progress in
-            let sites = availableSites()
-            let playingSite = Self.siteForStory(currentStory, in: sites)
-            let carouselSite = sites.indices.contains(currentSiteIndex) ? sites[currentSiteIndex] : sites.first
-            // Follow the loaded story for metadata and controls; carousel is for browsing other stops.
-            let activeSite = playingSite ?? carouselSite
-            let activeStory = currentStory ?? carouselSite?.stories.first
-            let duration = max(1.0, activeStory?.durationSeconds ?? 180.0)
+            ObservingPlaylist(playlist: env.playlist) { entries, playheadIndex, queuedItems in
+            ObservingNarration(coordinator: env.narration) { narrationState, _, _ in
+            let playhead = playheadIndex ?? 0
+            let playheadSite = env.playlist.site(at: playhead)
+            let playheadStory = env.playlist.story(at: playhead)
+            let activeSite = playheadSite
+            let activeStory = (currentStory?.slug == playheadStory?.slug ? currentStory : nil) ?? playheadStory
+            let duration = max(1.0, activeStory?.durationSeconds(for: env.settings.audioLanguage) ?? 180.0)
             let effectiveProgress = isScrubbing ? scrubProgress : progress
             let currentTime = effectiveProgress * duration
             let remainingTime = max(0, duration - currentTime)
 
-            ZStack {
+            ZStack(alignment: .bottomTrailing) {
                 VStack(spacing: 0) {
                     // 1. Top Header: Location Indicator & Pause Button
                     HStack(spacing: 12) {
@@ -125,16 +127,8 @@ public struct SitesPlayerView: View {
 
                     Spacer(minLength: 4)
 
-                    // 3. Photo Carousel Card (Swipeable Stops)
-                    TabView(selection: $currentSiteIndex) {
-                        ForEach(Array(sites.enumerated()), id: \.element.id) { index, site in
-                            SitePhotoCard(site: site)
-                                .tag(index)
-                                .padding(.horizontal, AppSpacing.lg)
-                        }
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    .frame(height: 275)
+                    // 3. Photo Carousel Card (Swipeable Stops) — playlist playhead, not the pack.
+                    siteCarousel(entries: entries, playheadIndex: playheadIndex)
 
                     Spacer(minLength: 4)
 
@@ -199,10 +193,10 @@ public struct SitesPlayerView: View {
                         Button {
                             if isPlaying {
                                 env.audio.pause()
-                            } else if env.audio.currentStory?.slug == activeStory?.slug {
+                            } else if currentStory?.slug == activeStory?.slug {
                                 env.audio.resume()
-                            } else if let activeStory {
-                                env.audio.play(story: activeStory)
+                            } else if entries.indices.contains(playhead) {
+                                env.narration.selectPlaylistIndex(playhead)
                             }
                         } label: {
                             AppIcon(isPlaying ? .pause : .play, size: 60)
@@ -264,7 +258,7 @@ public struct SitesPlayerView: View {
                             env.audio.stop()
                             env.proximity.stop()
                             env.history.stopWalk()
-                            env.storyQueue.clear()
+                            env.playlist.clear()
                             env.settings.walkingMode = false
                             dismiss()
                         }
@@ -310,43 +304,44 @@ public struct SitesPlayerView: View {
 
                 // 10. Queue List Bottom Sheet (Figma Node 210:1078)
                 if isShowingQueueSheet {
-                    ObservingQueue(queue: env.storyQueue) { queueItems in
-                        ZStack(alignment: .bottom) {
-                            // Semi-opaque backdrop (tap to dismiss)
-                            Color(red: 226/255, green: 225/255, blue: 222/255)
-                                .opacity(0.90)
-                                .ignoresSafeArea()
-                                .onTapGesture {
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        isShowingQueueSheet = false
-                                    }
+                    ZStack(alignment: .bottom) {
+                        // Semi-opaque backdrop (tap to dismiss)
+                        Color(red: 226/255, green: 225/255, blue: 222/255)
+                            .opacity(0.90)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isShowingQueueSheet = false
                                 }
+                            }
 
-                            StoryQueueSheet(
-                                currentStory: activeStory,
-                                activeSiteName: activeSite?.name ?? "Current Stop",
-                                remainingTime: remainingTime,
-                                isPlaying: isPlaying,
-                                queueItems: queueItems,
-                                onTogglePlayback: {
-                                    if isPlaying {
-                                        env.audio.pause()
-                                    } else {
-                                        env.audio.resume()
-                                    }
-                                },
-                                onClose: {
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        isShowingQueueSheet = false
-                                    }
+                        StoryQueueSheet(
+                            currentStory: activeStory,
+                            activeSiteName: activeSite?.name ?? "Current Stop",
+                            remainingTime: remainingTime,
+                            isPlaying: isPlaying,
+                            queueItems: queuedItems,
+                            onTogglePlayback: {
+                                if isPlaying {
+                                    env.audio.pause()
+                                } else {
+                                    env.audio.resume()
                                 }
-                            )
-                            .padding(.bottom, 24)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
-                        .transition(.opacity)
+                            },
+                            onClose: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isShowingQueueSheet = false
+                                }
+                            }
+                        )
+                        .padding(.bottom, 24)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
+                    .transition(.opacity)
                 }
+
+                // Global Floating Simulate Site Approach Button
+                FloatingSimulateButton(bottomPadding: 32)
             }
             .defaultTiledBackground(scale: 0.20)
             .sheet(isPresented: $isShowingFullTranscript) {
@@ -358,35 +353,133 @@ public struct SitesPlayerView: View {
                 .presentationDetents([.large])
             }
             .onAppear {
-                syncSiteIndexToPlayingStory(currentStory, in: sites)
+                syncCarouselFromPlaylist(playheadIndex: playheadIndex, entryCount: entries.count)
             }
-            .onChange(of: currentStory?.slug) { _, _ in
-                syncSiteIndexToPlayingStory(currentStory, in: sites)
+            .onChange(of: playheadIndex) { _, newValue in
+                syncCarouselFromPlaylist(playheadIndex: newValue, entryCount: entries.count)
+            }
+            .onChange(of: entries.map(\.id)) { _, _ in
+                syncCarouselFromPlaylist(playheadIndex: playheadIndex, entryCount: entries.count)
+            }
+            .onChange(of: narrationState) { _, newState in
+                if newState == .prompting {
+                    dismiss()
+                }
+            }
+            }
             }
         }
     }
 
     // MARK: - Logic Helpers
 
-    private func availableSites() -> [Site] {
-        let sites = env.content.allSites()
-        return sites.isEmpty ? [] : sites
+    /// True only for a real user page change — not programmatic playhead sync or entry mutations.
+    static func shouldApplyUserCarouselPage(
+        newIndex: Int,
+        playheadIndex: Int?,
+        entryCount: Int,
+        isSyncing: Bool
+    ) -> Bool {
+        guard !isSyncing else { return false }
+        guard (0..<entryCount).contains(newIndex) else { return false }
+        return newIndex != playheadIndex
     }
 
-    static func siteForStory(_ story: Story?, in sites: [Site]) -> Site? {
-        guard let story else { return nil }
-        return sites.first { site in
-            site.stories.contains { $0.slug == story.slug }
+    /// Playhead-relative swipe copy. Hidden when there is nowhere to go.
+    static func swipeHint(forIndex index: Int, entryCount: Int) -> String? {
+        guard entryCount > 1 else { return nil }
+        let hasPrevious = index > 0
+        let hasNext = index < entryCount - 1
+        switch (hasPrevious, hasNext) {
+        case (true, true):
+            return "Slide left or right for previous or next stops"
+        case (false, true):
+            return "Slide left for next stop"
+        case (true, false):
+            return "Slide right for previous stop"
+        case (false, false):
+            return nil
         }
     }
 
-    static func siteIndex(for story: Story?, in sites: [Site]) -> Int? {
-        guard let playingSite = siteForStory(story, in: sites) else { return nil }
-        return sites.firstIndex(where: { $0.slug == playingSite.slug })
+    @ViewBuilder
+    private func siteCarousel(entries: [WalkPlaylistEntry], playheadIndex: Int?) -> some View {
+        if entries.isEmpty {
+            emptyCarouselPlaceholder
+                .padding(.horizontal, AppSpacing.lg)
+                .frame(height: 275)
+        } else if entries.count == 1 {
+            carouselPage(index: 0, entry: entries[0], entryCount: 1)
+                .padding(.horizontal, AppSpacing.lg)
+                .frame(height: 275)
+        } else {
+            TabView(selection: $currentSiteIndex) {
+                ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                    carouselPage(index: index, entry: entry, entryCount: entries.count)
+                        .tag(index)
+                        .padding(.horizontal, AppSpacing.lg)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .frame(height: 275)
+            .onChange(of: currentSiteIndex) { _, newIndex in
+                guard Self.shouldApplyUserCarouselPage(
+                    newIndex: newIndex,
+                    playheadIndex: playheadIndex,
+                    entryCount: entries.count,
+                    isSyncing: isSyncingCarousel
+                ) else { return }
+                env.narration.selectPlaylistIndex(newIndex)
+            }
+        }
     }
 
-    private func syncSiteIndexToPlayingStory(_ story: Story?, in sites: [Site]) {
-        guard let index = Self.siteIndex(for: story, in: sites) else { return }
+    @ViewBuilder
+    private func carouselPage(index: Int, entry: WalkPlaylistEntry, entryCount: Int) -> some View {
+        if let site = env.playlist.site(at: index) {
+            SitePhotoCard(site: site, hint: Self.swipeHint(forIndex: index, entryCount: entryCount))
+        } else {
+            emptyCarouselPlaceholder
+                .accessibilityLabel(entry.siteName)
+        }
+    }
+
+    private var emptyCarouselPlaceholder: some View {
+        VStack(spacing: 6) {
+            ZStack {
+                AppColor.Brand.tint
+                VStack(spacing: 6) {
+                    AppIcon(.placeVisited, size: 40)
+                    Text("No sites on this walk yet")
+                        .font(.custom(AppTextStyle.customFontPostScriptName, size: 18))
+                        .foregroundStyle(AppColor.Brand.primary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal, 16)
+            }
+            .frame(height: 205)
+            .clipShape(RoundedRectangle(cornerRadius: 2))
+            .clipped()
+        }
+        .padding(8)
+        .background(AppColor.Background.pure)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.standard))
+        .shadow(color: Color.black.opacity(0.18), radius: 6, x: 0, y: 3)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No sites on this walk yet")
+    }
+
+    private func syncCarouselFromPlaylist(playheadIndex: Int?, entryCount: Int) {
+        isSyncingCarousel = true
+        syncCarouselSelection(to: playheadIndex, entryCount: entryCount)
+        Task { @MainActor in
+            isSyncingCarousel = false
+        }
+    }
+
+    private func syncCarouselSelection(to playheadIndex: Int?, entryCount: Int) {
+        guard entryCount > 0 else { return }
+        let index = min(max(playheadIndex ?? 0, 0), entryCount - 1)
         if currentSiteIndex != index {
             currentSiteIndex = index
         }
@@ -417,13 +510,17 @@ public struct SitesPlayerView: View {
 
 private struct SitePhotoCard: View {
     let site: Site
+    var hint: String?
 
     var body: some View {
         VStack(spacing: 6) {
-            Text("Slide left or right for previous or next stops")
-                .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(AppColor.Text.secondary)
-                .padding(.top, 2)
+            if let hint {
+                Text(hint)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(AppColor.Text.secondary)
+                    .padding(.top, 2)
+                    .accessibilityHidden(true)
+            }
 
             // Main Site Image Display
             ZStack {
@@ -448,9 +545,23 @@ private struct SitePhotoCard: View {
             .clipped()
 
             HStack {
-                Text("Source: ADA.com")
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(AppColor.Text.secondary)
+                if let source = site.imageSource, let url = URL(string: source) {
+                    let host = url.host?.replacingOccurrences(of: "www.", with: "") ?? "website"
+                    Link(destination: url) {
+                        HStack(spacing: 3) {
+                            Text("Source:")
+                                .foregroundStyle(AppColor.Text.secondary)
+                            Text(host)
+                                .foregroundStyle(AppColor.Brand.primary)
+                                .underline()
+                        }
+                        .font(.system(size: 11, weight: .regular))
+                    }
+                } else if let source = site.imageSource, !source.isEmpty {
+                    Text("Source: \(source)")
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundStyle(AppColor.Text.secondary)
+                }
                 Spacer()
             }
             .padding(.horizontal, 4)
@@ -460,19 +571,12 @@ private struct SitePhotoCard: View {
         .background(AppColor.Background.pure)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.standard))
         .shadow(color: Color.black.opacity(0.18), radius: 6, x: 0, y: 3)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(site.name)
     }
 
     private func loadSiteImage(name: String?) -> UIImage? {
-        guard let name, !name.isEmpty else { return nil }
-        if let img = UIImage(named: name) { return img }
-        if let path = Bundle.main.path(forResource: name, ofType: nil, inDirectory: "SitePictures"),
-           let img = UIImage(contentsOfFile: path) { return img }
-        let base = (name as NSString).deletingPathExtension
-        let ext = (name as NSString).pathExtension.isEmpty ? "jpg" : (name as NSString).pathExtension
-        if let url = Bundle.main.url(forResource: base, withExtension: ext),
-           let data = try? Data(contentsOf: url),
-           let img = UIImage(data: data) { return img }
-        return nil
+        AssetResolver.siteImage(named: name)
     }
 }
 
@@ -523,11 +627,11 @@ private struct FullTranscriptSheet: View {
     var body: some View {
         ObservingAudio(audio: env.audio) { isPlaying, isLoading, currentStory, progress in
             let effectiveStory = story ?? currentStory
-            let duration = max(1.0, effectiveStory?.durationSeconds ?? 180.0)
+            let duration = max(1.0, effectiveStory?.durationSeconds(for: env.settings.audioLanguage) ?? 180.0)
             let effectiveProgress = isScrubbing ? scrubProgress : progress
-            let transcriptText = effectiveStory?.transcript ?? "No transcription available."
+            let transcriptText = effectiveStory?.transcript(for: env.settings.audioLanguage) ?? "No transcription available."
             let lines = parseTranscriptLines(transcriptText)
-            let activeLineIndex = min(Int(effectiveProgress * Double(max(1, lines.count))), max(0, lines.count - 1))
+            let activeLineIndex = calculateActiveLineIndex(progress: effectiveProgress, lines: lines)
 
             ZStack {
                 Color(red: 255/255, green: 102/255, blue: 52/255) // #FF6634 Coral
@@ -585,16 +689,6 @@ private struct FullTranscriptSheet: View {
                                             .id(index)
                                     }
                                 }
-
-                                // Attribution Link
-                                HStack {
-                                    Text("Sources from \(Text("here!").font(.system(size: 16, weight: .semibold)).underline())")
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundStyle(Color.white)
-                                    Spacer()
-                                }
-                                .padding(.top, 12)
-                                .padding(.bottom, 24)
                             }
                             .padding(.horizontal, 24)
                             .padding(.vertical, 16)
@@ -668,10 +762,38 @@ private struct FullTranscriptSheet: View {
     }
 
     private func parseTranscriptLines(_ text: String) -> [String] {
-        let raw = text.components(separatedBy: CharacterSet(charactersIn: ".\n"))
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        return raw.isEmpty ? [text] : raw
+        let paragraphs = text.components(separatedBy: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        var result: [String] = []
+        for paragraph in paragraphs {
+            let sentences = paragraph
+                .replacingOccurrences(of: "([.!?])\\s+", with: "$1|", options: .regularExpression)
+                .components(separatedBy: "|")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+            result.append(contentsOf: sentences)
+        }
+        return result.isEmpty ? [text] : result
+    }
+
+    private func calculateActiveLineIndex(progress: Double, lines: [String]) -> Int {
+        guard !lines.isEmpty else { return 0 }
+        let clampedProgress = max(0.0, min(1.0, progress))
+        let weights = lines.map { line -> Double in
+            let wordCount = Double(line.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.count)
+            return max(3.0, wordCount) + 2.0
+        }
+        let totalWeight = weights.reduce(0.0, +)
+        guard totalWeight > 0 else { return 0 }
+
+        let targetWeight = clampedProgress * totalWeight
+        var cumulative = 0.0
+        for (index, weight) in weights.enumerated() {
+            cumulative += weight
+            if targetWeight <= cumulative {
+                return index
+            }
+        }
+        return lines.count - 1
     }
 }
 
