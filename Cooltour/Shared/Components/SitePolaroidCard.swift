@@ -55,27 +55,7 @@ public struct SitePolaroidCard: View {
     }
 
     private func loadSiteImage() -> UIImage? {
-        guard let name = imageAssetName, !name.isEmpty else {
-            return nil
-        }
-        // 1. Try Assets.xcassets
-        if let img = UIImage(named: name) {
-            return img
-        }
-        // 2. Try bundled SitePictures folder
-        if let path = Bundle.main.path(forResource: name, ofType: nil, inDirectory: "SitePictures"),
-           let img = UIImage(contentsOfFile: path) {
-            return img
-        }
-        // 3. Try direct resource path
-        let baseName = (name as NSString).deletingPathExtension
-        let ext = (name as NSString).pathExtension.isEmpty ? "jpg" : (name as NSString).pathExtension
-        if let url = Bundle.main.url(forResource: baseName, withExtension: ext),
-           let data = try? Data(contentsOf: url),
-           let img = UIImage(data: data) {
-            return img
-        }
-        return nil
+        AssetResolver.siteImage(named: imageAssetName)
     }
 }
 

@@ -10,6 +10,8 @@
       "lng": 115.2339,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "monumen-perjuangan-rakyat-bali.jpg",
+      "imageSource": "https://www.pariwisata.denpasarkota.go.id/artikel/munumen-bajrasandi",
       "stories": [
         {
           "slug": "monumen-perjuangan-rakyat-bali-01",
@@ -39,6 +41,8 @@
       "lng": 115.2315,
       "triggerRadiusMeters": 50,
       "headingRequired": false,
+      "imageFile": "lapangan-niti-mandala-renon.jpg",
+      "imageSource": "https://www.indonesia.travel/id/id/destination/bali-nusa-tenggara/bali/monumen-perjuangan-rakyat-bali",
       "stories": [
         {
           "slug": "lapangan-niti-mandala-renon-01",
@@ -68,6 +72,8 @@
       "lng": 115.2335,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "kantor-gubernur-bali.jpg",
+      "imageSource": "https://www.baliprov.go.id/web/",
       "stories": [
         {
           "slug": "kantor-gubernur-bali-01",
@@ -97,6 +103,8 @@
       "lng": 115.2352,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "gedung-dprd-provinsi-bali.jpg",
+      "imageSource": "https://jdih-dprd.baliprov.go.id/",
       "stories": [
         {
           "slug": "gedung-dprd-provinsi-bali-01",
@@ -126,6 +134,8 @@
       "lng": 115.2318,
       "triggerRadiusMeters": 45,
       "headingRequired": false,
+      "imageFile": "kawasan-diplomatik-renon.jpg",
+      "imageSource": "https://www.baliholidaysecrets.com/consulate-in-bali/",
       "stories": [
         {
           "slug": "kawasan-diplomatik-renon-01",
@@ -155,6 +165,8 @@
       "lng": 115.2398,
       "triggerRadiusMeters": 35,
       "headingRequired": false,
+      "imageFile": "museum-sidik-jari.jpg",
+      "imageSource": "https://indonesiakaya.com/pustaka-indonesia/museum-lukisan-sidik-jari-jejak-karya-ngurah-gede-pemecutan/",
       "stories": [
         {
           "slug": "museum-sidik-jari-01",
@@ -184,6 +196,8 @@
       "lng": 115.2282,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pura-dalem-renon.jpg",
+      "imageSource": "https://nusaheritage.id/detail-objek-warisan-berwujud-preview/pura-dalem-lumajang-renon",
       "stories": [
         {
           "slug": "pura-dalem-renon-01",
@@ -199,35 +213,6 @@
           "durationSeconds": {
             "en": 43.4,
             "id": 42.5
-          },
-          "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
-          "timeOfDayTag": null
-        }
-      ]
-    },
-    {
-      "slug": "pusat-kuliner-tukad-yeh-aya",
-      "name": "Pusat Kuliner Jl. Tukad Yeh Aya",
-      "district": "Renon, Denpasar Selatan",
-      "lat": -8.6782,
-      "lng": 115.235,
-      "triggerRadiusMeters": 50,
-      "headingRequired": false,
-      "stories": [
-        {
-          "slug": "pusat-kuliner-tukad-yeh-aya-01",
-          "title": "Tempat Pegawai dan Mahasiswa Makan",
-          "audioFile": {
-            "en": "pusat-kuliner-tukad-yeh-aya-01-en.m4a",
-            "id": "pusat-kuliner-tukad-yeh-aya-01-id.m4a"
-          },
-          "transcript": {
-            "en": "Listen for cooking along Tukad Yeh Aya Street. When provincial offices concentrated in Renon, civil servants and students needed affordable meals within walking distance. Food stalls filled this southern corridor.\n\nA common order here is Tipat Blayag: rice cakes in palm leaf, spiced coconut sauce, crushed peanuts. You will also smell shallots, lemongrass, and coffee from the small shops mixed in with the warungs.\n\nAt midday the crowd is mostly office workers. Later in the day students take more of the seats. The street grew as a side effect of the civic quarter, and it still feeds that daily rhythm.",
-            "id": "Perhatikan suasana kuliner di sepanjang Jalan Tukad Yeh Aya. Saat perkantoran pemerintah provinsi dipusatkan di Renon, pegawai dan mahasiswa butuh makan siang murah yang bisa dijangkau dengan berjalan kaki. Deretan warung makan pun bermunculan memenuhi koridor selatan ini.\n\nMenu yang sering dipesan di sini adalah tipat blayag: lontong yang dibungkus daun, disiram kuah santan berbumbu, dan ditaburi kacang halus. Kamu juga akan mencium aroma bawang goreng, serai, dan kopi dari kedai-kedai kecil di sela-sela warung.\n\nPada siang hari, pengunjungnya sebagian besar adalah pekerja kantoran. Menjelang sore, gantian anak kuliahan yang datang. Jalan ini sebenarnya tumbuh sebagai efek samping kawasan perkantoran, dan hingga kini tetap mendukung ritme kehidupan sehari-hari di Renon."
-          },
-          "durationSeconds": {
-            "en": 46.2,
-            "id": 43.4
           },
           "narratorNote": "narasi sementara - menunggu rekaman pemandu Kultara",
           "timeOfDayTag": null

@@ -5,11 +5,13 @@
     {
       "slug": "prasasti-blanjong",
       "name": "Prasasti Blanjong",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6961,
       "lng": 115.2572,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "prasasti-blanjong.jpg",
+      "imageSource": "https://ebooks.denpasartourism.com/en/prasasti-blanjong/",
       "stories": [
         {
           "slug": "prasasti-blanjong-01",
@@ -34,11 +36,13 @@
     {
       "slug": "museum-le-mayeur",
       "name": "Museum Le Mayeur",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6748,
       "lng": 115.2635,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "museum-le-mayeur.jpg",
+      "imageSource": "https://themerusanur.com/blog/le-mayeur-museum-in-sanur-bali/",
       "stories": [
         {
           "slug": "museum-le-mayeur-01",
@@ -63,11 +67,13 @@
     {
       "slug": "pantai-matahari-terbit",
       "name": "Pantai Matahari Terbit & 1906 Dutch Landing Site",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6705,
       "lng": 115.2642,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pantai-matahari-terbit.jpg",
+      "imageSource": "https://ebooks.denpasartourism.com/en/pantai-matahari-terbit/",
       "stories": [
         {
           "slug": "pantai-matahari-terbit-01",
@@ -92,11 +98,13 @@
     {
       "slug": "pura-segara-sanur",
       "name": "Pura Segara Sanur",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6756,
       "lng": 115.2638,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pura-segara-sanur.jpg",
+      "imageSource": "https://ebooks.denpasartourism.com/pura-segara/",
       "stories": [
         {
           "slug": "pura-segara-sanur-01",
@@ -121,11 +129,13 @@
     {
       "slug": "grand-inna-bali-beach",
       "name": "Grand Inna Bali Beach",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6667,
       "lng": 115.2631,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "grand-inna-bali-beach.png",
+      "imageSource": "https://inna-grand-bali-beach-sanur.all-balihotels.net/",
       "stories": [
         {
           "slug": "grand-inna-bali-beach-01",
@@ -150,11 +160,13 @@
     {
       "slug": "pantai-karang",
       "name": "Pantai Karang & Twin Reef Gazebos",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6883,
       "lng": 115.2647,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pantai-karang.jpg",
+      "imageSource": "https://denpasartourism.com/en/article/pantai-karang",
       "stories": [
         {
           "slug": "pantai-karang-01",
@@ -179,11 +191,13 @@
     {
       "slug": "warung-mak-beng",
       "name": "Warung Mak Beng",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6725,
       "lng": 115.2631,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "warung-mak-beng.jpg",
+      "imageSource": "https://warungmakbeng.id/",
       "stories": [
         {
           "slug": "warung-mak-beng-01",
@@ -208,11 +222,13 @@
     {
       "slug": "pura-mertasari-mangrove",
       "name": "Pura Mertasari & Hutan Mangrove Pesisir",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.7072,
       "lng": 115.2515,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pura-mertasari-mangrove.jpg",
+      "imageSource": "https://bali.idntimes.com/news/bali/asal-usul-berdirinya-pura-dalem-pengembak-mertasari-di-sanur-00-lm183-cfqb0j",
       "stories": [
         {
           "slug": "pura-mertasari-mangrove-01",
