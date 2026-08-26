@@ -104,12 +104,16 @@ struct MyExplorationsView: View {
     if let custom = walk.customTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !custom.isEmpty {
       return custom
     }
-    if events.isEmpty {
+    let chronological = events.sorted { $0.firedAt < $1.firedAt }
+    if chronological.isEmpty {
       return "Walk on \(walk.startedAt.formatted(date: .abbreviated, time: .omitted))"
     }
-    let siteNames = events.map(\.siteName)
+    let siteNames = chronological.map(\.siteName)
     let uniqueSites = Array(NSOrderedSet(array: siteNames)).compactMap { $0 as? String }
-    return uniqueSites.joined(separator: " · ")
+    if let first = uniqueSites.first, let last = uniqueSites.last, first != last {
+      return "\(first) - \(last)"
+    }
+    return uniqueSites.first ?? "Exploration walk"
   }
 }
 
