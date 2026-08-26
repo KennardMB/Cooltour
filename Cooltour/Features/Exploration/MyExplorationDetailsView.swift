@@ -11,6 +11,9 @@ struct MyExplorationDetailsView: View {
   @State private var walkTitle: String
   @State private var selectedTheme: CulturalColorTheme = .blue
   @State private var isEditingTitle: Bool = false
+  /// Replay on this screen is view-scoped. If we started playback, leaving must stop it
+  /// so the story does not keep playing in the global player / miniplayer.
+  @State private var ownsPlayback: Bool = false
   
   init(walk: Walk) {
     self.walk = walk
@@ -47,6 +50,7 @@ struct MyExplorationDetailsView: View {
           // 1. Top Navigation Bar (Back + Edit Buttons)
           HStack {
             Button {
+              stopOwnedPlayback()
               dismiss()
             } label: {
               AppIcon(.chevronLeft, size: 24)
@@ -120,8 +124,8 @@ struct MyExplorationDetailsView: View {
                         if let story {
                           if isThisStoryPlaying {
                             env.audio.pause()
-                          } else {
-                            env.audio.play(story: story)
+                          } else if env.audio.play(story: story) {
+                            ownsPlayback = true
                           }
                         }
                       }
@@ -160,6 +164,15 @@ struct MyExplorationDetailsView: View {
         }
       }
     }
+    .onDisappear {
+      stopOwnedPlayback()
+    }
+  }
+
+  private func stopOwnedPlayback() {
+    guard ownsPlayback else { return }
+    env.audio.stop()
+    ownsPlayback = false
   }
   
   /// Chronological unique sites for the timeline — repeats of the same site keep the earliest trigger.
