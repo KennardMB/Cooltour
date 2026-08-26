@@ -52,13 +52,11 @@ struct CooltourApp: App {
     )
     watchSession.activate()
 
-    // Core Location can relaunch the app straight into the background, where no view ever
-    // appears — so listening has to start with the process, not with a screen. Gated on the
-    // setting so an app the user hasn't opted in for stays foreground-only and silent.
-    if UserDefaults.standard.bool(forKey: AppConfig.walkingModeKey) {
-      environment.proximity.start()
-      environment.history.startWalk()
-    }
+    // Tour automatically ends when app is killed; cold launch starts with walking mode off
+    // until the user explicitly taps "Start Exploration". Clean up any empty walks from prior sessions.
+    UserDefaults.standard.set(false, forKey: AppConfig.walkingModeKey)
+    environment.settings.walkingMode = false
+    environment.history.cleanupEmptyWalks()
 
     _environment = State(initialValue: environment)
   }

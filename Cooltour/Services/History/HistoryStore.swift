@@ -32,10 +32,30 @@ final class HistoryStore {
   }
   
   func stopWalk() {
-    guard let walk = activeWalk else { return }
-    walk.endedAt = .now
+    guard let walk = activeWalk else {
+      cleanupEmptyWalks()
+      return
+    }
     activeWalk = nil
+    if walk.triggerEvents.isEmpty {
+      context.delete(walk)
+    } else {
+      walk.endedAt = .now
+    }
     try? context.save()
+    cleanupEmptyWalks()
+  }
+
+  func cleanupEmptyWalks() {
+    let descriptor = FetchDescriptor<Walk>()
+    if let allWalks = try? context.fetch(descriptor) {
+      for walk in allWalks {
+        if walk.triggerEvents.isEmpty {
+          context.delete(walk)
+        }
+      }
+      try? context.save()
+    }
   }
   
   func addEvent(from event: ProximityEvent, outcome: PromptOutcome) {
