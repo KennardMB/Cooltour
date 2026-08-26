@@ -6,6 +6,9 @@ public struct OnboardingScreen5View: View {
     @Environment(AppEnvironment.self) private var env
     @AppStorage("user_profile_name") private var userName: String = "Anton B."
 
+    @State private var hasAllowedLocation: Bool = false
+    @State private var hasAllowedNotification: Bool = false
+
     public var onNext: (() -> Void)?
 
     public init(onNext: (() -> Void)? = nil) {
@@ -61,8 +64,8 @@ public struct OnboardingScreen5View: View {
                     .padding(.horizontal, 24)
                     .padding(.bottom, 20)
 
-                  Spacer(minLength: 128)
-                  
+                    Spacer(minLength: 32)
+
                     // Action Buttons Stack
                     VStack(spacing: 12) {
                         // 1. Allow Location Button (Blue Brush)
@@ -70,20 +73,32 @@ public struct OnboardingScreen5View: View {
                             handleAllowLocation()
                         } label: {
                             ZStack {
-                                Image("BrushButtonBlue")
-                                    .resizable()
-                                    .frame(height: 60)
-                                    .frame(maxWidth: .infinity)
+                                if hasAllowedLocation {
+                                    Image("BrushButtonDefaultDisabled")
+                                        .resizable()
+                                        .frame(height: 60)
+                                        .frame(maxWidth: .infinity)
 
-                                Text("Allow Location")
-                                    .font(.custom("Baru Lagi", size: 16))
-                                    .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255)) // #FEFEFE
+                                    Text("Location Allowed ✓")
+                                        .font(.custom("Baru Lagi", size: 16))
+                                        .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
+                                } else {
+                                    Image("BrushButtonBlue")
+                                        .resizable()
+                                        .frame(height: 60)
+                                        .frame(maxWidth: .infinity)
+
+                                    Text("Allow Location")
+                                        .font(.custom("Baru Lagi", size: 16))
+                                        .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255)) // #FEFEFE
+                                }
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Allow Location")
+                        .disabled(hasAllowedLocation)
+                        .accessibilityLabel(hasAllowedLocation ? "Location Allowed" : "Allow Location")
                         .accessibilityHint("Requests GPS location permissions to detect stories while walking")
 
                         // 2. Allow Notification Button (Orange Brush)
@@ -91,20 +106,32 @@ public struct OnboardingScreen5View: View {
                             handleAllowNotification()
                         } label: {
                             ZStack {
-                                Image("BrushButtonOrange")
-                                    .resizable()
-                                    .frame(height: 60)
-                                    .frame(maxWidth: .infinity)
+                                if hasAllowedNotification {
+                                    Image("BrushButtonDefaultDisabled")
+                                        .resizable()
+                                        .frame(height: 60)
+                                        .frame(maxWidth: .infinity)
 
-                                Text("Allow Notification")
-                                    .font(.custom("Baru Lagi", size: 16))
-                                    .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
+                                    Text("Notification Allowed ✓")
+                                        .font(.custom("Baru Lagi", size: 16))
+                                        .foregroundStyle(Color(red: 196/255, green: 75/255, blue: 37/255))
+                                } else {
+                                    Image("BrushButtonOrange")
+                                        .resizable()
+                                        .frame(height: 60)
+                                        .frame(maxWidth: .infinity)
+
+                                    Text("Allow Notification")
+                                        .font(.custom("Baru Lagi", size: 16))
+                                        .foregroundStyle(Color(red: 254/255, green: 254/255, blue: 254/255))
+                                }
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Allow Notification")
+                        .disabled(hasAllowedNotification)
+                        .accessibilityLabel(hasAllowedNotification ? "Notification Allowed" : "Allow Notification")
                         .accessibilityHint("Requests notification permissions for nearby site alerts")
 
                         // 3. Skip / Maybe Later Button (Subtle Row)
@@ -126,7 +153,7 @@ public struct OnboardingScreen5View: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Maybe Later")
-                        .accessibilityHint("Proceeds to explore without granting permissions now")
+                        .accessibilityHint("Proceeds to explore without granting remaining permissions")
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 28)
@@ -137,12 +164,26 @@ public struct OnboardingScreen5View: View {
 
     private func handleAllowLocation() {
         env.proximity.start()
-        onNext?()
+        withAnimation(.easeInOut(duration: 0.2)) {
+            hasAllowedLocation = true
+        }
+        checkBothGranted()
     }
 
     private func handleAllowNotification() {
         Task {
             _ = await env.notifications.requestAuthorization()
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    hasAllowedNotification = true
+                }
+                checkBothGranted()
+            }
+        }
+    }
+
+    private func checkBothGranted() {
+        if hasAllowedLocation && hasAllowedNotification {
             onNext?()
         }
     }

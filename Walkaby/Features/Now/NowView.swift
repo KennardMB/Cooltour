@@ -181,10 +181,13 @@ struct NowView: View {
 
             Spacer(minLength: 20)
 
-            // Hero Sketch Illustration (Figma Node 243:1486, full width)
-            NowHeroIllustrationView()
+            // Static Hero Illustration before Start Exploration (Figma Node 223:1335)
+            Image("NowViewIllustrationStatic")
+                .resizable()
+                .scaledToFit()
                 .frame(maxWidth: .infinity)
                 .frame(height: 400)
+                .accessibilityLabel("Illustration of traveler ready to explore")
 
             Spacer(minLength: 4)
 

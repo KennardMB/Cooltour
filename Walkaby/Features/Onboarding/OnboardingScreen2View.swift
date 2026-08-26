@@ -40,7 +40,7 @@ public struct OnboardingScreen2View: View {
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(maxHeight: 360)
+                    .frame(maxHeight: 400)
                     .accessibilityLabel("Illustration of the app detecting cultural sites")
 
                 Spacer(minLength: 16)
