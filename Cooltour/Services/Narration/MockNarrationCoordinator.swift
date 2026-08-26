@@ -28,6 +28,8 @@ final class MockNarrationCoordinator: NarrationCoordinator {
     wayfindingTarget = nil
   }
 
+  func selectPlaylistIndex(_ index: Int) {}
+
   /// Preview/UI affordance only — puts the coordinator into `prompting` with a plausible prompt,
   /// using the same `ApproachPrompt` wording the real coordinator speaks.
   func simulatePrompt(site: Site, story: Story, directionPhrase: String? = nil) {
