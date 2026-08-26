@@ -54,17 +54,11 @@ public struct OnboardingScreen2View: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     // Caption Copy with highlighted action text (Figma Node 245:1773)
-                    (Text("Just ")
+                    Text("Just \(Text("click Explore").font(.system(size: 16, weight: .semibold)).foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))) to uncover more about them.")
                         .font(.system(size: 16, weight: .regular))
                         .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255))
-                    + Text("click Explore")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
-                    + Text(" to uncover more about them.")
-                        .font(.system(size: 16, weight: .regular))
-                        .foregroundStyle(Color(red: 104/255, green: 104/255, blue: 102/255)))
-                    .lineSpacing(4)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineSpacing(4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(.horizontal, 24)
 
