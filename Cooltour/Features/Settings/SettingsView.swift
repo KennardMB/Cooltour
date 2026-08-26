@@ -144,6 +144,13 @@ struct SettingsView: View {
                                     ForEach(AudioLanguagePreference.allCases) { preference in
                                         Button {
                                             settings.audioLanguage = preference
+                                            if let currentStory = env.audio.currentStory {
+                                                let wasPlaying = env.audio.isPlaying
+                                                env.audio.play(story: currentStory)
+                                                if !wasPlaying {
+                                                    env.audio.pause()
+                                                }
+                                            }
                                         } label: {
                                             HStack {
                                                 Text(preference.displayName)

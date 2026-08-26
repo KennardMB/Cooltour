@@ -96,7 +96,7 @@ struct MyExplorationDetailsView: View {
                     TimelineStoryRow(
                       siteName: event.siteName,
                       storyTitle: event.storyTitle,
-                      snippet: story?.transcript ?? "",
+                      snippet: story?.transcript(for: env.settings.audioLanguage) ?? "",
                       isPlaying: isThisStoryPlaying,
                       isLast: isLast,
                       onPlayToggle: {
@@ -155,9 +155,9 @@ struct MyExplorationDetailsView: View {
     }
     
     if result.isEmpty {
-      result.append((name: "Pura Jagatnatha", imageAssetName: "pura-jagatnatha.jpg"))
-      result.append((name: "Pasar Badung", imageAssetName: "pasar-badung.jpg"))
-      result.append((name: "Museum Bali", imageAssetName: "museum-bali.jpg"))
+      result.append((name: "Bajra Sandhi", imageAssetName: "monumen-perjuangan-rakyat-bali.jpg"))
+      result.append((name: "Prasasti Blanjong", imageAssetName: "prasasti-blanjong.jpg"))
+      result.append((name: "Museum Le Mayeur", imageAssetName: "museum-le-mayeur.jpg"))
     }
     
     return result

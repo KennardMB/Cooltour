@@ -387,7 +387,113 @@ EditProfileModal(
   - `BrushButtonResume`: Blue (`#1D52D8`) button with `#113182` border and `"resume"` label in `Baru Lagi` 20pt (171×60pt).
   - `BrushButtonEndTour`: Red (`#D81D1D`) button with `#821111` border and `"end tour"` label in `Baru Lagi` 20pt (171×60pt).
   - `BrushButtonPause`: Red (`#D81D1D`) compact button with `#821111` border and `"Pause"` label in `Baru Lagi` 16pt (112×40pt).
-  - `BrushButtonOpenMap`: Blue (`#1D52D8`) full-width button with `#113182` border and `"Open Map"` label in `Baru Lagi` 16pt (314×48pt).
+  - `BrushButtonOpenMap`: Blue (`#1D52D8`) full-width button with `#113182` border and `"Open Map"` label in `Baru Lagi` 16pt (60pt height, stretches to 100% container width).
+  - `BrushButtonPlayActive`: Blue (`#1D52D8`) full-width Start Exploration action button (60pt height, stretches to 100% container width).
+  - `BrushButtonBlue`: Universal blue brush button frame (`#1D52D8` fill, `#113182` stroke) used for dynamic actions like `"play now"` (60pt height).
+  - `BrushButtonOrange`: Universal orange brush button frame (`#FF6634` fill, `#C44B25` stroke) used for dynamic actions like `"add to queue"` (60pt height).
+
+### 23. Brush-Stroke Button & Component Anchor System (Figma Node 242:1458 & 204:2055)
+- **Core Architecture & Anchor Concept**:
+  - The **Start Exploration Button** (`BrushButtonPlayActive`) serves as the foundational design anchor for all interactive action buttons across the app.
+  - Every brush-stroke button consists of:
+    1. An **organic vector background fill** matching the theme tone.
+    2. An **organic hand-drawn brush border stroke** outlining the shape perimeter.
+    3. **Customizable Dimensions & Colors**: The height, width, background fill, and border stroke are adapted per screen while preserving the authentic brush texture.
+- **Button Sizing & Margin Normalization**:
+  - **Full Width Stretch**: Primary action buttons (`BrushButtonPlayActive`, `BrushButtonOpenMap`, `BrushRowButton`, `BrushButtonBlue`) use `.resizable().frame(height: 60).frame(maxWidth: .infinity)` without aspect-ratio clipping (`.scaledToFit()`) to stretch seamlessly to 100% of parent container margins (e.g. 24pt / `AppSpacing.lg`).
+  - **Standard Action Height**: 60pt normalized height across primary calls-to-action (`Start Exploration`, `Open Map`, `My explorations`, `Settings`, `play now`, `add to queue`, `dismiss`).
+- **Profile & Discovered Site Prompt Implementations**:
+  - `BrushProfileAvatar` (`Shared/Brush/Chrome/`): 80×80pt organic brush-bordered box with `#E8EEFB` tint fill and `#1D52D8` brush border. Displays user initial in `Baru Lagi` 32pt.
+  - `BrushRowButton` (`Shared/Brush/Buttons/`): 60pt height full-width button with `#FEFEFE` fill and `#686866` brush border. Used in `ProfileView` for `"My explorations"` and `"Settings"`, and in `NowView` for the countdown `"dismiss"` action.
+  - `BrushButtonBlue` & `BrushButtonOrange` (`Shared/Brush/Buttons/`): Used in `discoveredSitePromptView`.
+    - **Single Trigger (Idle Audio)**: The `"add to queue"` button is completely hidden; `"play now"` (`BrushButtonBlue`) spans 100% full container width.
+    - **Active Audio Interrupt**: If user approaches a new site while audio is currently playing or queued, both `"add to queue"` (`BrushButtonOrange`) and `"play now"` (`BrushButtonBlue`) are presented side-by-side.
+
+### 24. Asset Catalog (`Assets.xcassets`) Directory Architecture
+All vector SVGs and bitmap assets are strictly organized into semantic folders:
+```
+Assets.xcassets/
+├── AccentColor.colorset
+├── AppIcon.appiconset (1024×1024 universal icon for Home Screen, Notifications, Lock Screen)
+├── Contents.json
+├── Features/
+│   └── Exploration/
+│       ├── BrushExplorationBlue.imageset
+│       ├── BrushExplorationGreen.imageset
+│       ├── BrushExplorationOrange.imageset
+│       ├── BrushExplorationPink.imageset
+│       ├── BrushExplorationYellow.imageset
+│       └── EmptyStateExplorations.imageset
+└── Shared/
+    ├── Badges/
+    │   ├── BadgeExplorer.imageset
+    │   ├── BadgeSunnySideUp.imageset
+    │   └── BadgeTravelerSpecial.imageset
+    ├── Brush/
+    │   ├── Buttons/
+    │   │   ├── BrushButtonDefaultDisabled.imageset
+    │   │   ├── BrushButtonDefaultPressed.imageset
+    │   │   ├── BrushButtonDestructiveActiveLarge.imageset
+    │   │   ├── BrushButtonDestructiveActiveSmall.imageset
+    │   │   ├── BrushButtonDestructiveDisabledLarge.imageset
+    │   │   ├── BrushButtonDestructiveDisabledSmall.imageset
+    │   │   ├── BrushButtonDestructivePressedLarge.imageset
+    │   │   ├── BrushButtonDestructivePressedSmall.imageset
+    │   │   ├── BrushButtonEndTour.imageset
+    │   │   ├── BrushButtonOpenMap.imageset
+    │   │   ├── BrushButtonPause.imageset
+    │   │   ├── BrushButtonPauseActive.imageset
+    │   │   ├── BrushButtonPlayActive.imageset
+    │   │   ├── BrushButtonResume.imageset
+    │   │   ├── BrushIconButtonPause.imageset
+    │   │   ├── BrushIconButtonPauseOrange.imageset
+    │   │   ├── BrushIconButtonPlay.imageset
+    │   │   ├── BrushIconButtonPlayOrange.imageset
+    │   │   ├── BrushListButton.imageset
+    │   │   └── BrushRowButton.imageset
+    │   ├── Chrome/
+    │   │   ├── BrushBackgroundTile.imageset
+    │   │   ├── BrushCard.imageset
+    │   │   ├── BrushColorChooseOptions.imageset
+    │   │   ├── BrushPostageOrange.imageset
+    │   │   ├── BrushPostagePink.imageset
+    │   │   ├── BrushPostageTallOrange.imageset
+    │   │   ├── BrushPostageTallPink.imageset
+    │   │   ├── BrushProfile.imageset
+    │   │   └── BrushProfileAvatar.imageset
+    │   └── Playback/
+    │       ├── BrushPlaybackSpeedSheet.imageset
+    │       ├── BrushQueueList.imageset
+    │       ├── BrushScrubberThumb.imageset
+    │       ├── BrushScrubberThumbOrange.imageset
+    │       ├── BrushScrubberTrackBlue.imageset
+    │       ├── BrushScrubberTrackOrange.imageset
+    │       ├── BrushScrubberTrackWhite.imageset
+    │       └── BrushSpeedOption*.imageset
+    └── Icons/
+        ├── IconCheck.imageset
+        ├── IconChevron*.imageset
+        ├── IconClose.imageset
+        ├── IconDistance.imageset
+        ├── IconForward10.imageset
+        ├── IconLocationActive.imageset
+        ├── IconLocationInactive.imageset
+        ├── IconPause*.imageset
+        ├── IconPlaceVisited.imageset
+        ├── IconPlay*.imageset
+        ├── IconPlaybackSpeed.imageset
+        ├── IconQueue.imageset
+        ├── IconRewind10.imageset
+        ├── IconSlideHandle.imageset
+        └── IconSpeed*.imageset
+```
+
+### 25. App Icon System Surfaces
+- **Master Asset**: 1024×1024 master icon PNG in `AppIcon.appiconset` configured with universal iOS idiom (`ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`).
+- **Surface Rendering**:
+  - **Home Screen & App Library**: Rendered natively at 60×60pt (@2x 120px, @3x 180px) with squircle mask.
+  - **Lock Screen & Notifications**: Local proximity notifications are automatically badged by iOS with the 20×20pt / 29×29pt app icon.
+  - **Live Screen / Dynamic Island Considerations**: For compact Live Activities and Dynamic Island leading/trailing views (16×16pt to 24×24pt), complex glyphs can appear visually dense. The design system uses high-contrast vector SF Symbols / `IconLocationActive` for Live Island glyphs, while Lock Screen banner notifications display the compiled `AppIcon`.
 
 ---
 

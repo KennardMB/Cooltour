@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C4FD880303E9D7100A08348 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* Lottie */; };
 		W1000000000000000000000F /* Cooltour Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = W10000000000000000000001 /* Cooltour Watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		W10000000000000000000010 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10000000000000000000011 /* WatchConnectivity.framework */; };
 		W10000000000000000000012 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10000000000000000000011 /* WatchConnectivity.framework */; };
@@ -93,6 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0C4FD880303E9D7100A08348 /* Lottie in Frameworks */,
 				W10000000000000000000010 /* WatchConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -177,6 +179,7 @@
 			);
 			name = Cooltour;
 			packageProductDependencies = (
+				B10000000000000000000002 /* Lottie */,
 			);
 			productName = Cooltour;
 			productReference = 0CBAFE56302A0ABA0064E786 /* Cooltour.app */;
@@ -260,6 +263,9 @@
 			);
 			mainGroup = 0CBAFE4D302A0ABA0064E786;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B10000000000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0CBAFE57302A0ABA0064E786 /* Products */;
 			projectDirPath = "";
@@ -683,6 +689,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B10000000000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B10000000000000000000002 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B10000000000000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0CBAFE4E302A0ABA0064E786 /* Project object */;
 }
