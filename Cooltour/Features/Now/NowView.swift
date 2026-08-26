@@ -181,8 +181,8 @@ struct NowView: View {
 
             Spacer(minLength: 20)
 
-            // Hero Sketch Illustration (Figma Node 243:1486, full width)
-            NowHeroIllustrationView()
+            // Hero Illustration (Static before exploration, animated when exploring)
+            NowHeroIllustrationView(isAnimated: false)
                 .frame(maxWidth: .infinity)
                 .frame(height: 400)
 

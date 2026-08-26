@@ -12,7 +12,7 @@ import UIKit
 ///   relaunch — the app when the user walks into one. It's the wake source only; the trigger
 ///   decision stays with `ProximityEvaluator` and a precise fix.
 @Observable
-final class CoreLocationProximityEngine: ProximityEngine {
+final class CoreLocationProximityEngine: NSObject, CLLocationManagerDelegate, ProximityEngine {
   private(set) var isListening = false
   private(set) var authorizationStatus: CLAuthorizationStatus = .notDetermined
   private(set) var lastFix: ProximityFix?
@@ -47,12 +47,18 @@ final class CoreLocationProximityEngine: ProximityEngine {
 
   init(content: any ContentStore) {
     self.content = content
+    super.init()
+    self.manager.delegate = self
     self.authorizationStatus = manager.authorizationStatus
     if !isBackgroundTriggeringEnabled {
       monitorTask = Task { [weak self] in
         await self?.syncMonitor(enabled: false)
       }
     }
+  }
+
+  func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    self.authorizationStatus = manager.authorizationStatus
   }
 
   var isBackgroundTriggeringEnabled: Bool {

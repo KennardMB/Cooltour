@@ -59,6 +59,14 @@ struct TestTargetSmokeTests {
     #expect(allowLocationTriggered == true)
   }
 
+  @Test @MainActor func nowHeroIllustrationViewCanInitializeModes() {
+    let animatedView = NowHeroIllustrationView(isAnimated: true)
+    #expect(animatedView.isAnimated == true)
+
+    let staticView = NowHeroIllustrationView(isAnimated: false)
+    #expect(staticView.isAnimated == false)
+  }
+
   @Test @MainActor func onboardingFlowViewCanInitializeAndFinish() {
     var finished = false
     let view = OnboardingFlowView(onFinish: {
