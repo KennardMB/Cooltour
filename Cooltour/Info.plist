@@ -15,8 +15,6 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>Cooltour uses the camera to scan site QR codes during exhibition walk simulation.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Sore-Bold.ttf</string>

@@ -9,15 +9,12 @@ struct RootView: View {
   @State private var splashTask: Task<Void, Never>?
 
   var body: some View {
-    ZStack(alignment: .bottomTrailing) {
+    ZStack {
       if !hasCompletedOnboarding {
         OnboardingFlowView()
           .transition(.opacity)
       } else {
         NowView()
-
-        // Global Floating Simulate Site Approach Button (Bottom-Right)
-        FloatingSimulateButton(bottomPadding: 24)
       }
 
       // Animated Splash Screen Overlay (Launch only)

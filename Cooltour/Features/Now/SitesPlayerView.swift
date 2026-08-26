@@ -34,7 +34,7 @@ public struct SitesPlayerView: View {
             let currentTime = effectiveProgress * duration
             let remainingTime = max(0, duration - currentTime)
 
-            ZStack(alignment: .bottomTrailing) {
+            ZStack {
                 VStack(spacing: 0) {
                     // 1. Top Header: Location Indicator & Pause Button
                     HStack(spacing: 12) {
@@ -347,9 +347,6 @@ public struct SitesPlayerView: View {
                         .transition(.opacity)
                     }
                 }
-
-                // Global Floating Simulate Site Approach Button
-                FloatingSimulateButton(bottomPadding: 32)
             }
             .defaultTiledBackground(scale: 0.20)
             .sheet(isPresented: $isShowingFullTranscript) {

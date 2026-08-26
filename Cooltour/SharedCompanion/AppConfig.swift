@@ -4,7 +4,7 @@ enum AppConfig {
   static let appName = "Walkaby"
 
   /// Content packs seeded into the store at launch, in order. Sites from every pack coexist,
-  /// so the app (map, proximity, Now) and the Simulate-approach menu span all of them.
+  /// so the app (map, proximity, Now) and exhibition QR approach span all of them.
   static let contentPackNames = ["renon", "sanur"]
 
   /// First pack, kept for callers that still expect a single name.
