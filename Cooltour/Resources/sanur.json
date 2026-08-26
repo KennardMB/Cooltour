@@ -5,11 +5,12 @@
     {
       "slug": "prasasti-blanjong",
       "name": "Prasasti Blanjong",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6961,
       "lng": 115.2572,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "prasasti-blanjong.jpg",
       "stories": [
         {
           "slug": "prasasti-blanjong-01",
@@ -34,11 +35,12 @@
     {
       "slug": "museum-le-mayeur",
       "name": "Museum Le Mayeur",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6748,
       "lng": 115.2635,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "museum-le-mayeur.jpg",
       "stories": [
         {
           "slug": "museum-le-mayeur-01",
@@ -63,11 +65,12 @@
     {
       "slug": "pantai-matahari-terbit",
       "name": "Pantai Matahari Terbit & 1906 Dutch Landing Site",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6705,
       "lng": 115.2642,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pantai-matahari-terbit.jpg",
       "stories": [
         {
           "slug": "pantai-matahari-terbit-01",
@@ -92,11 +95,12 @@
     {
       "slug": "pura-segara-sanur",
       "name": "Pura Segara Sanur",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6756,
       "lng": 115.2638,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pura-segara-sanur.jpg",
       "stories": [
         {
           "slug": "pura-segara-sanur-01",
@@ -121,11 +125,12 @@
     {
       "slug": "grand-inna-bali-beach",
       "name": "Grand Inna Bali Beach",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6667,
       "lng": 115.2631,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "grand-inna-bali-beach.png",
       "stories": [
         {
           "slug": "grand-inna-bali-beach-01",
@@ -150,11 +155,12 @@
     {
       "slug": "pantai-karang",
       "name": "Pantai Karang & Twin Reef Gazebos",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6883,
       "lng": 115.2647,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pantai-karang.jpg",
       "stories": [
         {
           "slug": "pantai-karang-01",
@@ -179,11 +185,12 @@
     {
       "slug": "warung-mak-beng",
       "name": "Warung Mak Beng",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.6725,
       "lng": 115.2631,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "warung-mak-beng.jpg",
       "stories": [
         {
           "slug": "warung-mak-beng-01",
@@ -208,11 +215,12 @@
     {
       "slug": "pura-mertasari-mangrove",
       "name": "Pura Mertasari & Hutan Mangrove Pesisir",
-      "district": "Sanur, South Denpasar",
+      "district": "Sanur, Denpasar Selatan",
       "lat": -8.7072,
       "lng": 115.2515,
       "triggerRadiusMeters": 40,
       "headingRequired": false,
+      "imageFile": "pura-mertasari-mangrove.jpg",
       "stories": [
         {
           "slug": "pura-mertasari-mangrove-01",

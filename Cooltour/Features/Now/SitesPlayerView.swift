@@ -29,7 +29,7 @@ public struct SitesPlayerView: View {
             // Follow the loaded story for metadata and controls; carousel is for browsing other stops.
             let activeSite = playingSite ?? carouselSite
             let activeStory = currentStory ?? carouselSite?.stories.first
-            let duration = max(1.0, activeStory?.durationSeconds ?? 180.0)
+            let duration = max(1.0, activeStory?.durationSeconds(for: env.settings.audioLanguage) ?? 180.0)
             let effectiveProgress = isScrubbing ? scrubProgress : progress
             let currentTime = effectiveProgress * duration
             let remainingTime = max(0, duration - currentTime)
@@ -471,16 +471,7 @@ private struct SitePhotoCard: View {
     }
 
     private func loadSiteImage(name: String?) -> UIImage? {
-        guard let name, !name.isEmpty else { return nil }
-        if let img = UIImage(named: name) { return img }
-        if let path = Bundle.main.path(forResource: name, ofType: nil, inDirectory: "SitePictures"),
-           let img = UIImage(contentsOfFile: path) { return img }
-        let base = (name as NSString).deletingPathExtension
-        let ext = (name as NSString).pathExtension.isEmpty ? "jpg" : (name as NSString).pathExtension
-        if let url = Bundle.main.url(forResource: base, withExtension: ext),
-           let data = try? Data(contentsOf: url),
-           let img = UIImage(data: data) { return img }
-        return nil
+        AssetResolver.siteImage(named: name)
     }
 }
 
@@ -531,9 +522,9 @@ private struct FullTranscriptSheet: View {
     var body: some View {
         ObservingAudio(audio: env.audio) { isPlaying, isLoading, currentStory, progress in
             let effectiveStory = story ?? currentStory
-            let duration = max(1.0, effectiveStory?.durationSeconds ?? 180.0)
+            let duration = max(1.0, effectiveStory?.durationSeconds(for: env.settings.audioLanguage) ?? 180.0)
             let effectiveProgress = isScrubbing ? scrubProgress : progress
-            let transcriptText = effectiveStory?.transcript ?? "No transcription available."
+            let transcriptText = effectiveStory?.transcript(for: env.settings.audioLanguage) ?? "No transcription available."
             let lines = parseTranscriptLines(transcriptText)
             let activeLineIndex = min(Int(effectiveProgress * Double(max(1, lines.count))), max(0, lines.count - 1))
 

@@ -721,16 +721,7 @@ struct NowView: View {
     }
 
     private func loadSiteImage(name: String?) -> UIImage? {
-        guard let name, !name.isEmpty else { return nil }
-        if let img = UIImage(named: name) { return img }
-        if let path = Bundle.main.path(forResource: name, ofType: nil, inDirectory: "SitePictures"),
-           let img = UIImage(contentsOfFile: path) { return img }
-        let base = (name as NSString).deletingPathExtension
-        let ext = (name as NSString).pathExtension.isEmpty ? "jpg" : (name as NSString).pathExtension
-        if let url = Bundle.main.url(forResource: base, withExtension: ext),
-           let data = try? Data(contentsOf: url),
-           let img = UIImage(data: data) { return img }
-        return nil
+        AssetResolver.siteImage(named: name)
     }
 }
 

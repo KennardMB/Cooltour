@@ -19,6 +19,7 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   private var player: AVAudioPlayer?
   private var progressTimer: Timer?
   private let settings: SettingsStore
+  private var loadedLanguage: AudioLanguagePreference?
 
   init(settings: SettingsStore = SettingsStore()) {
     self.settings = settings
@@ -111,15 +112,15 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
 
   @discardableResult
   func play(story: Story) -> Bool {
+    let language = settings.audioLanguage
     // UI layers often call `play(story:)` on resume; reloading the file resets the playhead.
-    if currentStory?.slug == story.slug, player != nil, !isLoading {
+    if currentStory?.slug == story.slug, loadedLanguage == language, player != nil, !isLoading {
       if !isPlaying {
         resume()
       }
       return true
     }
 
-    let language = settings.audioLanguage
     guard let assetName = story.audioAssetName(for: language) else {
       print(
         "Audio unavailable for \(language.rawValue): \(story.slug) — staying silent"
@@ -128,18 +129,14 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       return false
     }
 
-    guard
-      let url = Bundle.main.url(
-        forResource: assetName,
-        withExtension: nil
-      )
-    else {
+    guard let url = AssetResolver.audioURL(named: assetName) else {
       print("Audio file not found: \(assetName)")
       stop()
       return false
     }
 
     self.currentStory = story
+    self.loadedLanguage = language
     self.isLoading = true
     // Don't leave the previous story's playhead visible while the next file loads.
     self.progress = 0.0
@@ -165,6 +162,7 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
         newPlayer.delegate = self
         self.player = newPlayer
         self.currentStory = story
+        self.loadedLanguage = language
 
         // Last possible moment: a load that throws never interrupts the user's music.
         try AVAudioSession.sharedInstance().setActive(true)
@@ -231,6 +229,7 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     player?.stop()
     player = nil
     currentStory = nil
+    loadedLanguage = nil
     isPlaying = false
     progress = 0.0
     progressTimer?.invalidate()

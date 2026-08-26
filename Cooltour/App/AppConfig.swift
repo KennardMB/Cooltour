@@ -5,7 +5,7 @@ enum AppConfig {
 
   /// Content packs seeded into the store at launch, in order. Sites from every pack coexist,
   /// so the app (map, proximity, Now) and the Simulate-approach menu span all of them.
-  static let contentPackNames = ["denpasar", "renon"]
+  static let contentPackNames = ["renon", "sanur"]
 
   /// First pack, kept for callers that still expect a single name.
   static let contentPackName = contentPackNames[0]
