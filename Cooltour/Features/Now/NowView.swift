@@ -39,6 +39,7 @@ struct NowView: View {
         NavigationStack {
             // Opens Observation scopes
             ObservingNarration(coordinator: env.narration) { narrationState, prompt, countdown in
+                ObservingPlaylist(playlist: env.playlist) { _, _, _ in
                 ZStack {
                     // 1. Grid Background Texture (Figma Tile Background #F8F7F4)
                     TiledBackgroundView()
@@ -83,10 +84,13 @@ struct NowView: View {
                 }
                 // Watch / stem / notification Play now only call `accept` — same as the on-screen
                 // button, open the sites player so the Now UI stays in sync with audio.
+                // Do not auto-present on queue growth or story auto-advance — that pulls attention
+                // back onto the screen after the user dismissed the player (attention test).
                 .onChange(of: narrationState) { _, newState in
                     if newState == .playing {
                         isShowingSitesPlayer = true
                     }
+                }
                 }
             }
             .navigationBarHidden(true)
@@ -109,16 +113,6 @@ struct NowView: View {
             }
             .onChange(of: env.proximity.lastFix?.latitude) { _, _ in
                 updateLocationDisplay()
-            }
-            .onChange(of: env.audio.currentStory?.slug) { oldSlug, newSlug in
-                if newSlug != nil && oldSlug != newSlug && env.settings.walkingMode && env.narration.state != .prompting {
-                    isShowingSitesPlayer = true
-                }
-            }
-            .onChange(of: env.storyQueue.items.count) { oldCount, newCount in
-                if newCount > oldCount && (env.audio.isPlaying || env.audio.currentStory != nil) && env.settings.walkingMode {
-                    isShowingSitesPlayer = true
-                }
             }
         }
     }
@@ -333,7 +327,7 @@ struct NowView: View {
 
     private func discoveredSitePromptView(prompt: PendingPrompt, countdown: Int?) -> some View {
         let site = env.content.allSites().first { $0.name == prompt.siteName || $0.slug == prompt.siteSlug }
-        let isAudioActive = env.audio.isPlaying || env.audio.currentStory != nil || !env.storyQueue.items.isEmpty
+        let isAudioActive = env.audio.isPlaying || env.audio.currentStory != nil || !env.playlist.queuedItems.isEmpty
         let showQueueButton = isAudioActive
         let languageCode = env.settings.resolvedLanguageCode
         let queueAction = ConsentStrings.addToQueueAction(languageCode: languageCode)

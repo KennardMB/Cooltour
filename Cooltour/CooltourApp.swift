@@ -21,14 +21,14 @@ struct CooltourApp: App {
     self.container = container
     let settings = SettingsStore()
     let audio = AVAudioPlayerService(settings: settings)
-    let storyQueue = WalkStoryQueue()
+    let playlist = WalkSitePlaylistService()
     let notifications = UNNotificationService(settings: settings)
     let narration = ConsentNarrationCoordinator(
       audio: audio,
       promptVoice: SystemPromptVoice(),
       approachChime: BundleApproachChimePlayer(),
       remoteControl: SystemConsentRemoteControl(),
-      storyQueue: storyQueue,
+      playlist: playlist,
       notifications: notifications,
       settings: settings
     )
@@ -44,7 +44,7 @@ struct CooltourApp: App {
       audio: audio,
       proximity: proximity,
       narration: narration,
-      storyQueue: storyQueue,
+      playlist: playlist,
       notifications: notifications,
       settings: settings,
       history: HistoryStore(container: container),

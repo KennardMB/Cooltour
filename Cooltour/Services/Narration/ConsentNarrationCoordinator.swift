@@ -3,7 +3,7 @@ import Observation
 
 /// The consent gate (Slice 11 + 11.5 + Watch 18/20). Owns prompting, briefly pausing the current
 /// story only for the spoken prompt line, the three answers (play / dismiss / queue), and
-/// wayfinding arm/clear. List storage lives on `StoryQueue`.
+/// wayfinding arm/clear. Walk order lives on `WalkSitePlaylist`.
 @Observable
 final class ConsentNarrationCoordinator: NarrationCoordinator {
   private(set) var state: NarrationState = .idle
@@ -25,7 +25,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   private var promptVoice: any PromptVoice
   private let approachChime: any ApproachChimePlayer
   private let remoteControl: any ConsentRemoteControl
-  private let storyQueue: any StoryQueue
+  private let playlist: any WalkSitePlaylist
   private let notifications: (any NotificationService)?
   private let settings: SettingsStore
   private let dismissCountdown: Duration
@@ -43,7 +43,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     promptVoice: any PromptVoice,
     approachChime: any ApproachChimePlayer = MockApproachChimePlayer(),
     remoteControl: any ConsentRemoteControl,
-    storyQueue: any StoryQueue,
+    playlist: any WalkSitePlaylist = MockWalkSitePlaylist(),
     notifications: (any NotificationService)? = nil,
     settings: SettingsStore = SettingsStore(),
     dismissCountdown: Duration = .seconds(AppConfig.dismissCountdownSeconds)
@@ -52,7 +52,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     self.promptVoice = promptVoice
     self.approachChime = approachChime
     self.remoteControl = remoteControl
-    self.storyQueue = storyQueue
+    self.playlist = playlist
     self.notifications = notifications
     self.settings = settings
     self.dismissCountdown = dismissCountdown
@@ -89,6 +89,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     // Play now replaces whatever was underneath — do not resume it.
     pausedForSpokenPrompt = false
     endPrompt()
+    _ = playlist.beginPlaying(site: site, story: story)
     if startPlayback(story, site: site) {
       onOutcome?(prompt, .played)
     } else {
@@ -109,7 +110,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     guard state == .prompting, let prompt = pendingPrompt, prompt.id == promptID,
       let site = pendingSite, let story = pendingStory
     else { return }
-    storyQueue.enqueue(site: site, story: story)
+    enqueueOntoWalkList(site: site, story: story)
     endPrompt()
     onOutcome?(prompt, .queued)
     settleAfterPromptResolved()
@@ -133,20 +134,19 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     setWayfinding(nil)
   }
 
+  func selectPlaylistIndex(_ index: Int) {
+    guard state != .prompting else { return }
+    guard let pair = playlist.select(index: index) else { return }
+    _ = startPlayback(pair.story, site: pair.site)
+  }
+
   func playbackDidFinish() {
     // Underlying story can finish while a prompt is still open (A resumed under B's ask).
     // Leave the prompt up; settleAfterPromptResolved / accept handle what happens next.
     if state == .prompting { return }
 
     guard state == .playing else { return }
-    if let next = storyQueue.popNext() {
-      let site = next.site
-      _ = startPlayback(next, site: site)
-    } else {
-      playingSite = nil
-      setWayfinding(nil)
-      state = .idle
-    }
+    playNextFromPlaylistOrIdle()
   }
 
   // MARK: - Private
@@ -196,7 +196,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   }
 
   private func enqueueSilently(site: Site, story: Story) {
-    storyQueue.enqueue(site: site, story: story)
+    enqueueOntoWalkList(site: site, story: story)
     let prompt = PendingPrompt(
       id: UUID(),
       siteSlug: site.slug,
@@ -264,7 +264,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
   }
 
   /// After dismiss / queue / timeout: keep A going if it already resumed (or still needs resume
-  /// because she answered mid-TTS); otherwise idle or drain the queue.
+  /// because she answered mid-TTS); otherwise start the next playlist entry, or idle.
   private func settleAfterPromptResolved() {
     if pausedForSpokenPrompt {
       pausedForSpokenPrompt = false
@@ -276,8 +276,24 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
       state = .playing
       return
     }
-    if let next = storyQueue.popNext() {
-      _ = startPlayback(next, site: next.site)
+    playNextFromPlaylistOrIdle()
+  }
+
+  /// Never-started walk list for later / silent enqueue. Play-now uses `beginPlaying`.
+  private func enqueueOntoWalkList(site: Site, story: Story) {
+    playlist.enqueue(site: site, story: story)
+  }
+
+  /// Natural finish / settle / missing-asset skip. Does not call `beginPlaying`.
+  /// When the playhead is already set, advances to the next entry. When it is still nil
+  /// (queued before any play-now), starts the first carousel entry so idle-queue drains.
+  private func playNextFromPlaylistOrIdle() {
+    if let next = playlist.advanceAfterFinish() {
+      _ = startPlayback(next.story, site: next.site)
+    } else if playlist.playheadIndex == nil, !playlist.carouselEntries.isEmpty,
+      let first = playlist.select(index: 0)
+    {
+      _ = startPlayback(first.story, site: first.site)
     } else {
       playingSite = nil
       setWayfinding(nil)
@@ -307,14 +323,9 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
       }
       return true
     }
-    // Missing recording for the selected language — try the next queued story, else idle.
-    if let next = storyQueue.popNext() {
-      return startPlayback(next, site: next.site)
-    }
-    playingSite = nil
-    setWayfinding(nil)
-    state = .idle
-    return false
+    // Missing recording for the selected language — advance the playhead, else idle.
+    playNextFromPlaylistOrIdle()
+    return state == .playing
   }
 
   private func setWayfinding(_ target: WayfindingTarget?) {

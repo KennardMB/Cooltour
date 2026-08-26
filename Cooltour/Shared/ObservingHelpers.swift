@@ -31,6 +31,21 @@ struct ObservingQueue<Content: View>: View {
     }
 }
 
+/// Opens an `any WalkSitePlaylist` existential so SwiftUI tracks carousel entries, playhead,
+/// and never-started queue items.
+struct ObservingPlaylist<Content: View>: View {
+    let playlist: any WalkSitePlaylist
+    @ViewBuilder let content: ([WalkPlaylistEntry], Int?, [QueuedStory]) -> Content
+
+    var body: some View {
+        observe(playlist)
+    }
+
+    private func observe<P: WalkSitePlaylist>(_ playlist: P) -> Content {
+        content(playlist.carouselEntries, playlist.playheadIndex, playlist.queuedItems)
+    }
+}
+
 /// Opens an `any AudioPlayerService` existential into a generic so Observation tracks the
 /// concrete `@Observable` player — otherwise `progress`/`isPlaying` never drive a redraw and
 /// the card would freeze the moment it appeared.
