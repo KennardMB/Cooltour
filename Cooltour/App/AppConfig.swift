@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppConfig {
-  static let appName = "Cooltour"
+  static let appName = "Walkaby"
 
   /// Content packs seeded into the store at launch, in order. Sites from every pack coexist,
   /// so the app (map, proximity, Now) and the Simulate-approach menu span all of them.
