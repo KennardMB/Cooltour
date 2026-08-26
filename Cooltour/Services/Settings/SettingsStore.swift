@@ -55,9 +55,9 @@ final class SettingsStore {
   }
 
   private let defaults: UserDefaults
-  private let speedKey = "walkaby_default_playback_speed"
-  private let appLanguageKey = "walkaby_app_language"
-  private let audioLanguageKey = "walkaby_audio_language"
+  private let speedKey = "cooltour_default_playback_speed"
+  private let appLanguageKey = "cooltour_app_language"
+  private let audioLanguageKey = "cooltour_audio_language"
 
   init(
     defaults: UserDefaults = .standard,

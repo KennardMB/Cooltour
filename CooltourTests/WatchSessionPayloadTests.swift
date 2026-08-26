@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import Walkaby
+@testable import Cooltour
 
 /// Slice 17 — WatchConnectivity payloads must survive encode → decode without hardware.
 struct WatchSessionPayloadTests {

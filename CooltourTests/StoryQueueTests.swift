@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Walkaby
+@testable import Cooltour
 
 @MainActor
 struct StoryQueueTests {

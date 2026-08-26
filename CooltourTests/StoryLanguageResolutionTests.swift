@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import Walkaby
+@testable import Cooltour
 
 @Suite("Story language resolution")
 struct StoryLanguageResolutionTests {

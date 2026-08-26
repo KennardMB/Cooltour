@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import Walkaby
+@testable import Cooltour
 
 struct WatchSnapshotBuilderTests {
   @Test func builderCopiesAllFields() {

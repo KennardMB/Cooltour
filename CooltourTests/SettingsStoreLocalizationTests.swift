@@ -1,13 +1,13 @@
 import Foundation
 import Testing
 
-@testable import Walkaby
+@testable import Cooltour
 
 @Suite("SettingsStore localization")
 @MainActor
 struct SettingsStoreLocalizationTests {
   @Test func appLanguagePersistsAcrossRelaunch() {
-    let suiteName = "test.walkaby.appLanguage.\(UUID().uuidString)"
+    let suiteName = "test.cooltour.appLanguage.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suiteName)!
     defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -20,7 +20,7 @@ struct SettingsStoreLocalizationTests {
   }
 
   @Test func audioLanguagePersistsAndDefaultsToEnglish() {
-    let suiteName = "test.walkaby.audioLanguage.\(UUID().uuidString)"
+    let suiteName = "test.cooltour.audioLanguage.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suiteName)!
     defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -33,7 +33,7 @@ struct SettingsStoreLocalizationTests {
   }
 
   @Test func systemAppLanguageResolvesFromDeviceLocale() {
-    let suiteName = "test.walkaby.systemLang.\(UUID().uuidString)"
+    let suiteName = "test.cooltour.systemLang.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suiteName)!
     defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -44,7 +44,7 @@ struct SettingsStoreLocalizationTests {
   }
 
   @Test func indonesianAppLanguageResolvesToID() {
-    let suiteName = "test.walkaby.idLang.\(UUID().uuidString)"
+    let suiteName = "test.cooltour.idLang.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suiteName)!
     defer { defaults.removePersistentDomain(forName: suiteName) }
 
