@@ -72,24 +72,28 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
       return .success
     }
 
+    commandCenter.pauseCommand.isEnabled = true
     commandCenter.pauseCommand.addTarget { [weak self] _ in
       guard let self, self.isPlaying else { return .commandFailed }
       self.pause()
       return .success
     }
 
+    commandCenter.playCommand.isEnabled = true
     commandCenter.playCommand.addTarget { [weak self] _ in
       guard let self, self.currentStory != nil, !self.isPlaying else { return .commandFailed }
       self.resume()
       return .success
     }
 
+    commandCenter.togglePlayPauseCommand.isEnabled = true
     commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
       guard let self, self.currentStory != nil else { return .commandFailed }
       self.isPlaying ? self.pause() : self.resume()
       return .success
     }
 
+    commandCenter.stopCommand.isEnabled = true
     commandCenter.stopCommand.addTarget { [weak self] _ in
       guard let self, self.currentStory != nil else { return .commandFailed }
       self.stop()
@@ -186,8 +190,14 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   }
 
   func resume() {
+    do {
+      try AVAudioSession.sharedInstance().setActive(true)
+    } catch {
+      print("Failed to reactivate audio session on resume: \(error)")
+    }
     player?.play()
     isPlaying = true
+    startProgressTimer()
     updateNowPlayingInfo()
   }
 
@@ -251,10 +261,18 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
   /// it knows something is playing, and that knowledge comes entirely from this info, not
   /// from the audio session. Cleared (nil `currentStory`/`player`) on every terminal path.
   private func updateNowPlayingInfo() {
+    let commandCenter = MPRemoteCommandCenter.shared()
     guard let story = currentStory, let activePlayer = player else {
       MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+      commandCenter.playCommand.isEnabled = false
+      commandCenter.pauseCommand.isEnabled = false
+      commandCenter.togglePlayPauseCommand.isEnabled = false
       return
     }
+
+    commandCenter.playCommand.isEnabled = true
+    commandCenter.pauseCommand.isEnabled = true
+    commandCenter.togglePlayPauseCommand.isEnabled = true
 
     var info: [String: Any] = [
       MPMediaItemPropertyTitle: story.title,
