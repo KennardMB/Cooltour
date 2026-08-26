@@ -369,61 +369,6 @@ struct SettingsView: View {
                                 .resizable()
                         )
                     }
-
-                    // Section 5: Debug (Diagnostics)
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Debug")
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
-                            .padding(.leading, 4)
-
-                        VStack(spacing: 0) {
-                            NavigationLink {
-                                ContentDebugView()
-                            } label: {
-                                HStack {
-                                    Text("Content pack")
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
-                                }
-                                .padding(.horizontal, 14)
-                                .frame(height: 46)
-                            }
-                            .buttonStyle(.plain)
-
-                            Divider()
-                                .background(Color(red: 226/255, green: 225/255, blue: 222/255))
-
-                            NavigationLink {
-                                ProximityDebugView()
-                            } label: {
-                                HStack {
-                                    Text("Proximity")
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundStyle(Color(red: 117/255, green: 117/255, blue: 117/255))
-                                }
-                                .padding(.horizontal, 14)
-                                .frame(height: 46)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .background(
-                            Image("BrushCard")
-                                .resizable()
-                        )
-                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
