@@ -14,7 +14,7 @@ struct MyExplorationDetailsView: View {
   
   init(walk: Walk) {
     self.walk = walk
-    // Default title: first and last visited site ("SiteA - SiteD"), not the full trail.
+    // Prefer a user-edited title; otherwise first–last visited site ("SiteA - SiteD").
     let events = walk.triggerEvents.sorted { $0.firedAt < $1.firedAt }
     let defaultTitle: String
     if events.isEmpty {
@@ -28,7 +28,16 @@ struct MyExplorationDetailsView: View {
         defaultTitle = unique.first ?? "Exploration walk"
       }
     }
-    _walkTitle = State(initialValue: defaultTitle)
+    if let custom = walk.customTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !custom.isEmpty {
+      _walkTitle = State(initialValue: custom)
+    } else {
+      _walkTitle = State(initialValue: defaultTitle)
+    }
+    if let raw = walk.themeRawValue, let theme = CulturalColorTheme(rawValue: raw) {
+      _selectedTheme = State(initialValue: theme)
+    } else {
+      _selectedTheme = State(initialValue: .blue)
+    }
   }
   
   var body: some View {
@@ -140,6 +149,11 @@ struct MyExplorationDetailsView: View {
             onSave: { newTitle, newTheme in
               walkTitle = newTitle
               selectedTheme = newTheme
+              env.history.updateExploration(
+                walk: walk,
+                customTitle: newTitle,
+                themeRawValue: newTheme.rawValue
+              )
             }
           )
         }

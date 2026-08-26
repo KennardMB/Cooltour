@@ -68,7 +68,13 @@ struct MyExplorationsView: View {
               let title = walkTitle(for: walk, events: events)
               let timeText = walk.startedAt.formatted(date: .omitted, time: .shortened)
               let dateText = walk.startedAt.formatted(date: .numeric, time: .omitted)
-              let theme = BinderCardTheme.forIndex(index)
+              let theme: BinderCardTheme = {
+                if let raw = walk.themeRawValue,
+                   let cultural = CulturalColorTheme(rawValue: raw) {
+                  return BinderCardTheme.fromCulturalColorTheme(cultural)
+                }
+                return BinderCardTheme.forIndex(index)
+              }()
               
               NavigationLink {
                 MyExplorationDetailsView(walk: walk)
@@ -95,6 +101,9 @@ struct MyExplorationsView: View {
   }
   
   private func walkTitle(for walk: Walk, events: [TriggerEvent]) -> String {
+    if let custom = walk.customTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !custom.isEmpty {
+      return custom
+    }
     if events.isEmpty {
       return "Walk on \(walk.startedAt.formatted(date: .abbreviated, time: .omitted))"
     }
