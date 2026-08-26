@@ -63,9 +63,8 @@ final class UNNotificationService: NSObject, NotificationService {
     } else {
       content.body = prompt.storyTitle
     }
-    // Default sound so a locked iPhone can mirror the alert to Apple Watch. Silent
-    // notifications often stay phone-only.
     content.sound = .default
+    content.interruptionLevel = .timeSensitive
     content.categoryIdentifier = Self.categoryIdentifier
     content.userInfo = [
       "promptID": prompt.id.uuidString,
@@ -99,10 +98,12 @@ final class UNNotificationService: NSObject, NotificationService {
   // MARK: - Categories Setup
 
   private func registerCategories(languageCode: String) {
+    // No `.foreground` — that forces unlock + opens the app. Consent must resolve from the
+    // lock screen (Slice 13); Play / Queue / Dismiss all run in the background via `onAnswer`.
     let playAction = UNNotificationAction(
       identifier: Self.playActionIdentifier,
       title: ConsentStrings.playNowAction(languageCode: languageCode),
-      options: [.foreground]
+      options: []
     )
 
     let queueAction = UNNotificationAction(

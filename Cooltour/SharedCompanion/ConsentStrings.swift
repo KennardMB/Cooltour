@@ -31,7 +31,7 @@ enum ConsentStrings {
   static func statusPrompting(languageCode: String) -> String {
     languageCode == "id"
       ? "Cerita di dekat — putar, antre, atau lewati?"
-      : "Story nearby — play, queue, or dismiss?"
+      : "Story nearby — play, queue, or pass?"
   }
 
   static func statusPlaying(title: String, languageCode: String) -> String {
@@ -73,11 +73,11 @@ enum ConsentStrings {
   }
 
   static func dismissAction(languageCode: String) -> String {
-    languageCode == "id" ? "Lewati" : "Dismiss"
+    languageCode == "id" ? "Lewati" : "Pass"
   }
 
   static func dismissWithCountdown(_ seconds: Int, languageCode: String) -> String {
-    languageCode == "id" ? "Lewati (\(seconds))" : "Dismiss (\(seconds))"
+    languageCode == "id" ? "Lewati (\(seconds))" : "Pass (\(seconds))"
   }
 
   static func storyPromptAccessibility(siteName: String, languageCode: String) -> String {

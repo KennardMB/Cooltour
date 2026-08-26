@@ -9,8 +9,7 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
   private(set) var snapshot: WatchSessionSnapshot?
   private(set) var isPhoneReachable = false
   private(set) var isSessionActivated = false
-  /// True while the Watch UI is active. Approach notifications fire only when this is false
-  /// (Slice 22–24); foreground uses the in-app consent card + custom Haptic A instead.
+  /// True while the Watch UI is active — used for custom Haptic A only.
   var isAppInForeground = false
 
   private let encoder = JSONEncoder()
@@ -20,9 +19,7 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
   private var lastPostedNotificationID: UUID?
   private var lastPlayStartSlug: String?
 
-  /// Fired when Haptic A should play (new prompt id) while the Watch app is foreground.
   var onApproachHaptic: (() -> Void)?
-  /// Fired when Haptic B should play (wayfinding armed / site changed).
   var onPlayStartHaptic: (() -> Void)?
 
   init(notifications: any WatchApproachNotifying = WatchApproachNotificationService()) {
@@ -36,6 +33,12 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
     session.delegate = self
     if session.activationState == .notActivated {
       session.activate()
+    } else if session.activationState == .activated {
+      isSessionActivated = true
+      isPhoneReachable = session.isReachable
+      if let data = Self.snapshotData(from: session.receivedApplicationContext) {
+        ingestSnapshotData(data)
+      }
     }
     notifications.requestAuthorizationIfNeeded()
   }
@@ -55,7 +58,6 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
 
   func setWalkingMode(_ enabled: Bool) {
     send(.setWalkingMode(enabled))
-    // Optimistic local mirror so the toggle feels immediate while WC delivers.
     if var snap = snapshot {
       snap.walkingModeEnabled = enabled
       if !enabled {
@@ -86,19 +88,13 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
 
     if let prompt = WatchApproachNotificationPolicy.shouldPost(
       previousPromptID: lastApproachPromptID,
-      snapshot: snapshot,
-      isAppInForeground: isAppInForeground
+      snapshot: snapshot
     ) {
-      lastApproachPromptID = prompt.id
-      lastPostedNotificationID = prompt.id
-      notifications.postPrompt(prompt, languageCode: snapshot.languageCode)
-    } else if let id = WatchApproachNotificationPolicy.shouldPlayForegroundHaptic(
-      previousPromptID: lastApproachPromptID,
-      snapshot: snapshot,
-      isAppInForeground: isAppInForeground
-    ) {
-      lastApproachPromptID = id
-      onApproachHaptic?()
+      postApproach(
+        promptID: prompt.id,
+        siteName: prompt.siteName,
+        languageCode: snapshot.languageCode
+      )
     }
 
     if snapshot.pendingPrompt == nil {
@@ -119,14 +115,66 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
     self.snapshot = snapshot
   }
 
+  private func postApproach(promptID: UUID, siteName: String, languageCode: String) {
+    lastApproachPromptID = promptID
+    lastPostedNotificationID = promptID
+    notifications.postApproach(
+      siteName: siteName,
+      promptID: promptID,
+      languageCode: languageCode
+    )
+    if isAppInForeground {
+      onApproachHaptic?()
+    }
+  }
+
+  private func handleWakeInfo(_ info: [String: String]) {
+    if let clearID = WatchWakePayload.parseClear(info) {
+      notifications.withdrawPrompt(id: clearID)
+      if lastPostedNotificationID == clearID {
+        lastPostedNotificationID = nil
+      }
+      if lastApproachPromptID == clearID {
+        lastApproachPromptID = nil
+      }
+      return
+    }
+
+    guard let approach = WatchWakePayload.parseApproach(info) else { return }
+    guard WatchApproachNotificationPolicy.shouldPostWake(
+      previousPromptID: lastApproachPromptID,
+      promptID: approach.promptID
+    ) else { return }
+
+    postApproach(
+      promptID: approach.promptID,
+      siteName: approach.siteName,
+      languageCode: approach.languageCode
+    )
+  }
+
   private func ingestSnapshotData(_ data: Data) {
     guard let snap = try? decoder.decode(WatchSessionSnapshot.self, from: data) else { return }
     apply(snap)
   }
 
-  private func ingestContext(_ context: [String: Any]) {
-    guard let data = context[Self.snapshotKey] as? Data else { return }
-    ingestSnapshotData(data)
+  /// Pull Sendable values off WC dictionaries on the callback thread before hopping to MainActor.
+  nonisolated private static func snapshotData(from context: [String: Any]) -> Data? {
+    if let base64 = context[snapshotKey] as? String {
+      return Data(base64Encoded: base64)
+    }
+    return context[snapshotKey] as? Data
+  }
+
+  nonisolated private static func stringInfo(from dictionary: [String: Any]) -> [String: String] {
+    var out: [String: String] = [:]
+    out.reserveCapacity(dictionary.count)
+    for (key, value) in dictionary {
+      if let string = value as? String {
+        out[key] = string
+      }
+    }
+    return out
   }
 
   // MARK: - WCSessionDelegate
@@ -137,12 +185,12 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
     error: Error?
   ) {
     let reachable = session.isReachable
-    let snapshotData = session.receivedApplicationContext[Self.snapshotKey] as? Data
+    let data = Self.snapshotData(from: session.receivedApplicationContext)
     Task { @MainActor in
       self.isSessionActivated = activationState == .activated
       self.isPhoneReachable = reachable
-      if activationState == .activated, let snapshotData {
-        self.ingestSnapshotData(snapshotData)
+      if activationState == .activated, let data {
+        self.ingestSnapshotData(data)
       }
     }
   }
@@ -158,20 +206,37 @@ final class WatchSessionClient: NSObject, WCSessionDelegate {
     _ session: WCSession,
     didReceiveApplicationContext applicationContext: [String: Any]
   ) {
-    let snapshotData = applicationContext[Self.snapshotKey] as? Data
+    let data = Self.snapshotData(from: applicationContext)
     Task { @MainActor in
-      if let snapshotData {
-        self.ingestSnapshotData(snapshotData)
+      if let data {
+        self.ingestSnapshotData(data)
       }
     }
   }
 
   nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
-    let snapshotData = userInfo[Self.snapshotKey] as? Data
+    let info = Self.stringInfo(from: userInfo)
     Task { @MainActor in
-      if let snapshotData {
-        self.ingestSnapshotData(snapshotData)
-      }
+      self.handleWakeInfo(info)
+    }
+  }
+
+  nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+    let info = Self.stringInfo(from: message)
+    Task { @MainActor in
+      self.handleWakeInfo(info)
+    }
+  }
+
+  nonisolated func session(
+    _ session: WCSession,
+    didReceiveMessage message: [String: Any],
+    replyHandler: @escaping ([String: Any]) -> Void
+  ) {
+    let info = Self.stringInfo(from: message)
+    replyHandler([:])
+    Task { @MainActor in
+      self.handleWakeInfo(info)
     }
   }
 }

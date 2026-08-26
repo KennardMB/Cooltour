@@ -6,7 +6,7 @@ import UserNotifications
 @MainActor
 protocol WatchApproachNotifying: AnyObject {
   func requestAuthorizationIfNeeded()
-  func postPrompt(_ prompt: PendingPrompt, languageCode: String)
+  func postApproach(siteName: String, promptID: UUID, languageCode: String)
   func withdrawPrompt(id: UUID)
 }
 
@@ -22,16 +22,25 @@ final class WatchApproachNotificationService: NSObject, WatchApproachNotifying {
   }
 
   func requestAuthorizationIfNeeded() {
-    guard !didRequestAuthorization else { return }
-    didRequestAuthorization = true
     Task {
-      _ = try? await center.requestAuthorization(options: [.alert, .sound])
+      let settings = await center.notificationSettings()
+      if settings.authorizationStatus == .notDetermined {
+        didRequestAuthorization = true
+        _ = try? await center.requestAuthorization(options: [.alert, .sound])
+      } else if !didRequestAuthorization {
+        // Already decided — still mark so we don't spam; posts check status each time.
+        didRequestAuthorization = true
+      }
     }
   }
 
-  func postPrompt(_ prompt: PendingPrompt, languageCode: String) {
+  func postApproach(siteName: String, promptID: UUID, languageCode: String) {
     Task {
-      let settings = await center.notificationSettings()
+      var settings = await center.notificationSettings()
+      if settings.authorizationStatus == .notDetermined {
+        _ = try? await center.requestAuthorization(options: [.alert, .sound])
+        settings = await center.notificationSettings()
+      }
       let allowed =
         settings.authorizationStatus == .authorized
         || settings.authorizationStatus == .provisional
@@ -39,28 +48,22 @@ final class WatchApproachNotificationService: NSObject, WatchApproachNotifying {
 
       let content = UNMutableNotificationContent()
       content.title = ConsentStrings.notificationTitle(
-        siteName: prompt.siteName,
+        siteName: siteName,
         languageCode: languageCode
       )
-      // Site name is already the title; body nudges the tap without dumping the spoken prompt.
       content.body = ConsentStrings.statusPrompting(languageCode: languageCode)
-      // Default sound so the wrist buzzes when the Watch app is not open.
       content.sound = .default
       content.userInfo = [
-        "promptID": prompt.id.uuidString,
-        "siteSlug": prompt.siteSlug,
+        "promptID": promptID.uuidString,
+        "siteSlug": siteName,
       ]
 
       let request = UNNotificationRequest(
-        identifier: prompt.id.uuidString,
+        identifier: promptID.uuidString,
         content: content,
         trigger: nil
       )
-      do {
-        try await center.add(request)
-      } catch {
-        // Soft-fail — phone consent still works; do not invent a Watch outcome.
-      }
+      try? await center.add(request)
     }
   }
 
@@ -72,16 +75,17 @@ final class WatchApproachNotificationService: NSObject, WatchApproachNotifying {
 }
 
 extension WatchApproachNotificationService: UNUserNotificationCenterDelegate {
-  /// App already open on the consent card — don't stack a banner on top.
+  /// Always present sound (and banner). Empty options previously silenced the wrist buzz when
+  /// WatchConnectivity briefly woke Cooltour Watch to deliver `transferUserInfo` — that wake
+  /// counts as "foreground" for `willPresent`, so the approach alert never showed.
   nonisolated func userNotificationCenter(
     _ center: UNUserNotificationCenter,
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
-    completionHandler([])
+    completionHandler([.banner, .sound, .list])
   }
 
-  /// Default tap opens the Watch app; consent answers stay on the glance (same promptID).
   nonisolated func userNotificationCenter(
     _ center: UNUserNotificationCenter,
     didReceive response: UNNotificationResponse,
@@ -91,7 +95,6 @@ extension WatchApproachNotificationService: UNUserNotificationCenterDelegate {
   }
 }
 
-/// Preview / test double — records posts and withdrawals without UserNotifications.
 @MainActor
 final class MockWatchApproachNotifier: WatchApproachNotifying {
   private(set) var postedPromptIDs: [UUID] = []
@@ -102,8 +105,8 @@ final class MockWatchApproachNotifier: WatchApproachNotifying {
     authorizationRequested = true
   }
 
-  func postPrompt(_ prompt: PendingPrompt, languageCode: String) {
-    postedPromptIDs.append(prompt.id)
+  func postApproach(siteName: String, promptID: UUID, languageCode: String) {
+    postedPromptIDs.append(promptID)
   }
 
   func withdrawPrompt(id: UUID) {

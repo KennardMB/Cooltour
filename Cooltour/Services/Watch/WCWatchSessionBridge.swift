@@ -2,8 +2,8 @@ import Foundation
 import Observation
 import WatchConnectivity
 
-/// Production phone ↔ Watch bridge (Slices 18–20). Pushes latest-wins snapshots; receives commands
-/// via `sendMessage`. Does not stream GPS.
+/// Production phone ↔ Watch bridge (Slices 18–24). Pushes latest-wins snapshots; wakes the Watch
+/// with a small string plist when a consent prompt opens.
 @MainActor
 final class WCWatchSessionBridge: NSObject, WatchSessionBridge, WCSessionDelegate {
   private let settings: SettingsStore
@@ -12,7 +12,7 @@ final class WCWatchSessionBridge: NSObject, WatchSessionBridge, WCSessionDelegat
   private let proximity: any ProximityEngine
 
   private var lastPushed: WatchSessionSnapshot?
-  /// Coarse key so countdown ticks don't flood `transferUserInfo` — only wake-worthy changes.
+  /// Coarse key so countdown ticks don't flood wake transfers.
   private var lastTransferredWakeKey: String?
   private var observationTask: Task<Void, Never>?
   private let encoder = JSONEncoder()
@@ -41,22 +41,22 @@ final class WCWatchSessionBridge: NSObject, WatchSessionBridge, WCSessionDelegat
 
   func push(_ snapshot: WatchSessionSnapshot) {
     guard snapshot != lastPushed else { return }
+    let previous = lastPushed
     lastPushed = snapshot
     guard WCSession.isSupported(), WCSession.default.activationState == .activated else { return }
+
     do {
       let data = try encoder.encode(snapshot)
-      // Latest-wins glance state (including countdown).
-      try WCSession.default.updateApplicationContext([Self.snapshotKey: data])
-      // Queued delivery that can wake the Watch in the background — applicationContext alone
-      // often waits until the user opens Cooltour Watch again.
-      let wakeKey = Self.wakeKey(for: snapshot)
-      if wakeKey != lastTransferredWakeKey {
-        lastTransferredWakeKey = wakeKey
-        WCSession.default.transferUserInfo([Self.snapshotKey: data])
-      }
+      // Latest-wins glance state (including countdown). Base64 keeps the WC dictionary
+      // property-list friendly across watchOS versions.
+      try WCSession.default.updateApplicationContext([
+        Self.snapshotKey: data.base64EncodedString()
+      ])
     } catch {
-      // Latest-wins; a later refresh will retry. Do not invent Watch state.
+      // Latest-wins; a later refresh will retry.
     }
+
+    deliverWakeIfNeeded(from: previous, to: snapshot)
   }
 
   func handle(_ command: WatchCommand) {
@@ -84,11 +84,41 @@ final class WCWatchSessionBridge: NSObject, WatchSessionBridge, WCSessionDelegat
   private nonisolated static let snapshotKey = "snapshot"
   private nonisolated static let commandKey = "command"
 
-  /// Ignores dismiss-countdown ticks so background wakes stay rare and meaningful.
   private static func wakeKey(for snapshot: WatchSessionSnapshot) -> String {
     let prompt = snapshot.pendingPrompt?.id.uuidString ?? "-"
     let target = snapshot.wayfindingTarget?.siteSlug ?? "-"
     return "\(snapshot.walkingModeEnabled)|\(snapshot.narrationState.rawValue)|\(prompt)|\(target)"
+  }
+
+  private func deliverWakeIfNeeded(from previous: WatchSessionSnapshot?, to snapshot: WatchSessionSnapshot) {
+    let wakeKey = Self.wakeKey(for: snapshot)
+    guard wakeKey != lastTransferredWakeKey else { return }
+    lastTransferredWakeKey = wakeKey
+
+    let payload: [String: String]
+    if snapshot.narrationState == .prompting, let prompt = snapshot.pendingPrompt {
+      payload = WatchWakePayload.approach(
+        promptID: prompt.id,
+        siteName: prompt.siteName,
+        languageCode: snapshot.languageCode
+      )
+    } else if previous?.pendingPrompt != nil, snapshot.pendingPrompt == nil {
+      payload = WatchWakePayload.clear(promptID: previous?.pendingPrompt?.id)
+    } else {
+      return
+    }
+
+    let session = WCSession.default
+    guard session.isWatchAppInstalled else { return }
+
+    // Immediate path when the Watch is reachable (often true right after a walk session).
+    if session.isReachable {
+      session.sendMessage(payload, replyHandler: nil) { _ in
+        // Fall through — transferUserInfo already queued below.
+      }
+    }
+    // Queued background delivery; can launch Cooltour Watch briefly to post a local notification.
+    session.transferUserInfo(payload)
   }
 
   private func makeSnapshot() -> WatchSessionSnapshot {

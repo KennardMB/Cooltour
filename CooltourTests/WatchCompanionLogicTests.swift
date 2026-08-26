@@ -169,30 +169,31 @@ struct WatchApproachNotificationPolicyTests {
     )
   }
 
-  @Test func postsOnlyInBackgroundOnNewPromptID() {
+  @Test func postsOnNewPromptIDEvenIfForegroundWouldHaveBlocked() {
     let id = UUID()
     let snap = snapshot(state: .prompting, promptID: id)
 
     #expect(
       WatchApproachNotificationPolicy.shouldPost(
         previousPromptID: nil,
-        snapshot: snap,
-        isAppInForeground: false
+        snapshot: snap
       )?.id == id
     )
     #expect(
       WatchApproachNotificationPolicy.shouldPost(
-        previousPromptID: nil,
-        snapshot: snap,
-        isAppInForeground: true
+        previousPromptID: id,
+        snapshot: snap
       ) == nil
     )
+  }
+
+  @Test func wakePayloadPostsOnlyOnNewID() {
+    let id = UUID()
     #expect(
-      WatchApproachNotificationPolicy.shouldPost(
-        previousPromptID: id,
-        snapshot: snap,
-        isAppInForeground: false
-      ) == nil
+      WatchApproachNotificationPolicy.shouldPostWake(previousPromptID: nil, promptID: id)
+    )
+    #expect(
+      !WatchApproachNotificationPolicy.shouldPostWake(previousPromptID: id, promptID: id)
     )
   }
 

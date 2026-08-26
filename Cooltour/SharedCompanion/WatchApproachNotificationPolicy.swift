@@ -4,22 +4,28 @@ import Foundation
 /// System notification haptic stands in for Haptic A while the Watch app is not on screen;
 /// tap opens the app onto the consent gate.
 enum WatchApproachNotificationPolicy {
-  /// Post when a *new* pending prompt arrives and the Watch UI is not active.
-  /// Foreground uses the in-app consent card + custom Haptic A instead (no duplicate buzz).
+  /// Post when a *new* pending prompt arrives. Always post — `willPresent` suppresses the banner
+  /// if the glance is already open; skipping the post while "foreground" was dropping wakes.
   static func shouldPost(
     previousPromptID: UUID?,
-    snapshot: WatchSessionSnapshot,
-    isAppInForeground: Bool
+    snapshot: WatchSessionSnapshot
   ) -> PendingPrompt? {
-    guard !isAppInForeground,
-      snapshot.narrationState == .prompting,
+    guard snapshot.narrationState == .prompting,
       let prompt = snapshot.pendingPrompt,
       prompt.id != previousPromptID
     else { return nil }
     return prompt
   }
 
-  /// Custom wrist Haptic A only while the glance is open — otherwise the notification buzzes.
+  /// Same rule for the lightweight WC wake payload (no full snapshot on the wire).
+  static func shouldPostWake(
+    previousPromptID: UUID?,
+    promptID: UUID
+  ) -> Bool {
+    promptID != previousPromptID
+  }
+
+  /// Custom wrist Haptic A only while the glance is open — notification already buzzes otherwise.
   static func shouldPlayForegroundHaptic(
     previousPromptID: UUID?,
     snapshot: WatchSessionSnapshot,
