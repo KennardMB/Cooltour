@@ -75,29 +75,30 @@ public struct SitePolaroidCollage: View {
             } else if sites.count == 1 {
                 SitePolaroidCard(siteName: sites[0].name, imageAssetName: sites[0].imageAssetName, width: 160)
             } else if sites.count == 2 {
+                // First visited site sits in front (higher zIndex).
                 HStack(spacing: -24) {
-                    SitePolaroidCard(siteName: sites[0].name, imageAssetName: sites[0].imageAssetName, width: 140)
+                    SitePolaroidCard(siteName: sites[1].name, imageAssetName: sites[1].imageAssetName, width: 140)
                         .rotationEffect(.degrees(-6))
 
-                    SitePolaroidCard(siteName: sites[1].name, imageAssetName: sites[1].imageAssetName, width: 150)
+                    SitePolaroidCard(siteName: sites[0].name, imageAssetName: sites[0].imageAssetName, width: 150)
                         .rotationEffect(.degrees(5))
                         .zIndex(1)
                 }
             } else {
-                // 3 or more polaroids in artistic staggered layout per Figma 204:2091
+                // 3 or more: first visited site is the center foreground card.
                 ZStack {
-                    // Left back
-                    SitePolaroidCard(siteName: sites[0].name, imageAssetName: sites[0].imageAssetName, width: 135)
+                    // Left back — second unique site
+                    SitePolaroidCard(siteName: sites[1].name, imageAssetName: sites[1].imageAssetName, width: 135)
                         .rotationEffect(.degrees(-8))
                         .offset(x: -68, y: -10)
 
-                    // Right back
+                    // Right back — third unique site
                     SitePolaroidCard(siteName: sites[min(2, sites.count - 1)].name, imageAssetName: sites[min(2, sites.count - 1)].imageAssetName, width: 135)
                         .rotationEffect(.degrees(7))
                         .offset(x: 68, y: 15)
 
-                    // Center foreground
-                    SitePolaroidCard(siteName: sites[1].name, imageAssetName: sites[1].imageAssetName, width: 150)
+                    // Center foreground — first site visited
+                    SitePolaroidCard(siteName: sites[0].name, imageAssetName: sites[0].imageAssetName, width: 150)
                         .rotationEffect(.degrees(-1))
                         .offset(x: 0, y: -5)
                         .zIndex(2)
