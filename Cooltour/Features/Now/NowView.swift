@@ -12,6 +12,8 @@ struct NowView: View {
     @State private var isShowingProfile: Bool = false
     @State private var isShowingMap: Bool = false
     @State private var isShowingPauseOverlay: Bool = false
+    @State private var isShowingEndView: Bool = false
+    @State private var completedWalkForEndView: Walk?
     @State private var showQueueToast: Bool = false
     @State private var showPlayerQueueToast: Bool = false
     @State private var locationTitle: String = "Live Location"
@@ -87,12 +89,7 @@ struct NowView: View {
                                 }
                             },
                             onEndTour: {
-                                withAnimation(.easeInOut(duration: 0.25)) {
-                                    isShowingPauseOverlay = false
-                                    env.settings.walkingMode = false
-                                    env.proximity.stop()
-                                    env.audio.stop()
-                                }
+                                endTour()
                             }
                         )
                         .zIndex(10)
@@ -120,6 +117,14 @@ struct NowView: View {
                         isShowingMap = true
                     }
                 )
+            }
+            .fullScreenCover(isPresented: $isShowingEndView) {
+                if let walk = completedWalkForEndView {
+                    EndView(walk: walk) {
+                        isShowingEndView = false
+                        completedWalkForEndView = nil
+                    }
+                }
             }
             .sheet(isPresented: $isShowingProfile) {
                 ProfileView()
@@ -680,6 +685,27 @@ struct NowView: View {
         env.proximity.start()
         Task {
             _ = await env.notifications.requestAuthorization()
+        }
+    }
+
+    /// Ends the active tour: save happens via `RootView` when proximity stops.
+    /// Shows EndView only when the walk recorded at least one site.
+    private func endTour() {
+        // Capture before teardown — `stopWalk()` clears `activeWalk`.
+        let walk = env.history.activeWalk
+        let shouldShowEndView = walk.map { !$0.triggerEvents.isEmpty } ?? false
+
+        withAnimation(.easeInOut(duration: 0.25)) {
+            isShowingPauseOverlay = false
+        }
+        isShowingSitesPlayer = false
+        env.settings.walkingMode = false
+        env.proximity.stop()
+        env.audio.stop()
+
+        if shouldShowEndView, let walk {
+            completedWalkForEndView = walk
+            isShowingEndView = true
         }
     }
 
