@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B41EC5F4303E9CC80014458E /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* Lottie */; };
 		W1000000000000000000000F /* Cooltour Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = W10000000000000000000001 /* Cooltour Watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		W10000000000000000000010 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10000000000000000000011 /* WatchConnectivity.framework */; };
 		W10000000000000000000012 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10000000000000000000011 /* WatchConnectivity.framework */; };
@@ -93,6 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B41EC5F4303E9CC80014458E /* Lottie in Frameworks */,
 				W10000000000000000000010 /* WatchConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -585,7 +587,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 325M9R8DH7;
+				DEVELOPMENT_TEAM = QN85YCBSHX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Cooltour;
@@ -619,7 +621,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 325M9R8DH7;
+				DEVELOPMENT_TEAM = QN85YCBSHX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Cooltour;

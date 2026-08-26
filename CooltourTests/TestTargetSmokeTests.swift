@@ -6,6 +6,6 @@ import Testing
 /// the slices that need it (`ApproachPrompt` in Slice 11b/D, the coordinator in Slice 11b/E).
 struct TestTargetSmokeTests {
   @Test func testTargetCanImportAppModule() {
-    #expect(AppConfig.appName == "Cooltour")
+    #expect(AppConfig.appName == "Walkaby")
   }
 }

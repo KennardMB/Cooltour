@@ -52,24 +52,24 @@ final class SystemConsentRemoteControl: ConsentRemoteControl {
     if let playTarget {
       commandCenter.playCommand.removeTarget(playTarget)
       self.playTarget = nil
-      commandCenter.playCommand.isEnabled = false
     }
     if let togglePlayPauseTarget {
       commandCenter.togglePlayPauseCommand.removeTarget(togglePlayPauseTarget)
       self.togglePlayPauseTarget = nil
-      commandCenter.togglePlayPauseCommand.isEnabled = false
     }
     if let nextTrackTarget {
       commandCenter.nextTrackCommand.removeTarget(nextTrackTarget)
       self.nextTrackTarget = nil
       commandCenter.nextTrackCommand.isEnabled = false
     }
-    // Only clear nowPlayingInfo if it was set for the consent prompt (no playback duration)
+    // Only clear nowPlayingInfo and disable commands if it was set for the consent prompt (no playback duration)
     // and not active media playback from the audio player.
     if let currentInfo = nowPlaying.nowPlayingInfo,
       currentInfo[MPMediaItemPropertyPlaybackDuration] == nil
     {
       nowPlaying.nowPlayingInfo = nil
+      commandCenter.playCommand.isEnabled = false
+      commandCenter.togglePlayPauseCommand.isEnabled = false
     }
   }
 }
