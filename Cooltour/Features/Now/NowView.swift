@@ -35,12 +35,17 @@ struct NowView: View {
         return env.proximity.nearbySites.filter { $0.distanceMeters <= 1000 }.count
     }
 
+    private var hasActiveAudio: Bool {
+        env.audio.isPlaying || env.audio.currentStory != nil || !env.playlist.carouselEntries.isEmpty
+    }
+
     var body: some View {
         NavigationStack {
             // Opens Observation scopes
             ObservingNarration(coordinator: env.narration) { narrationState, prompt, countdown in
                 ObservingPlaylist(playlist: env.playlist) { _, _, _ in
-                ZStack {
+                ObservingAudio(audio: env.audio) { isPlaying, isLoading, currentStory, progress in
+                ZStack(alignment: .bottom) {
                     // 1. Grid Background Texture (Figma Tile Background #F8F7F4)
                     TiledBackgroundView()
                         .ignoresSafeArea()
@@ -53,16 +58,26 @@ struct NowView: View {
                         // State C: Discovered Site Prompt (Figma Node 223:1448)
                         discoveredSitePromptView(prompt: prompt, countdown: countdown)
                     } else {
-                        // State B: Wandering / Exploring Screen (Figma Node 223:1414)
+                        // State B: Wandering / Exploring Screen (Figma Node 223:1414 & 265:2325)
                         wanderingContentView
                     }
 
-                    // 3. Queue Toast / Snackbar Notification
-                    if showQueueToast {
-                        queueToastView
+                    // 3. Miniplayer (Figma Node 271:2441)
+                    if env.settings.walkingMode && (isPlaying || currentStory != nil || !env.playlist.carouselEntries.isEmpty) {
+                        NowMiniplayerView {
+                            isShowingSitesPlayer = true
+                        }
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(5)
                     }
 
-                    // 4. Pause Tour Overlay (Figma Node 209:3795)
+                    // 4. Queue Toast / Snackbar Notification
+                    if showQueueToast {
+                        queueToastView
+                            .padding(.bottom, (env.settings.walkingMode && (isPlaying || currentStory != nil || !env.playlist.carouselEntries.isEmpty)) ? 76 : 0)
+                    }
+
+                    // 5. Pause Tour Overlay (Figma Node 209:3795)
                     if isShowingPauseOverlay {
                         PauseTourOverlay(
                             onResume: {
@@ -90,6 +105,7 @@ struct NowView: View {
                     if newState == .playing {
                         isShowingSitesPlayer = true
                     }
+                }
                 }
                 }
             }
@@ -327,7 +343,7 @@ struct NowView: View {
                 .accessibilityLabel("View Map (Cheating)")
                 .accessibilityHint("Opens the full map view")
                 .padding(.horizontal, 24)
-                .padding(.bottom, 28)
+                .padding(.bottom, hasActiveAudio ? 96 : 28)
             }
         }
     }
@@ -582,7 +598,7 @@ struct NowView: View {
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
-            .padding(.bottom, 28)
+            .padding(.bottom, hasActiveAudio ? 96 : 28)
             .accessibilityElement(children: .contain)
             .accessibilityLabel(
                 ConsentStrings.storyPromptAccessibility(

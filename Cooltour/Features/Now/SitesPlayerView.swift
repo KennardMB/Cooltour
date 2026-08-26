@@ -38,8 +38,24 @@ public struct SitesPlayerView: View {
 
             ZStack(alignment: .bottomTrailing) {
                 VStack(spacing: 0) {
-                    // 1. Top Header: Location Indicator & Pause Button
-                    HStack(spacing: 12) {
+                    // 1. Top Header: Minimize Chevron + Location Indicator + Pause Button
+                    HStack(spacing: 8) {
+                        // Dismiss / Minimize Chevron Button (top left)
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image("IconChevronDown")
+                                .resizable()
+                                .renderingMode(.template)
+                                .scaledToFit()
+                                .foregroundStyle(Color(red: 29/255, green: 82/255, blue: 216/255))
+                                .frame(width: 24, height: 24)
+                                .padding(4)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Minimize player")
+                        .accessibilityHint("Returns to the main view")
+
                         // Regional Location Indicator
                         HStack(spacing: 8) {
                             Image(env.proximity.authorizationStatus == .authorizedWhenInUse || env.proximity.authorizationStatus == .authorizedAlways ? "IconLocationActive" : "IconLocationInactive")
@@ -344,6 +360,14 @@ public struct SitesPlayerView: View {
                 FloatingSimulateButton(bottomPadding: 32)
             }
             .defaultTiledBackground(scale: 0.20)
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 25)
+                    .onEnded { value in
+                        if value.translation.height > 60 && abs(value.translation.height) > abs(value.translation.width) * 1.2 {
+                            dismiss()
+                        }
+                    }
+            )
             .sheet(isPresented: $isShowingFullTranscript) {
                 FullTranscriptSheet(
                     site: activeSite,
