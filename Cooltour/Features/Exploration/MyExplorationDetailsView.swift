@@ -114,6 +114,7 @@ struct MyExplorationDetailsView: View {
                       storyTitle: event.storyTitle,
                       snippet: story?.transcript(for: env.settings.audioLanguage) ?? "",
                       isPlaying: isThisStoryPlaying,
+                      isFirst: index == 0,
                       isLast: isLast,
                       onPlayToggle: {
                         if let story {
@@ -192,32 +193,45 @@ private struct TimelineStoryRow: View {
   let storyTitle: String
   let snippet: String
   let isPlaying: Bool
+  let isFirst: Bool
   let isLast: Bool
   let onPlayToggle: () -> Void
   
+  private let nodeSize: CGFloat = 18
+  private let nodeTopInset: CGFloat = 24
+  
   var body: some View {
     HStack(alignment: .top, spacing: 14) {
-      // Timeline indicator (Node dot + connecting dashed line)
+      // Timeline indicator: bridge top inset into the node, then fill down to the next row.
       VStack(spacing: 0) {
-        ZStack {
-          Circle()
-            .fill(isPlaying ? AppColor.Brand.primary : AppColor.Background.pure)
-            .frame(width: 18, height: 18)
-            .overlay(
-              Circle()
-                .strokeBorder(AppColor.Brand.primary, lineWidth: isPlaying ? 0 : 2)
-            )
-        }
-        .padding(.top, 24)
-        
-        if !isLast {
+        if isFirst {
+          Color.clear.frame(height: nodeTopInset)
+        } else {
           Rectangle()
             .fill(AppColor.Brand.primary.opacity(0.35))
+            .frame(width: 2, height: nodeTopInset)
+        }
+        
+        Circle()
+          .fill(isPlaying ? AppColor.Brand.primary : AppColor.Background.pure)
+          .frame(width: nodeSize, height: nodeSize)
+          .overlay(
+            Circle()
+              .strokeBorder(AppColor.Brand.primary, lineWidth: isPlaying ? 0 : 2)
+          )
+        
+        if !isLast {
+          // Spacer takes remaining row height so the rail reaches the next node.
+          Spacer(minLength: 0)
             .frame(width: 2)
-            .frame(maxHeight: .infinity)
+            .overlay {
+              Rectangle()
+                .fill(AppColor.Brand.primary.opacity(0.35))
+            }
         }
       }
       .frame(width: 24)
+      .frame(maxHeight: .infinity, alignment: .top)
       
       // Story Card
       HStack(alignment: .center, spacing: AppSpacing.sm) {
