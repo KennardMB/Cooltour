@@ -116,4 +116,29 @@ struct HistoryStoreOutcomeTests {
     engine.simulateTrigger(site: site)
     #expect(triggered == true)
   }
+
+  @Test func deleteAllWalksClearsAllHistory() {
+    let history = HistoryStore.inMemory()
+    history.startWalk()
+    let event = ProximityEvent(
+      date: .now,
+      siteSlug: "pura-maospahit",
+      siteName: "Pura Maospahit",
+      storySlug: "pura-maospahit-01",
+      storyTitle: "The Split Gate",
+      distanceMeters: 12,
+      horizontalAccuracyMeters: 8,
+      latitude: -8.6,
+      longitude: 115.2,
+      wasBackground: false
+    )
+    history.addEvent(from: event, outcome: .played)
+    history.stopWalk()
+
+    #expect(!history.recentEvents.isEmpty)
+
+    history.deleteAllWalks()
+    #expect(history.activeWalk == nil)
+    #expect(history.recentEvents.isEmpty)
+  }
 }

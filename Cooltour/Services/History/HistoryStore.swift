@@ -65,6 +65,24 @@ final class HistoryStore {
       try? context.save()
     }
   }
+
+  /// Clears all walks and trigger events from persistence (for exhibition cold reset).
+  func deleteAllWalks() {
+    activeWalk = nil
+    let walkDescriptor = FetchDescriptor<Walk>()
+    if let allWalks = try? context.fetch(walkDescriptor) {
+      for walk in allWalks {
+        context.delete(walk)
+      }
+    }
+    let eventDescriptor = FetchDescriptor<TriggerEvent>()
+    if let allEvents = try? context.fetch(eventDescriptor) {
+      for event in allEvents {
+        context.delete(event)
+      }
+    }
+    try? context.save()
+  }
   
   func addEvent(from event: ProximityEvent, outcome: PromptOutcome) {
     if activeWalk == nil {
