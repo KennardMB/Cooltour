@@ -12,9 +12,10 @@ import Foundation
 @MainActor
 protocol ConsentRemoteControl: AnyObject {
   /// Register a single-click handler (play now), an optional double-click handler (add to queue),
-  /// and show `title` as the pending now-playing item.
+  /// and show site/district as the pending now-playing item (same labels as playback).
   func arm(
     title: String,
+    artist: String,
     onPlay: @escaping () -> Void,
     onQueue: (() -> Void)?
   )

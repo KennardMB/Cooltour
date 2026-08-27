@@ -8,6 +8,8 @@ nonisolated struct PendingPrompt: Identifiable, Equatable, Sendable, Codable {
   let id: UUID
   let siteSlug: String
   let siteName: String
+  /// Notification subtitle / Now Playing artist. Empty only if the pack omitted it.
+  let districtName: String
   let storySlug: String
   let storyTitle: String
   /// Nil when travel direction isn't trustworthy — the phrase is then omitted from `spokenText`

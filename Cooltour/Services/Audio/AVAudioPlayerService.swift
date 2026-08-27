@@ -275,8 +275,8 @@ final class AVAudioPlayerService: NSObject, AudioPlayerService {
     commandCenter.togglePlayPauseCommand.isEnabled = true
 
     var info: [String: Any] = [
-      MPMediaItemPropertyTitle: story.title,
-      MPMediaItemPropertyArtist: story.site?.name ?? AppConfig.appName,
+      MPMediaItemPropertyTitle: NowPlayingInfoLabels.title(for: story),
+      MPMediaItemPropertyArtist: NowPlayingInfoLabels.artist(for: story),
       MPMediaItemPropertyPlaybackDuration: activePlayer.duration,
       MPNowPlayingInfoPropertyElapsedPlaybackTime: activePlayer.currentTime,
       MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(rate) : 0.0,

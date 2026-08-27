@@ -52,4 +52,22 @@ struct ApproachPromptTests {
     #expect(ConsentStrings.dismissWithCountdown(8, languageCode: "id") == "Lewati (8)")
     #expect(ConsentStrings.dismissWithCountdown(8, languageCode: "en") == "Pass (8)")
   }
+
+  @Test func notificationBodyIsDistrictNotStoryTitle() {
+    #expect(
+      ConsentStrings.notificationBody(
+        districtName: "Renon, Denpasar Selatan",
+        directionPhrase: nil
+      ) == "Renon, Denpasar Selatan"
+    )
+    #expect(
+      ConsentStrings.notificationBody(
+        districtName: "Renon, Denpasar Selatan",
+        directionPhrase: "on your left"
+      ) == "on your left · Renon, Denpasar Selatan"
+    )
+    #expect(
+      ConsentStrings.notificationBody(districtName: "  ", directionPhrase: nil).isEmpty
+    )
+  }
 }

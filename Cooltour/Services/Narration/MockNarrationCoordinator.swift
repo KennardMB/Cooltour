@@ -37,6 +37,7 @@ final class MockNarrationCoordinator: NarrationCoordinator {
       id: UUID(),
       siteSlug: site.slug,
       siteName: site.name,
+      districtName: site.districtName,
       storySlug: story.slug,
       storyTitle: story.title,
       directionPhrase: directionPhrase,

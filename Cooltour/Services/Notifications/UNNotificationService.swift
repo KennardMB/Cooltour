@@ -58,11 +58,11 @@ final class UNNotificationService: NSObject, NotificationService {
       siteName: prompt.siteName,
       languageCode: languageCode
     )
-    if let direction = prompt.directionPhrase, !direction.isEmpty {
-      content.body = "\(direction) · \(prompt.storyTitle)"
-    } else {
-      content.body = prompt.storyTitle
-    }
+    let district = prompt.districtName.trimmingCharacters(in: .whitespacesAndNewlines)
+    content.body = ConsentStrings.notificationBody(
+      districtName: district.isEmpty ? prompt.siteName : district,
+      directionPhrase: prompt.directionPhrase
+    )
     content.sound = .default
     content.interruptionLevel = .timeSensitive
     content.categoryIdentifier = Self.categoryIdentifier

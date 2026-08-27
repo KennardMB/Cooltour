@@ -163,6 +163,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
       id: UUID(),
       siteSlug: site.slug,
       siteName: site.name,
+      districtName: site.districtName,
       storySlug: story.slug,
       storyTitle: story.title,
       directionPhrase: directionPhrase,
@@ -180,7 +181,8 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
     // - Single-click / squeeze: "Play Now"
     // - Double-click / double-squeeze: "Add to Queue"
     remoteControl.arm(
-      title: story.title,
+      title: site.name,
+      artist: site.districtName,
       onPlay: { [weak self] in
         self?.accept(promptID: id)
       },
@@ -201,6 +203,7 @@ final class ConsentNarrationCoordinator: NarrationCoordinator {
       id: UUID(),
       siteSlug: site.slug,
       siteName: site.name,
+      districtName: site.districtName,
       storySlug: story.slug,
       storyTitle: story.title,
       directionPhrase: nil,

@@ -63,6 +63,7 @@ struct NotificationServiceTests {
     #expect(notifications.postedPrompts.count == 1)
     let posted = notifications.postedPrompts.first
     #expect(posted?.siteSlug == "pura-maospahit")
+    #expect(posted?.districtName == "Denpasar")
     #expect(posted?.storyTitle == "The Split Gate")
     #expect(notifications.withdrawnPromptIDs.isEmpty)
   }

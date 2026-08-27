@@ -23,6 +23,15 @@ enum ConsentStrings {
     return String(format: format, siteName)
   }
 
+  /// Banner subtitle (the second line). Place-first: district, not story title.
+  static func notificationBody(districtName: String, directionPhrase: String?) -> String {
+    let district = districtName.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let directionPhrase, !directionPhrase.isEmpty {
+      return district.isEmpty ? directionPhrase : "\(directionPhrase) · \(district)"
+    }
+    return district
+  }
+
   static func statusApproaching(siteName: String, languageCode: String) -> String {
     let format = languageCode == "id" ? "Mendekati %@" : "Approaching %@"
     return String(format: format, siteName)

@@ -66,7 +66,8 @@ struct ConsentNarrationCoordinatorTests {
     #expect(coordinator.pendingPrompt?.siteSlug == "pura-maospahit")
     #expect(voice.lastSpoken == "You're approaching Pura Maospahit. Press play to hear it.")
     #expect(remote.isArmed)
-    #expect(remote.armedTitle == "The Split Gate")
+    #expect(remote.armedTitle == "Pura Maospahit")
+    #expect(remote.armedArtist == "Denpasar")
     #expect(!audio.isPlaying)
   }
 

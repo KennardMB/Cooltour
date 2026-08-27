@@ -6,16 +6,19 @@ import Foundation
 final class MockConsentRemoteControl: ConsentRemoteControl {
   private(set) var isArmed = false
   private(set) var armedTitle: String?
+  private(set) var armedArtist: String?
   private var onPlay: (() -> Void)?
   private var onQueue: (() -> Void)?
 
   func arm(
     title: String,
+    artist: String,
     onPlay: @escaping () -> Void,
     onQueue: (() -> Void)? = nil
   ) {
     isArmed = true
     armedTitle = title
+    armedArtist = artist
     self.onPlay = onPlay
     self.onQueue = onQueue
   }
@@ -23,6 +26,7 @@ final class MockConsentRemoteControl: ConsentRemoteControl {
   func disarm() {
     isArmed = false
     armedTitle = nil
+    armedArtist = nil
     onPlay = nil
     onQueue = nil
   }

@@ -12,6 +12,7 @@ final class SystemConsentRemoteControl: ConsentRemoteControl {
 
   func arm(
     title: String,
+    artist: String,
     onPlay: @escaping () -> Void,
     onQueue: (() -> Void)? = nil
   ) {
@@ -44,7 +45,7 @@ final class SystemConsentRemoteControl: ConsentRemoteControl {
 
     nowPlaying.nowPlayingInfo = [
       MPMediaItemPropertyTitle: title,
-      MPMediaItemPropertyArtist: AppConfig.appName,
+      MPMediaItemPropertyArtist: artist,
     ]
   }
 
