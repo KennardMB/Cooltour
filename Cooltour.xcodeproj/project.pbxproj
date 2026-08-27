@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B41EC5F4303E9CC80014458E /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* Lottie */; };
+		0C4FD880303E9D7100A08348 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* Lottie */; };
 		W1000000000000000000000F /* Cooltour Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = W10000000000000000000001 /* Cooltour Watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		W10000000000000000000010 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10000000000000000000011 /* WatchConnectivity.framework */; };
 		W10000000000000000000012 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10000000000000000000011 /* WatchConnectivity.framework */; };
@@ -94,7 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B41EC5F4303E9CC80014458E /* Lottie in Frameworks */,
+				0C4FD880303E9D7100A08348 /* Lottie in Frameworks */,
 				W10000000000000000000010 /* WatchConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -475,6 +475,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Cooltour/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Walkaby;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Stories play the moment you walk up to a site, with the app in your pocket and the screen off. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Stories play automatically when you walk up to a nearby site. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -513,6 +514,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Cooltour/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Walkaby;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Stories play the moment you walk up to a site, with the app in your pocket and the screen off. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Stories play automatically when you walk up to a nearby site. Your location stays on your iPhone and is never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -590,7 +592,7 @@
 				DEVELOPMENT_TEAM = 325M9R8DH7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Cooltour;
+				INFOPLIST_KEY_CFBundleDisplayName = Walkaby;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Points toward the cultural site you are hearing about. Location stays on your Apple Watch and is never uploaded.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.challenge5.Cooltour;
@@ -624,7 +626,7 @@
 				DEVELOPMENT_TEAM = 325M9R8DH7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Cooltour;
+				INFOPLIST_KEY_CFBundleDisplayName = Walkaby;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Points toward the cultural site you are hearing about. Location stays on your Apple Watch and is never uploaded.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.challenge5.Cooltour;

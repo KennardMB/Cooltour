@@ -39,9 +39,10 @@ struct MyExplorationsView: View {
       .padding(.top, AppSpacing.sm)
       
       // Exploration Walk Cards List
+      let savedWalks = walks.filter { !$0.triggerEvents.isEmpty }
       ScrollView {
         VStack(spacing: 20) {
-          if walks.isEmpty {
+          if savedWalks.isEmpty {
             // Empty State (Figma Node 223:1498)
             VStack(spacing: 20) {
               Spacer(minLength: 20)
@@ -62,12 +63,18 @@ struct MyExplorationsView: View {
             .frame(maxWidth: .infinity)
             .padding(.top, 20)
           } else {
-            ForEach(Array(walks.enumerated()), id: \.element.id) { index, walk in
+            ForEach(Array(savedWalks.enumerated()), id: \.element.id) { index, walk in
               let events = walk.triggerEvents.sorted { $0.firedAt > $1.firedAt }
               let title = walkTitle(for: walk, events: events)
               let timeText = walk.startedAt.formatted(date: .omitted, time: .shortened)
               let dateText = walk.startedAt.formatted(date: .numeric, time: .omitted)
-              let theme = BinderCardTheme.forIndex(index)
+              let theme: BinderCardTheme = {
+                if let raw = walk.themeRawValue,
+                   let cultural = CulturalColorTheme(rawValue: raw) {
+                  return BinderCardTheme.fromCulturalColorTheme(cultural)
+                }
+                return BinderCardTheme.forIndex(index)
+              }()
               
               NavigationLink {
                 MyExplorationDetailsView(walk: walk)
@@ -94,12 +101,19 @@ struct MyExplorationsView: View {
   }
   
   private func walkTitle(for walk: Walk, events: [TriggerEvent]) -> String {
-    if events.isEmpty {
+    if let custom = walk.customTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !custom.isEmpty {
+      return custom
+    }
+    let chronological = events.sorted { $0.firedAt < $1.firedAt }
+    if chronological.isEmpty {
       return "Walk on \(walk.startedAt.formatted(date: .abbreviated, time: .omitted))"
     }
-    let siteNames = events.map(\.siteName)
+    let siteNames = chronological.map(\.siteName)
     let uniqueSites = Array(NSOrderedSet(array: siteNames)).compactMap { $0 as? String }
-    return uniqueSites.joined(separator: " · ")
+    if let first = uniqueSites.first, let last = uniqueSites.last, first != last {
+      return "\(first) - \(last)"
+    }
+    return uniqueSites.first ?? "Exploration walk"
   }
 }
 

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct RootView: View {
   @Environment(AppEnvironment.self) private var environment
-  @Environment(\.scenePhase) private var scenePhase
   @AppStorage("has_completed_onboarding") private var hasCompletedOnboarding: Bool = false
 
   @State private var isShowingSplash: Bool = true
@@ -17,29 +16,34 @@ struct RootView: View {
         NowView()
       }
 
-      // Animated Splash Screen Overlay (Launch only)
+      // Animated Splash Screen Overlay (Cold Launch only)
       if isShowingSplash {
         SplashScreenView()
           .transition(.opacity)
           .zIndex(999)
       }
     }
-    // Walking mode, not the app appearing, is what starts listening now (Slice 11). A walk that
-    // was on when the app was last quit resumes on launch; otherwise the app stays silent until
-    // the user turns walking mode on.
+    // Walking mode, not the app appearing, is what starts listening now (Slice 11).
     .onAppear {
       triggerSplash()
       if environment.settings.walkingMode {
         environment.proximity.start()
       }
     }
+    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+      environment.history.stopWalk()
+      environment.settings.walkingMode = false
+      UserDefaults.standard.set(false, forKey: AppConfig.walkingModeKey)
+      environment.proximity.stop()
+      environment.audio.stop()
+    }
     .onChange(of: environment.settings.walkingMode) { _, isOn in
       if isOn {
         environment.proximity.start()
       } else {
         environment.proximity.stop()
-        // Queue is walk-scoped — turning walking mode off drops anything she saved for later.
-        environment.storyQueue.clear()
+        // Walk list is walk-scoped — turning walking mode off drops anything she saved for later.
+        environment.playlist.clear()
         // Cancel open consent + wayfinding so Watch / Now don't keep a dead prompt (Slice 18).
         environment.narration.cancelSession()
       }

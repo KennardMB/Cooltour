@@ -11,10 +11,13 @@ struct MyExplorationDetailsView: View {
   @State private var walkTitle: String
   @State private var selectedTheme: CulturalColorTheme = .blue
   @State private var isEditingTitle: Bool = false
+  /// Replay on this screen is view-scoped. If we started playback, leaving must stop it
+  /// so the story does not keep playing in the global player / miniplayer.
+  @State private var ownsPlayback: Bool = false
   
   init(walk: Walk) {
     self.walk = walk
-    // Initialize default walk title
+    // Prefer a user-edited title; otherwise first–last visited site ("SiteA - SiteD").
     let events = walk.triggerEvents.sorted { $0.firedAt < $1.firedAt }
     let defaultTitle: String
     if events.isEmpty {
@@ -22,9 +25,22 @@ struct MyExplorationDetailsView: View {
     } else {
       let names = events.map(\.siteName)
       let unique = Array(NSOrderedSet(array: names)).compactMap { $0 as? String }
-      defaultTitle = unique.joined(separator: " · ")
+      if let first = unique.first, let last = unique.last, first != last {
+        defaultTitle = "\(first) - \(last)"
+      } else {
+        defaultTitle = unique.first ?? "Exploration walk"
+      }
     }
-    _walkTitle = State(initialValue: defaultTitle)
+    if let custom = walk.customTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !custom.isEmpty {
+      _walkTitle = State(initialValue: custom)
+    } else {
+      _walkTitle = State(initialValue: defaultTitle)
+    }
+    if let raw = walk.themeRawValue, let theme = CulturalColorTheme(rawValue: raw) {
+      _selectedTheme = State(initialValue: theme)
+    } else {
+      _selectedTheme = State(initialValue: .blue)
+    }
   }
   
   var body: some View {
@@ -34,6 +50,7 @@ struct MyExplorationDetailsView: View {
           // 1. Top Navigation Bar (Back + Edit Buttons)
           HStack {
             Button {
+              stopOwnedPlayback()
               dismiss()
             } label: {
               AppIcon(.chevronLeft, size: 24)
@@ -76,6 +93,9 @@ struct MyExplorationDetailsView: View {
               
               // C. Exploration Summary Badges
               let placesCount = max(1, walk.triggerEvents.count)
+              // Future development — Exploration Badge Distance:
+              // Placeholder only (places × 0.7 km). Replace with real distance
+              // (sum consecutive unique site coordinates, or a recorded GPS path).
               let distanceEstimate = Double(placesCount) * 0.7
               ExplorationSummaryStats(
                 placesVisitedCount: placesCount,
@@ -83,12 +103,12 @@ struct MyExplorationDetailsView: View {
               )
               .padding(.horizontal, AppSpacing.lg)
               
-              // D. Audio Queue Timeline (Sequential from first to last trigger)
-              let sortedEvents = walk.triggerEvents.sorted { $0.firedAt < $1.firedAt }
-              if !sortedEvents.isEmpty {
+              // D. Audio Queue Timeline — one row per site, earliest trigger only.
+              let timelineEvents = uniqueTimelineEvents()
+              if !timelineEvents.isEmpty {
                 VStack(spacing: 0) {
-                  ForEach(Array(sortedEvents.enumerated()), id: \.element.id) { index, event in
-                    let isLast = index == sortedEvents.count - 1
+                  ForEach(Array(timelineEvents.enumerated()), id: \.element.id) { index, event in
+                    let isLast = index == timelineEvents.count - 1
                     let site = env.content.allSites().first(where: { $0.slug == event.siteSlug })
                     let story = site?.stories.first(where: { $0.slug == event.storySlug })
                     let isThisStoryPlaying = isPlaying && currentStory?.slug == story?.slug
@@ -98,13 +118,14 @@ struct MyExplorationDetailsView: View {
                       storyTitle: event.storyTitle,
                       snippet: story?.transcript(for: env.settings.audioLanguage) ?? "",
                       isPlaying: isThisStoryPlaying,
+                      isFirst: index == 0,
                       isLast: isLast,
                       onPlayToggle: {
                         if let story {
                           if isThisStoryPlaying {
                             env.audio.pause()
-                          } else {
-                            env.audio.play(story: story)
+                          } else if env.audio.play(story: story) {
+                            ownsPlayback = true
                           }
                         }
                       }
@@ -133,11 +154,38 @@ struct MyExplorationDetailsView: View {
             onSave: { newTitle, newTheme in
               walkTitle = newTitle
               selectedTheme = newTheme
+              env.history.updateExploration(
+                walk: walk,
+                customTitle: newTitle,
+                themeRawValue: newTheme.rawValue
+              )
             }
           )
         }
       }
     }
+    .onDisappear {
+      stopOwnedPlayback()
+    }
+  }
+
+  private func stopOwnedPlayback() {
+    guard ownsPlayback else { return }
+    env.audio.stop()
+    ownsPlayback = false
+  }
+  
+  /// Chronological unique sites for the timeline — repeats of the same site keep the earliest trigger.
+  private func uniqueTimelineEvents() -> [TriggerEvent] {
+    let sorted = walk.triggerEvents.sorted { $0.firedAt < $1.firedAt }
+    var seen = Set<String>()
+    var unique: [TriggerEvent] = []
+    for event in sorted {
+      guard !seen.contains(event.siteSlug) else { continue }
+      seen.insert(event.siteSlug)
+      unique.append(event)
+    }
+    return unique
   }
   
   private func visitedSiteInfos() -> [(name: String, imageAssetName: String?)] {
@@ -161,83 +209,6 @@ struct MyExplorationDetailsView: View {
     }
     
     return result
-  }
-}
-
-// MARK: - Timeline Story Row Component
-
-private struct TimelineStoryRow: View {
-  let siteName: String
-  let storyTitle: String
-  let snippet: String
-  let isPlaying: Bool
-  let isLast: Bool
-  let onPlayToggle: () -> Void
-  
-  var body: some View {
-    HStack(alignment: .top, spacing: 14) {
-      // Timeline indicator (Node dot + connecting dashed line)
-      VStack(spacing: 0) {
-        ZStack {
-          Circle()
-            .fill(isPlaying ? AppColor.Brand.primary : AppColor.Background.pure)
-            .frame(width: 18, height: 18)
-            .overlay(
-              Circle()
-                .strokeBorder(AppColor.Brand.primary, lineWidth: isPlaying ? 0 : 2)
-            )
-        }
-        .padding(.top, 24)
-        
-        if !isLast {
-          Rectangle()
-            .fill(AppColor.Brand.primary.opacity(0.35))
-            .frame(width: 2)
-            .frame(maxHeight: .infinity)
-        }
-      }
-      .frame(width: 24)
-      
-      // Story Card
-      HStack(alignment: .center, spacing: AppSpacing.sm) {
-        VStack(alignment: .leading, spacing: 4) {
-          Text(siteName)
-            .font(.custom(AppTextStyle.customFontPostScriptName, size: 18))
-            .foregroundStyle(isPlaying ? AppColor.Brand.primary : AppColor.Text.primary)
-            .lineLimit(1)
-          
-          if !snippet.isEmpty {
-            Text(snippet)
-              .appFont(.label, color: AppColor.Text.secondary)
-              .lineLimit(2)
-              .multilineTextAlignment(.leading)
-          }
-        }
-        
-        Spacer(minLength: 8)
-        
-        Button {
-          onPlayToggle()
-        } label: {
-          AppIcon(isPlaying ? .pause : .play, size: 40)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(isPlaying ? "Pause story" : "Play story")
-      }
-      .padding(.horizontal, 14)
-      .padding(.vertical, 14)
-      .background(AppColor.Background.pure)
-      .clipShape(RoundedRectangle(cornerRadius: AppRadius.standard))
-      .overlay(
-        RoundedRectangle(cornerRadius: AppRadius.standard)
-          .strokeBorder(
-            isPlaying ? AppColor.Brand.primary : AppColor.Background.border,
-            lineWidth: isPlaying ? 2 : 1
-          )
-      )
-      .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
-      .padding(.bottom, 12)
-    }
   }
 }
 

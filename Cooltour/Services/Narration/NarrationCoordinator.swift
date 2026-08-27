@@ -37,4 +37,7 @@ protocol NarrationCoordinator: AnyObject, Observable {
 
   /// Bridge / leave-radius path: drop the arrow target without touching playback.
   func clearWayfindingTarget()
+
+  /// Carousel swipe: move playhead and start that story from 0:00.
+  func selectPlaylistIndex(_ index: Int)
 }
